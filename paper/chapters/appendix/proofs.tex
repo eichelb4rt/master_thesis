@@ -1,5 +1,38 @@
 \chapter{Proofs}
 
+Proof that expanding the matrix multiplication in a neural network results in an exponentially big term in terms of the width of the skipped layer of the neural network:
+
+Given: fully connected neural network with 2 layers ($n \rightarrow m \rightarrow l$ neurons), ReLU Activations, maps inputs $x \in \R^n$ to outputs $y \in R^l$, with parameters $A^{(0)} \in \R^{m \times n}, A^{(1)} \in \R^{l \times m}, b^{(0)} \in \R^m, b^{(1)} \in \R^l$.
+Then the computation of the neural network is:
+
+$$y = \max(A^{(1)}\max(A^{(0)}x + b^{(0)}, 0) + b^{(1)}, 0)$$
+
+To reasonably work with matrix multiplication in the tropcial semiring, we can only view matrices with positive integer entries.
+Making the entries integers does not impact the strength of the neural network, because [...] (quote the paper).
+Now to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:
+$$\max(Ax + b, 0) = \max(A_+ x + b, A_- x) - A_- x$$
+where $A_+ = \max(A, 0), A_- = -\max(-A, 0)$ and therefore $A = A_+ - A_-$.
+
+This then computation of the can be expressed in the tropical semiring as follows:
+$$y_i = b_i \odot \bigodot\limits_{j = 1}^{n} x_j^{A_{ij}} \oplus 0$$
+However, for simplicity, we consider only the matrix multiplications and maximisations, because those already result in an exponential blow-up.
+\begin{align*}
+    y_i & = \bigodot\limits_{j = 1}^{m} \left(\bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk}} \oplus 0\right)^{A^{(1)}_{ij}} \oplus 0 \\
+        & = \bigodot\limits_{j = 1}^{m} \left(\bigodot\limits_{k = 1}^{n} x_k^{\odot (A^{(1)}_{ij} + A^{(0)}_{jk})} \oplus 0\right) \oplus 0 \\
+        & = 0 \oplus \bigoplus\limits_{J \in 2^{[m]}} \bigodot\limits_{j \in J} \bigodot\limits_{k = 1}^{n} x_k^{\odot (A^{(1)}_{ij} + A^{(0)}_{jk})} \odot \bigodot\limits_{j \in [m] \setminus J} 0\\
+        & = 0 \oplus \bigoplus\limits_{J \in 2^{[m]}} \bigodot\limits_{j \in J} \bigodot\limits_{k = 1}^{n} x_k^{\odot (A^{(1)}_{ij} + A^{(0)}_{jk})}
+\end{align*}
+where the second equality follows from the distributive law with standard addition and multiplication, which are tropical multiplication and power respectively;
+the third equality follows from the distributive law in the tropical semiring;
+the last equality follows from 0 being the neutral element for multiplication in the tropical semiring.
+
+This expression maximizes over a number of terms that grows exponentially in the width of the inner layer.
+Note how we could remove this exponential blow-up if $x$ could only be positive, because the biggest term would always be the one where $J = [m]$.
+We don't exactly know if this term can be further simplified, but the intuition says that it cannot, because the expressive power of neural networks lies in the amount of non-linear regions.
+(But because it is important to allow negative values in ReLU-activated networks, we can not find a shorter form of this.)
+
+
+
 \section{Some Proofs}
 
 \blindtext[1]
