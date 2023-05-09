@@ -11,26 +11,30 @@ To reasonably work with matrix multiplication in the tropcial semiring, we can o
 Making the entries integers does not impact the strength of the neural network, because [...] (quote the paper).
 Now to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:
 $$\max(Ax + b, 0) = \max(A_+ x + b, A_- x) - A_- x$$
-where $A_+ = \max(A, 0), A_- = -\max(-A, 0)$ and therefore $A = A_+ - A_-$.
+where $A_+ = \max(A, 0), A_- = \max(-A, 0)$ and therefore $A = A_+ - A_-$.
 
-This then computation of the can be expressed in the tropical semiring as follows:
-$$y_i = b_i \odot \bigodot\limits_{j = 1}^{n} x_j^{A_{ij}} \oplus 0$$
-However, for simplicity, we consider only the matrix multiplications and maximisations, because those already result in an exponential blow-up.
+This turns the network output into a tropical rational function (quote):
 \begin{align*}
-    y_i & = \bigodot\limits_{j = 1}^{m} \left(\bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk}} \oplus 0\right)^{A^{(1)}_{ij}} \oplus 0 \\
-        & = \bigodot\limits_{j = 1}^{m} \left(\bigodot\limits_{k = 1}^{n} x_k^{\odot (A^{(1)}_{ij} + A^{(0)}_{jk})} \oplus 0\right) \oplus 0 \\
-        & = 0 \oplus \bigoplus\limits_{J \in 2^{[m]}} \bigodot\limits_{j \in J} \bigodot\limits_{k = 1}^{n} x_k^{\odot (A^{(1)}_{ij} + A^{(0)}_{jk})} \odot \bigodot\limits_{j \in [m] \setminus J} 0\\
-        & = 0 \oplus \bigoplus\limits_{J \in 2^{[m]}} \bigodot\limits_{j \in J} \bigodot\limits_{k = 1}^{n} x_k^{\odot (A^{(1)}_{ij} + A^{(0)}_{jk})}
+    y & = \max(\overbrace{A^{(1)}_+ \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x)}^z + A^{(1)}_- A^{(0)}_+ x + b^{(1)}, \\
+      & \phantom{{} =} A^{(1)}_- \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x) + A^{(1)}_+ A^{(0)}_+ x)                 \\
+      & \phantom{{} =} -\left[A^{(1)}_- \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x) + A^{(1)}_+ A^{(0)}_+ x\right]
 \end{align*}
-where the second equality follows from the distributive law with standard addition and multiplication, which are tropical multiplication and power respectively;
-the third equality follows from the distributive law in the tropical semiring;
-the last equality follows from 0 being the neutral element for multiplication in the tropical semiring.
+We focus on the subexpression $z$, which makes the calculation a bit simpler, but keeps the point.
 
-This expression maximizes over a number of terms that grows exponentially in the width of the inner layer.
-Note how we could remove this exponential blow-up if $x$ could only be positive, because the biggest term would always be the one where $J = [m]$.
-We don't exactly know if this term can be further simplified, but the intuition says that it cannot, because the expressive power of neural networks lies in the amount of non-linear regions.
-(But because it is important to allow negative values in ReLU-activated networks, we can not find a shorter form of this.)
+Now if we want to avoid the switch of semirings, we need to apply the distributive law a bunch of times.
+\begin{align*}
+    z   & = A^{(1)}_+ \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x)                                                                                                                                                                                                                                                                                                          \\
+    z_i & = \bigodot\limits_{j = 1}^{m}\left(b^{(0)}_j \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk+}} \oplus \bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk-}}\right)^{\odot A^{(1)}_{ij+}}                                                                                                                                                            \\
+        & = \bigodot\limits_{j = 1}^{m}\left(\left(b^{(0)}_j\right)^{\odot A^{(1)}_{ij+}} \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk+}\right)} \oplus \bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk-}\right)}\right)                                                                                     \\
+        & = \bigoplus\limits_{J \in 2^{[m]}} \bigodot\limits_{j \in J} \left[\left(b^{(0)}_j\right)^{\odot A^{(1)}_{ij+}} \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk+}\right)}\right] \odot \bigodot\limits_{j \in [n] \setminus J} \left[\bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk-}\right)}\right]
+\end{align*}
+Where the second equality is just the first equality written with the operations of the tropical semiring,
+the third equality follows from the distributive law with standard operations,
+and the last equality follows from the distributive law in the tropical semiring.
 
+This expression maximizes over a number of subexpressions that grows exponentially in the width of the inner layer.
+Which subexpressions can be removed before the evaluation remains an open question.
+Note that it depends on the non-linearities of the neural network, which might make it hard to find a general answer to this question.
 
 
 \section{Some Proofs}
