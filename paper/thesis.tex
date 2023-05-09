@@ -1,5 +1,133 @@
-\documentclass[11pt]{scrartcl}
+\documentclass[twoside, 12pt]{scrbook}
+
+\usepackage{blindtext}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[ddmmyyyy]{datetime}
+
+\usepackage[top=30mm, bottom=30mm, left=40mm, right=20mm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+
+\usepackage{graphicx}
+\usepackage[section]{placeins}
+\usepackage[table, dvipsnames]{xcolor}
+\usepackage{pdfpages}
+
+\usepackage{hyperref}
+\usepackage[labelfont=bf]{caption}
+
+\usepackage[round]{natbib}
+
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+
+\usepackage{amsmath}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% preamble
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\dateseparator}{.}
+\renewcommand*{\sectionmark}[1]{ \markright{\thesection\ ##1} }
+\renewcommand*{\chaptermark}[1]{ \markboth{\chaptername\ \thechapter: ##1}{} }
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[LO,RE]{}
+\fancyfoot{}
+\pagestyle{fancy}
+
+\definecolor{myblue}{RGB}{46, 59, 160}
+
+\graphicspath{{graphics/}}
+
+\hypersetup{
+	pdfstartpage=7,
+    pdfstartview = FitB,
+	pdfpagelayout=SinglePage,
+	pdftitle={Masterthesis},
+	pdfsubject={Masterthesis},
+	pdfauthor={Maurice Wenig},
+	pdfcreator={Maurice Wenig},
+	pdfproducer={Maurice Wenig},
+	pdfkeywords={meta, information, pdf, hyperref, latex},
+	colorlinks=true,
+	linkcolor=myblue,
+	citecolor=myblue
+}
+
+\bibliographystyle{unsrtnat}
+
+\newcommand*\justify{%
+  \hyphenchar\font=`\-% allowing hyphenation
+}
+
+\hyphenpenalty=5000
+\tolerance=5000
+
+% TODO: remove for digital version
+% \selectcolormodel{gray}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% main
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-replace me please
+
+\frontmatter
+\thispagestyle{empty}
+\begin{titlepage}
+	\centering
+	\vspace*{3cm}
+	\includegraphics{hanfried_logo.png}
+	\bigskip\\
+	\begin{LARGE}
+		\textbf{Exploring Einsum as a Universal Inference Language}
+	\end{LARGE}
+	\vspace{2cm}\\
+	\begin{Large}
+		\textbf{Master's Thesis}
+	\end{Large}\vspace{3mm}\\
+	\begin{large}
+		\begin{spacing}{1.6}
+			\textbf{zur Erlangung des akademischen Grades}\\
+			Master of Science (M.Sc.)\\
+			im Studiengang Informatik\vspace{3mm}\\
+			\textbf{Friedrich-Schiller-Universität Jena\\
+				Fakultät für Mathematik und Informatik}\vspace{3mm}\\
+			\textbf{von} Maurice Wenig \textbf{geboren am} 11.08.1999 \textbf{in} Jena\\
+			\textbf{Betreuer:} Dr. Julien Klaus, Prof. Dr. Joachim Giesen
+		\end{spacing}
+	\end{large}
+\end{titlepage}
+\cleardoublepage
+
+\input{chapters/abstract.tex}
+% TODO: maybe add a table of symbols, abbreviations, etc.?
+\setcounter{tocdepth}{1}
+\tableofcontents
+
+
+\mainmatter
+\fancyhead[LO,RE]{\itshape\nouppercase\leftmark}
+\input{chapters/intro/main.tex}
+\input{chapters/methods/main.tex}
+\input{chapters/results/main.tex}
+\input{chapters/discussion/main.tex}
+\input{chapters/conclusion.tex}
+\typeout{}
+
+
+\backmatter
+\bibliography{literature}
+\listoffigures
+\listoftables
+\appendix
+\input{chapters/appendix/main.tex}
+
 \end{document}
