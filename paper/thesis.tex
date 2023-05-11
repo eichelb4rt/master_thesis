@@ -1,4 +1,4 @@
-\documentclass[twoside, 12pt]{scrbook}
+\documentclass[twoside, fontsize=12pt, parskip=half-]{scrbook}
 
 \usepackage{blindtext}
 
@@ -29,6 +29,11 @@
 \usepackage{adjustbox}
 
 \usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+% combat weird space between paragraphs and stuff
+% \usepackage[bottom]{footmisc}
+% \usepackage{flafter}
+% \usepackage[skip=0pt, indent]{parskip}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % preamble
@@ -70,6 +75,10 @@
 \hyphenpenalty=5000
 \tolerance=5000
 
+% \setparsizes{1em}{0.25\baselineskip plus .25\baselineskip}{1em plus 1fil}
+\raggedbottom
+
+
 % TODO: remove for digital version
 % \selectcolormodel{gray}
 
@@ -78,6 +87,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \def\R{\mathbb{R}}
+\def\T{\top}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % main

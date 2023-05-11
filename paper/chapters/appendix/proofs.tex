@@ -1,14 +1,13 @@
 \chapter{Proofs}
-
 Proof that expanding the matrix multiplication in a neural network results in an exponentially big term in terms of the width of the skipped layer of the neural network:
 
 Given: fully connected neural network with 2 layers ($n \rightarrow m \rightarrow l$ neurons), ReLU Activations, maps inputs $x \in \R^n$ to outputs $y \in R^l$, with parameters $A^{(0)} \in \R^{m \times n}, A^{(1)} \in \R^{l \times m}, b^{(0)} \in \R^m, b^{(1)} \in \R^l$.
 Then the computation of the neural network is:
-
 $$y = \max(A^{(1)}\max(A^{(0)}x + b^{(0)}, 0) + b^{(1)}, 0)$$
 
 To reasonably work with matrix multiplication in the tropcial semiring, we can only view matrices with positive integer entries.
 Making the entries integers does not impact the strength of the neural network, because [...] (quote the paper).
+
 Now to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:
 $$\max(Ax + b, 0) = \max(A_+ x + b, A_- x) - A_- x$$
 where $A_+ = \max(A, 0), A_- = \max(-A, 0)$ and therefore $A = A_+ - A_-$.
@@ -36,7 +35,42 @@ This expression maximizes over a number of subexpressions that grows exponential
 Which subexpressions can be removed before the evaluation remains an open question.
 Note that it depends on the non-linearities of the neural network, which might make it hard to find a general answer to this question.
 
+\section{General Einsum Stuff}
+Nested einsum expressions in the same semiring can be combined into one smaller einsum expression.
 
-\section{Some Proofs}
+(proof: basically distributive law.)
+Let $R = (M, \oplus, \odot)$ be a semiring, and $f: M \rightarrow M, g: M \rightarrow M$
+
+\section{Expressing Stuff as Einsum}
+
+Fully connected Feed-Forward Neural Net with ReLU activations (1 layer) $\nu: \R^n \rightarrow \R^m$ with weights $A \in \R^{m \times n}$ and biases $b \in \R^m$, input $x \in \R^n$
+\setlist{nolistsep}
+\begin{itemize}[noitemsep]
+    \item $(\text{einsum\_expression})_{R}$ indicates that the einsum expression uses the semiring $R$
+    \item $R_{(+, \cdot)}$ indicates the standard semiring
+    \item $R_{(\max, +)}$ indicates the tropical semiring
+    \item $R_{(\min, \max)}$ indicates the minimax semiring
+\end{itemize}
+\begin{align*}
+    \nu(x) & = \max(Ax + b, 0)                                                                                                                  \\
+           & = (i,i\rightarrow i, 0, (i,i \rightarrow i, b, (ij, j \rightarrow i, A, x)_{R_{(+, \cdot)}} )_{R_{(\max, +)}} )_{R_{(\min, \max)}}
+\end{align*}
+
+Attention with einsum:
+\begin{align*}
+    (QK^\T)_{ij}              & = \sum\limits_{k} Q_{ik} K_{jk}                                                                                                                       \\
+    QK^\T                     & = (ik, jk \rightarrow ij, Q, K)                                                                                                                       \\
+    \text{softmax}(X)_{ij}    & = \frac{\exp(X_{ij})}{\sum\limits_{j'} \exp(X_{ij'})}                                                                                                 \\
+                              & = \exp(X_{ij}) \cdot \sum\limits_{j'} \exp(-X_{ij'})                                                                                                  \\
+    \text{softmax}(X)         & = (ij, i \rightarrow ij, \exp(X), (ij \rightarrow i, \exp(-X)))                                                                                       \\
+    (XV)_{ij}                 & = \sum\limits_{k} X_{ik} V_{kj}                                                                                                                       \\
+    XV                        & = (ik, kj \rightarrow ij, X, V)                                                                                                                       \\
+    \text{Attention}(Q, K, V) & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                                                               \\
+                              & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                                      \\
+                              & \phantom{{}= (ik, kj \rightarrow ij, (ij, i \rightarrow ij,} (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V) \\
+                              & = (ik, i, kj \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                                                          \\
+                              & \phantom{{}= (ik, i, kj \rightarrow ij,} (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))),                         \\
+                              & \phantom{{}= (ik, i, kj \rightarrow ij,} V)
+\end{align*}
 
 \blindtext[1]
