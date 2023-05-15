@@ -1,0 +1,41 @@
+\section{Einsum}
+
+What's einsum?
+
+Let $S$ be a collection of symbols that correspond to non-empty sets of tensor axes.
+For $i \in [n]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with axis symbols $s^{(i)} \in S^{d^{(i)}}$ for their unique axes $a^{(i)}_j \in \mathcal{N}$.
+The actual value of $a^{(i)}_j$ does not matter. These variables are just used as a unique identifier for the axes so that the definition is more rigorous.
+
+The size of the tensor $T^{(i)}$ on the axis $a^{(i)}_j$ is denoted as $d^{(i)}_j$ for $j \in [d_i]$.
+For this definition it must hold that $s^{(i)}_j = s^{(i')}_{j'} \implies d^{(i)}_j = d^{(i')}_{j'}$ for all $i,i' \in [n], j \in [d^{(i)}], j' \in [d^{(i')}]$.
+This means that the set of axes that a symbol $s \in S$ corresponds to, must all have the same size.
+
+Therefore we can also denote the size of the axes that a symbol $s \in S$ corresponds to as $d_s := d^{(i)}_j$ for all $i \in [n], j \in [d^{(i)}]$ with $s = s^{(i)}_j$.
+Note that not all same size axes have to assigned the same symbol. E.g. with $S = \set{i,j}$, a square matrix $T^{(1)}$ could have axes $s^{(1)} = (i, i)$ or $s^{(1)} = (i, j)$.
+
+Let $T^{(0)}$ be a $d^{(0)}$-th order tensor with axis symbols $s^{(0)} \in S^{d^{(0)}}$.
+This tensor will be the result of the computation.
+Its axis symbols decide which axes are kept and which axes will be summed over.
+The symbols $S$ are partitioned into bound symbols $B = \smallset{s \mid \exists j \in [d^{(0)}]: s^{(0)}_j = s}$ and  free symbols $F = S \setminus B$.
+We will keep all axes corresponding to symbols in $B$ and sum over all axes corresponding to symbols in $F$.
+
+Let $\mathcal{I} := \prod_{s \in B} [d_s]$ and $\mathcal{J} := \prod_{s \in F} [d_s]$.
+These will be the space of multi-indices which are iterated over.
+For $J \in \mathcal{J}, i \in [n]$, the projection of the multi-index over all tensors $J$ on the multi-index for tensor $T^{(i)}$ is denoted as $J:s^{(i)}$.
+For $I \in \mathcal{I}$, $I:s^{(0)}$ is defined analogously.
+
+Given a semiring $R = (M, \oplus, \odot)$. Then the einsum-notation denotes the following:
+\begin{align*}
+    T^{(0)}                                              & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})                   \\
+    \iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:s^{(i)}}
+\end{align*}
+if $F$ is non-empty. However, if there are no free symbols, we leave out the summation:
+\begin{align*}
+    T^{(0)}                                               & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)}) \\
+    :\iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:s^{(i)}}
+\end{align*}
+Because of the projection in the multi-index of the resulting tensor entry $T^{(0)}_{I: s^{(0)}}$, there might be entries of $T^{(0)}$ which are not defined.
+These can be set to an arbitrary value like 0.
+
+Note that duplicate entries in $s^{(i)}, i \in [n]$ will result in \dots\\
+and duplicate entries in $s^{(0)}$ will result in \dots
