@@ -1,7 +1,5 @@
 \section{Einsum}
 
-What's einsum?
-
 Let $S$ be a collection of symbols that correspond to non-empty sets of tensor axes.
 For $i \in [n]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with axis symbols $s^{(i)} \in S^{d^{(i)}}$ for their unique axes $a^{(i)}_j \in \mathcal{N}$.
 The actual value of $a^{(i)}_j$ does not matter. These variables are just used as a unique identifier for the axes so that the definition is more rigorous.
@@ -26,8 +24,8 @@ For $I \in \mathcal{I}$, $I:s^{(0)}$ is defined analogously.
 
 Given a semiring $R = (M, \oplus, \odot)$. Then the einsum-notation denotes the following:
 \begin{align*}
-    T^{(0)}                                              & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})                   \\
-    \iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:s^{(i)}}
+    T^{(0)}                                               & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})                   \\
+    :\iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:s^{(i)}}
 \end{align*}
 if $F$ is non-empty. However, if there are no free symbols, we leave out the summation:
 \begin{align*}
@@ -39,3 +37,18 @@ These can be set to an arbitrary value like 0.
 
 Note that duplicate entries in $s^{(i)}, i \in [n]$ will result in \dots\\
 and duplicate entries in $s^{(0)}$ will result in \dots
+
+\subsection{Examples}
+
+\begin{itemize}
+    \item matrix matrix multiplication\dots
+    \item matrix vector multiplication\dots
+    \item trace\dots
+    \item frobenius norm\dots
+    \item diagonal matrix\dots
+\end{itemize}
+
+\subsection{Nested Einsum Expressions}
+
+Einsum expressions can be nested, but all nested expressions can also be written with simple replacements:
+$$\dots$$
