@@ -50,5 +50,27 @@ and duplicate entries in $s^{(0)}$ will result in \dots
 
 \subsection{Nested Einsum Expressions}
 
+For $i \in [m + n]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with axis symbols $s^{(i)} \in S^{d^{(i)}}$.
+And let $T^{(x)}$ be a $d^{(x)}$-th order tensor with axis symbols $s^{(x)} \in S^{d^{(x)}}$
+Let
+$$T^{(0)} := (s^{(1)},\dots,s^{(m)}, s^{(x)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(x)})$$
+and
+$$T^{(x)} = (s^{(m + 1)},\dots,s^{(m + n)} \rightarrow s^{(x)}, T^{(m + 1)},\dots,T^{(m + n)})$$
+where the free symbols of the second einsum expression share no symbols with the first einsum expression.
+
+Then
+$$T^{(0)} = (s^{(1)}, \dots, s^{(m + n)} \rightarrow s^{(0)}, T^{(1)}, \dots, T^{(m + n)})$$
+
+Proof. W.l.o.g. the free symbols of the second einsum expression are non-empty.
+\begin{align*}
+    T^{(0)}                                              & = (s^{(1)},\dots,s^{(m)}, s^{(x)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(x)})                                                                                                             \\
+    \iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{J:s^{(i)}} \odot T^{(x)}_{J:s^{(x)}}                                                                                   \\
+                                                         & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m - 1} T^{(i)}_{J:s^{(i)}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{J:s^{(i')}} \\
+                                                         & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{J:s^{(i)}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{J:s^{(i)}}        \\
+                                                         & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m + n} T^{(i)}_{J:s^{(i)}}                                                                  \\
+    \iff T^{(0)}                                         & = (s^{(1)}, \dots, s^{(m + n)} \rightarrow s^{(0)}, T^{(1)}, \dots, T^{(m + n)})
+\end{align*}
+
+
 Einsum expressions can be nested, but all nested expressions can also be written with simple replacements:
 $$\dots$$
