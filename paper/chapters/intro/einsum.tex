@@ -40,7 +40,7 @@
     \end{align*}
 
     Note that duplicate entries in $s^{(i)}, i \in [n]$ will result in the expression iterating over the input tensors in a sort of \textit{diagonal} way.
-    Duplicate entries in $s^{(0)}$ will result in some entries of $T^{(0)}$ not being defined. These can be set to an arbitrary value like 0.
+    Duplicate entries in $s^{(0)}$ will result in some entries of $T^{(0)}$ not being defined. These are set to the additive neutral element of the semiring.
 
     In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
 \end{definition}
@@ -124,3 +124,24 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
         \iff T^{(0)}                                         & = (s^{(1)},\dots,s^{(m)}, \hat{s}^{(m + 1)}, \dots, \hat{s}^{(m + n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m + n)})
     \end{align*}
 \end{proof}
+
+\subsection{More Examples}
+With these theorems, we can write some more complex expressions as einsum.
+\begin{itemize}
+    \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+          \begin{align*}
+              \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
+                                  & = (ij,j,ij,j\rightarrow,A,v,A,v)
+          \end{align*}
+    \item trace of matrix-matrix multiplication: Let $A \in \R^{m \times n}, B \in \R^{n \times m}$. Then
+          \begin{align*}
+              \text{trace}(A \cdot B) & = (ii \rightarrow, (ik, kj \rightarrow ij, A, B)) \\
+                                      & = (ik, ki \rightarrow, A, B)
+          \end{align*}
+    \item The theorem for this still has to be shown \dots:
+          matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+          \begin{align*}
+              A \cdot \text{diag}(v) & = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v)) \\
+                                     & = (ij, j \rightarrow ij, A, v)                      \\
+          \end{align*}
+\end{itemize}
