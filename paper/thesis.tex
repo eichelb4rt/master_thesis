@@ -39,6 +39,10 @@
 % preamble
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% formatting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \renewcommand{\dateseparator}{.}
 \renewcommand*{\sectionmark}[1]{ \markright{\thesection\ ##1} }
 \renewcommand*{\chaptermark}[1]{ \markboth{\chaptername\ \thechapter: ##1}{} }
@@ -82,9 +86,21 @@
 % TODO: remove for digital version
 % \selectcolormodel{gray}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% math stuff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtheoremstyle{mythm}{}{5mm}{}{}{\bfseries}{}{0mm}
+{\thmname{#1}\thmnumber{ #2:} \thmnote{#3}}
+\theoremstyle{mythm}
+\newtheorem{theorem}{Theorem}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % definitions
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \def\R{\mathbb{R}}
 \def\T{\top}
