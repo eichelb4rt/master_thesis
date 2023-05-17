@@ -1,7 +1,7 @@
 \chapter{Proofs}
 Proof that expanding the matrix multiplication in a neural network results in an exponentially big term in terms of the width of the skipped layer of the neural network:
 
-Given: fully connected neural network with 2 layers ($n \rightarrow m \rightarrow l$ neurons), ReLU Activations, maps inputs $x \in \R^n$ to outputs $y \in R^l$, with parameters $A^{(0)} \in \R^{m \times n}, A^{(1)} \in \R^{l \times m}, b^{(0)} \in \R^m, b^{(1)} \in \R^l$.
+Given: fully connected neural network with two layers ($n \rightarrow m \rightarrow l$ neurons), ReLU Activations, maps inputs $x \in \R^n$ to outputs $y \in R^l$, with parameters $A^{(0)} \in \R^{m \times n}, A^{(1)} \in \R^{l \times m}, b^{(0)} \in \R^m, b^{(1)} \in \R^l$.
 Then the computation of the neural network is:
 $$y = \max(A^{(1)}\max(A^{(0)}x + b^{(0)}, 0) + b^{(1)}, 0)$$
 
@@ -20,7 +20,7 @@ This turns the network output into a tropical rational function (quote):
 \end{align*}
 We focus on the subexpression $z$, which makes the calculation a bit simpler, but keeps the point.
 
-Now if we want to avoid the switch of semirings, we need to apply the distributive law a bunch of times.
+Now if we want to avoid switching semirings, we need to apply the distributive law a bunch of times.
 \begin{align*}
     z   & = A^{(1)}_+ \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x)                                                                                                                                                                                                                                                                                                          \\
     z_i & = \bigodot\limits_{j = 1}^{m}\left(b^{(0)}_j \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk+}} \oplus \bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk-}}\right)^{\odot A^{(1)}_{ij+}}                                                                                                                                                            \\

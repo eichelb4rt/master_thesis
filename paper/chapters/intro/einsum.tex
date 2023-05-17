@@ -1,20 +1,76 @@
 \section{Einsum}
-\begin{definition}
-    Let $S$ be a collection of symbols that correspond to non-empty sets of tensor axes.
-    For $i \in [n]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with axis symbols $s^{(i)} \in S^{d^{(i)}}$ for their unique axes $a^{(i)}_j \in \mathcal{N}$.
-    The actual value of $a^{(i)}_j$ does not matter. These variables are just used as a unique identifier for the axes so that the definition is more rigorous.
+Given two third-order tensor $A \in \R^{3 \times 4 \times 5}, B \in \R^{3 \times 3 \times 5}$ and a vector $v \in \R^4$.
+Consider the following computation for a matrix $C \in \R^{3 \times 3}$:
+$$\forall i \in [3]: \forall j \in [3]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j.$$
+This can be written in a much shorter form with einsum:
+$$C = (ijk, iik, j \rightarrow ij, A, B, v)$$
 
-    The size of the tensor $T^{(i)}$ on the axis $a^{(i)}_j$ is denoted as $d^{(i)}_j$ for $j \in [d_i]$.
-    For this definition it must hold that $s^{(i)}_j = s^{(i')}_{j'} \implies d^{(i)}_j = d^{(i')}_{j'}$ for all $i,i' \in [n], j \in [d^{(i)}], j' \in [d^{(i')}]$.
+Through the following definition, we hope to clear up why this einsum expression results in the computation above,
+and what computation a general einsum expression results in.
+
+\begin{definition}
+    Einsum expressions generally evaluate to some computation over tensors, so let $T^{(1)},\dots,T^{(n)}$ be our input tensors,
+    where $T^{(i)}$ is a $n_i$-th order tensor for $i \in [n]$.
+    The core of the einsum expression are index strings. For this, we first need a collection of symbols $S$.
+    The respective index string for a tensor $T^{(i)}$ is then just a tuple $\bm{s_i} \in S^{n_i}$,
+    composed of symbols $s_{ij} \in S$ for $j \in [n_i]$.
+    We refer to the index string that is right of the arrow ($\rightarrow$) as $\bm{s_t}$.
+
+    In our example this could be $S = \smallset{i,j,k}$ with respective index strings
+    $\bm{s_1} = ijk$ for $T^{(1)} = A$,
+    $\bm{s_2} = iik$ for $T^{(2)} = B$,
+    $\bm{s_3} = j$ for $T^{(3)} = v$,
+    and $\bm{s_t} = ij$.
+    The individual symbols are $s_{11} = i$, $s_{12} = j$, $s_{13} = k$, $s_{12} = i$, $s_{22} = i$, $s_{23} = k$, $s_{31} = j$, $s_{t1} = i$, $s_{t2} = j$.
+
+    In order to refer to individual tensor axes, let us numerate them with $a_{ij} \in \mathbb{N}$,
+    where $a_{ij}$ denotes the $j$-th axis of the tensor $i$-th tensor $T^{(i)}$.
+    The actual value of $a_{ij}$ does not matter.
+    These variables are just used as unique identifiers for the axes.
+
+    The next step in the definition is to speak about the axis sizes.
+    If we want to iterate over shared indices, it would be nice if the axes, that these indices are used for, share the same size.
+    In our example, $A_{ijk}$ and $v_j$ share the symbol $s_{12} = s_{31} = j$.
+    This means that the respective axes $a_{12}$ and $a_{31}$ have to have the same size, which happens to be 4 (four?).
+    Let us express this formally.
+
+    Let $d_{ij}$ denote the size of the axis $a_{ij}$ for $i \in [n], j \in [n_i]$.
+    Then it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
+
+    Therefore we can also denote the size of all axes that a symbol $s \in S$ corresponds to as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
+    Note that not all same size axes have to assigned the same symbol. E.g. a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
+
+    The next step of the definition is figuring out which symbols are used for summation and which symbols are used for saving the result of the computation.
+    In order to do this, it is useful to know which symbols are in an index string, because symbols can occur more than once in just one index string (as seen in $B_{iik}$ in our example).
+    Therefore, let $\sigma(\bm{s})$ denote the set with all symbols used in an index string $\bm{s}$.
+    E.g. $\sigma(\bm{s_2}) = \sigma(iik) = \smallset{ik}$.
+
+    All symbols that are present in \dots
+
+    It follows from this, that $d_s$ has to be defined for all symbols $s \in \bm{s_t}$.
+    This means we have to add the constraint $\sigma(\bm{s_t}) \subseteq \bigcup_{i \in [n]} \sigma(\bm{s_i})$.
+
+    \hrule
+
+    Let $S$ be a collection of symbols that correspond to non-empty sets of tensor axes.
+    For $i \in [n]$, let $T^{(i)}$ be a $n_i$-th order tensor with axis symbols $s_{ij} \in S$ for their unique axes $a_{ij} \in \mathbb{N}$.
+    The actual value of $a_{ij}$ does not matter. These variables are just used as a unique identifier for the axes so that the definition is more rigorous.
+    From the axis symbols we build the index string $\bm{s_i} \in S^{n_i}$ which consists of all the axis symbols in order.
+
+    The size of the tensor $T^{(i)}$ on the axis $a_{ij}$ is denoted as $d_{ij}$ for $j \in [n_i]$.
+    For this definition it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
     This means that the set of axes that a symbol $s \in S$ corresponds to, must all have the same size.
 
-    Therefore we can also denote the size of the axes that a symbol $s \in S$ corresponds to as $d_s := d^{(i)}_j$ for all $i \in [n], j \in [d^{(i)}]$ with $s = s^{(i)}_j$.
-    Note that not all same size axes have to assigned the same symbol. E.g. with $S = \set{i,j}$, a square matrix $T^{(1)}$ could have axes $s^{(1)} = (i, i)$ or $s^{(1)} = (i, j)$.
+    Therefore we can also denote the size of all axes that a symbol $s \in S$ corresponds to as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
+    Note that not all same size axes have to assigned the same symbol. E.g. with $S = \set{i,j}$, a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
 
-    Let $T^{(0)}$ be a $d^{(0)}$-th order tensor with axis symbols $s^{(0)} \in S^{d^{(0)}}$.
+    Let $\sigma(\bm{s})$ denote the set with all symbols used in the index string $\bm{s}$.
+    E.g. $\sigma(iijk) = \smallset{ijk}$.
+
+    Let $T^{(0)}$ be a $d^{(0)}$-th order tensor with index string $s^{(0)} \in S^{d^{(0)}}$.
     This tensor will be the result of the computation.
-    Its axis symbols decide which axes are kept and which axes will be summed over.
-    The symbols $S$ are partitioned into bound symbols $B = \smallset{s^{(0)}_j \mid j \in [d^{(0)}]}$ and  free symbols $F = S \setminus B$.
+    Its index strings decide which axes are kept and which axes will be summed over.
+    The collection of symbols $S$ is partitioned into bound symbols $B = \smallset{s^{(0)}_j \mid j \in [d^{(0)}]}$ and  free symbols $F = S \setminus B$.
     We will keep all axes corresponding to symbols in $B$ and sum over all axes corresponding to symbols in $F$.
 
     Let $\mathcal{I} := \prod_{s \in B} [d_s]$ and $\mathcal{J} := \prod_{s \in F} [d_s]$.
@@ -24,6 +80,11 @@
     $I:s^{(0)}$ is defined analogously.
 
     Given a semiring $R = (M, \oplus, \odot)$. Then the einsum-notation denotes the following:
+    Given $\bm{s_t} \in S^{n_t}$ and
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    Then $T$ is a $n_t$-th order tensor with
+    $$\forall I \in \mathcal{I}: T_{I : \bm{s_t}} = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{IJ : \bm{s_i}}$$
+
     \begin{align*}
         T^{(0)}                                               & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})_R                  \\
         :\iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{IJ:s^{(i)}}
@@ -39,6 +100,7 @@
         :\iff T^{(0)} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:s^{(i)}}
     \end{align*}
 
+    Note how we would not need the projection $I:s^{(0)}$ if $s^{(0)}$ had no duplicate symbols, because \dots\\
     Note that duplicate entries in $s^{(i)}, i \in [n]$ will result in the expression iterating over the input tensors in a sort of \textit{diagonal} way.
     Duplicate entries in $s^{(0)}$ will result in some entries of $T^{(0)}$ not being defined. These are set to the additive neutral element of the semiring.
 
@@ -54,7 +116,7 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
           $$A \cdot B = (ik, kj \rightarrow ij, A, B)$$
     \item trace: Let $A \in \R^{n \times n}$. Then
           $$\text{trace}(A) = (ii \rightarrow, A)$$
-    \item squared frobenius norm: Let $A \in \R^{n \times n}$. Then
+    \item squared Frobenius norm: Let $A \in \R^{n \times n}$. Then
           $$\abs{A}_2^2 = (ij, ij \rightarrow,A,A)$$
     \item diagonal matrix: Let $v \in \R^{n}$. Then
           $$\text{diag}(v) = (i \rightarrow ii, v)$$
@@ -62,7 +124,7 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
 
 \subsection{Nested Einsum Expressions}
 \begin{theorem}
-    For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with axis symbols $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
+    For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with index strings $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
     Let
     $$T^{(0)} := (s^{(1)},\dots,s^{(m)}, s^{(x)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(o)})$$
     and
@@ -93,8 +155,8 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
 
 \subsection{A More General Result}
 \begin{theorem}
-    For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with axis symbols $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
-    Also let $\hat{s}^{(o)}$ be alternative axis symbols for $T^{(o)}$ with $s^{(o)}_j = s^{(o)}_{j'} \implies \hat{s}^{(o)}_j = \hat{s}^{(o)}_{j'}$ for all $j, j' \in [d^{(o)}]$.
+    For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with index strings $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
+    Also let $\hat{s}^{(o)}$ be alternative index strings for $T^{(o)}$ with $s^{(o)}_j = s^{(o)}_{j'} \implies \hat{s}^{(o)}_j = \hat{s}^{(o)}_{j'}$ for all $j, j' \in [d^{(o)}]$.
     Let
     $$T^{(0)} := (s^{(1)},\dots,s^{(m)}, \hat{s}^{(o)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(o)})$$
     and
