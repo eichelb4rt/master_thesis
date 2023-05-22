@@ -1,7 +1,7 @@
 \section{Einsum}
 Given two third-order tensor $A \in \R^{3 \times 4 \times 5}, B \in \R^{3 \times 3 \times 5}$ and a vector $v \in \R^4$.
 Consider the following computation for a matrix $C \in \R^{3 \times 3}$:
-$$\forall i \in [3]: \forall j \in [3]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j.$$
+$$\forall i \in [3]: \forall j \in [4]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j.$$
 This can be written in a much shorter form with einsum:
 $$C = (ijk, iik, j \rightarrow ij, A, B, v)$$
 
@@ -14,7 +14,7 @@ and what computation a general einsum expression results in.
     The core of the einsum expression are index strings. For this, we first need a collection of symbols $S$.
     The respective index string for a tensor $T^{(i)}$ is then just a tuple $\bm{s_i} \in S^{n_i}$,
     composed of symbols $s_{ij} \in S$ for $j \in [n_i]$.
-    We refer to the index string that is right of the arrow ($\rightarrow$) as $\bm{s_t}$.
+    We refer to the index string that is right of the arrow ($\rightarrow$) as the output string $\bm{s_t}$.
 
     In our example this could be $S = \smallset{i,j,k}$ with respective index strings
     $\bm{s_1} = ijk$ for $T^{(1)} = A$,
@@ -45,64 +45,53 @@ and what computation a general einsum expression results in.
     Therefore, let $\sigma(\bm{s})$ denote the set with all symbols used in an index string $\bm{s}$.
     E.g. $\sigma(\bm{s_2}) = \sigma(iik) = \smallset{ik}$.
 
-    All symbols that are present in \dots
+    All symbols to the right of the arrow ($\rightarrow$) are used as an index for the result of the computation.
+    These symbols are called \textit{bound} symbols $B = \sigma(\bm{s_t})$.
+    All other symbols used in the expression are called \textit{free} symbols $F = \bigcup_{i \in [n]} \sigma(\bm{s_i}) \setminus \sigma(\bm{s_t})$.
+    In einsum, we sum over all axes that belong to free symbols.
+    It follows that the multi-index space we iterate over is $\mathcal{I} = \prod_{s \in B} [d_s]$ and the multi-index space we sum over is $\mathcal{J} = \prod_{s \in F} [d_s]$.
+    In our example, the bound symbols are $B = \smallset{ij}$ and the free symbols are $F = \smallset{k}$.
+    The multi-index space we iterate over is $d_i \times d_j = [3] \times [4]$.
+    The multi-index space we sum over is $d_k = [5]$.
 
-    It follows from this, that $d_s$ has to be defined for all symbols $s \in \bm{s_t}$.
+    From the definition of $\mathcal{I}$, it follows that $d_s$ has to be defined for all symbols $s \in B$.
     This means we have to add the constraint $\sigma(\bm{s_t}) \subseteq \bigcup_{i \in [n]} \sigma(\bm{s_i})$.
 
-    \hrule
+    However, we do not use every symbol in the multi-index spaces to index every input tensor.
+    Instead, we use the index strings $\bm(s)$ to index the tensor.
+    To formally express this, we need a projection from a multi-index $IJ \in \mathcal{I} \times \mathcal{J}$ to another multi-index, which includes only the symbols used in $\bm{s}$,
+    in the same order as present in $\bm{s}$.
+    We denote this as $IJ:\bm{s}$.
+    Notice how this still allows duplication of indices given in $IJ$.
+    This is needed, as can be seen in our example for $B_{iik}$,
+    where a multi-index, e.g. $(1,4,2) \in \mathcal{I} \times \mathcal{J}$, is projected on the index string $iik$,
+    which results in the multi-index $(1,4,2):iik = (1,1,2)$.
 
-    Let $S$ be a collection of symbols that correspond to non-empty sets of tensor axes.
-    For $i \in [n]$, let $T^{(i)}$ be a $n_i$-th order tensor with axis symbols $s_{ij} \in S$ for their unique axes $a_{ij} \in \mathbb{N}$.
-    The actual value of $a_{ij}$ does not matter. These variables are just used as a unique identifier for the axes so that the definition is more rigorous.
-    From the axis symbols we build the index string $\bm{s_i} \in S^{n_i}$ which consists of all the axis symbols in order.
-
-    The size of the tensor $T^{(i)}$ on the axis $a_{ij}$ is denoted as $d_{ij}$ for $j \in [n_i]$.
-    For this definition it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
-    This means that the set of axes that a symbol $s \in S$ corresponds to, must all have the same size.
-
-    Therefore we can also denote the size of all axes that a symbol $s \in S$ corresponds to as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
-    Note that not all same size axes have to assigned the same symbol. E.g. with $S = \set{i,j}$, a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
-
-    Let $\sigma(\bm{s})$ denote the set with all symbols used in the index string $\bm{s}$.
-    E.g. $\sigma(iijk) = \smallset{ijk}$.
-
-    Let $T^{(0)}$ be a $d^{(0)}$-th order tensor with index string $s^{(0)} \in S^{d^{(0)}}$.
-    This tensor will be the result of the computation.
-    Its index strings decide which axes are kept and which axes will be summed over.
-    The collection of symbols $S$ is partitioned into bound symbols $B = \smallset{s^{(0)}_j \mid j \in [d^{(0)}]}$ and  free symbols $F = S \setminus B$.
-    We will keep all axes corresponding to symbols in $B$ and sum over all axes corresponding to symbols in $F$.
-
-    Let $\mathcal{I} := \prod_{s \in B} [d_s]$ and $\mathcal{J} := \prod_{s \in F} [d_s]$.
-    These will be the space of multi-indices which we iterate over.
-    For $I \in \mathcal{I}, J \in \mathcal{J}$, the concatenation of the indices is denoted as $IJ$.
-    The projection of the multi-index over all tensors $IJ$ on the multi-index for tensor $T^{(i)}$ is denoted as $IJ:s^{(i)}$.
-    $I:s^{(0)}$ is defined analogously.
-
-    Given a semiring $R = (M, \oplus, \odot)$. Then the einsum-notation denotes the following:
-    Given $\bm{s_t} \in S^{n_t}$ and
+    In our example, we used the standard sum and multiplication as operators for computing our result.
+    But with einsum, we allow the more general use of any semiring $R = (M, \oplus, \odot)$.
+    With this, we can finally write down what computation a general einsum expression
     $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
-    Then $T$ is a $n_t$-th order tensor with
-    $$\forall I \in \mathcal{I}: T_{I : \bm{s_t}} = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{IJ : \bm{s_i}}$$
+    results in. It means that $T$ is a $\abs{\bm{s_t}}$-th order tensor with
+    $$\forall I \in \mathcal{I}: T_{I: \bm{s_t}} = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{IJ:\bm{s_t}}$$
 
-    \begin{align*}
-        T^{(0)}                                               & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})_R                  \\
-        :\iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{IJ:s^{(i)}}
-    \end{align*}
-    if $B,F$ are non-empty. However, if there are no free symbols, the summation is removed:
-    \begin{align*}
-        T^{(0)}                                               & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})_R \\
-        :\iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigodot\limits_{i = 1}^{n} T^{(i)}_{IJ:s^{(i)}}
-    \end{align*}
-    If there are no bound symbols, then $s^{(0)}$ is empty and $T^{(0)}$ is a scalar:
-    \begin{align*}
-        T^{(0)}       & = (s^{(1)},\dots,s^{(n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(n)})_R                 \\
-        :\iff T^{(0)} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:s^{(i)}}
-    \end{align*}
+    Because we also project the indices $I$ on the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
+    e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
+    This leaves some entries of the result undefined.
+    We define these entries to be the additive neutral element $\mymathbb{0}$ in the given semiring $R$.
+    This may sound arbitrary at first, but will be useful for later theorems.
 
-    Note how we would not need the projection $I:s^{(0)}$ if $s^{(0)}$ had no duplicate symbols, because \dots\\
-    Note that duplicate entries in $s^{(i)}, i \in [n]$ will result in the expression iterating over the input tensors in a sort of \textit{diagonal} way.
-    Duplicate entries in $s^{(0)}$ will result in some entries of $T^{(0)}$ not being defined. These are set to the additive neutral element of the semiring.
+    There are still some special case which need to be considered.
+    If there are no free symbols in the expression, then the sum will be empty.
+    But we still want the result of the computation of the product.
+    Therefore, if $F = \emptyset$, then
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
+    $$\forall I \in \mathcal{I}: T_{I: \bm{s_t}} = \bigodot\limits_{i = 1}^{n} T^{(i)}_{I:\bm{s_t}}$$
+    If there are no bound symbols, we will sum over all axes given by the symbols in the expression.
+    Therefore, if $B = \emptyset$, then
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+    results in the computation of a scalar $T$ with
+    $$T = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{J:\bm{s_t}}$$
 
     In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
 \end{definition}
@@ -124,36 +113,37 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
 
 \subsection{Nested Einsum Expressions}
 \begin{theorem}
-    For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with index strings $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
+    For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_u}, \bm{s_v}$ be index strings.
     Let
-    $$T^{(0)} := (s^{(1)},\dots,s^{(m)}, s^{(x)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(o)})$$
+    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
     and
-    $$T^{(o)} = (s^{(m + 1)},\dots,s^{(m + n)} \rightarrow s^{(o)}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
     where the free symbols of the second einsum expression share no symbols with the first einsum expression.
-
     Then
-    $$T^{(0)} = (s^{(1)}, \dots, s^{(m + n)} \rightarrow s^{(0)}, T^{(1)}, \dots, T^{(m + n)})$$
+    $$V = (\bm{s_1}, \dots, \bm{s_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})$$
 \end{theorem}
 \begin{proof}
-    Let $B, B', F, F'$ be the bound and free symbols of the first and second einsum expression respectively.
+    Let $B, B', F, F'$ be the bound and free symbols of the second and first einsum expression respectively.
     W.l.o.g. they are all non-empty.
     From them we can derive $\mathcal{I}, \mathcal{I}', \mathcal{J}, \mathcal{J}'$ as above.
     Then
     \begin{align*}
-        T^{(0)}                                              & = (s^{(1)},\dots,s^{(m)}, s^{(o)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(o)})                                                                                                             \\
-        \iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot T^{(o)}_{IJ:s^{(o)}}                                                                                 \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':s^{(i')}} \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJJ':s^{(i)}}    \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m + n} T^{(i)}_{IJ:s^{(i)}}                                                                                    \\
-        \iff T^{(0)}                                         & = (s^{(1)}, \dots, s^{(m + n)} \rightarrow s^{(0)}, T^{(1)}, \dots, T^{(m + n)})
+        V                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                   \\
+        \iff \forall I \in \mathcal{I}: V_{I: \bm{s_v}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot U_{IJ:\bm{s_u}}                                                                                         \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':\bm{s_{i'}}} \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJJ':\bm{s_{i'}}}   \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m + n} T^{(i)}_{IJ:\bm{s_i}}                                                                                       \\
+        \iff V                                          & = (\bm{s_1}, \dots, \bm{s_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
     where the third equality follows from
-    $$\forall I' \in \mathcal{I}': T^{(o)}_{I': s^{(o)}} = \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{I'J':s^{(i')}},$$
-    $B' \subseteq B \cup F$, and $(B \cup F) \cap F' = \emptyset$. The last two facts are required so that $IJJ':s^{(i')}$ is well-defined and projects on the same indices as $I'J':s^{(i')}$.
+    $$\forall I' \in \mathcal{I}': U_{I': \bm{s_u}} = \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{I'J':\bm{s_{i'}}},$$
+    $B' \subseteq B \cup F$, and $(B \cup F) \cap F' = \emptyset$. The last two facts are required so that $IJJ':\bm{s_{i'}}$ is well-defined and projects on the same indices as $I'J':\bm{s_{i'}}$.
     The fourth equality follows from the distributivity in a semiring.
 \end{proof}
 
 \subsection{A More General Result}
+
 \begin{theorem}
     For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with index strings $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
     Also let $\hat{s}^{(o)}$ be alternative index strings for $T^{(o)}$ with $s^{(o)}_j = s^{(o)}_{j'} \implies \hat{s}^{(o)}_j = \hat{s}^{(o)}_{j'}$ for all $j, j' \in [d^{(o)}]$.
@@ -175,16 +165,31 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
     $$T^{(0)} = (s^{(1)},\dots,s^{(m)}, \hat{s}^{(m + 1)}, \dots, \hat{s}^{(m + n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m + n)})$$
 \end{theorem}
 \begin{proof}
-    Let \dots
+    % TODO: comment that we first want to show that we iterate over a subset of the multi-indices.
+    Let $\mathcal{I}' = \prod_{s \in \sigma(\hat{s}_u)} [d_s]$.
+    Let $\mathcal{M}:\bm{s} := \smallset{M: \bm{s} \mid M \in \mathcal{M}}$ for an index string $s$ and a multi-index space $\mathcal{M}$.
+    Then $\mathcal{I}':\bm{\hat{s}_u} \subseteq \mathcal{I}:\bm{s_u}$, because $d_{s_{uj}} = d_{\hat{s}_{uj}}$ per the definition of einsum,
+    and because the amount of axes contributing to $\mathcal{I}'$ ($\abs{\sigma(\bm{\hat{s}_u})}$) has to be smaller or equal to the amount of axes contributing to $\mathcal{I}$ ($\abs{\sigma(\bm{s_u})}$).
+    This last fact follows from the constraint $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$.
+
+    Then
+    $$\forall I \in \mathcal{I}: U_{I: \bm{s_u}} = \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\bm{s_{i}}}$$
+    and therefore
+    $$\forall I \in \mathcal{I}': U_{I': \bm{\hat{s}_u}} = \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{I'J:\bm{\hat{s}_{i}}}$$
+    because of the previous observation,
+    and because the free symbols of the expression, which are used in $J$, are not changed by the symbol map $\nu$.
+
+    % TODO: consistent multi-index space names (I / I' get mixed up here)
+    Therefore
     \begin{align*}
-        T^{(0)}                                              & = (s^{(1)},\dots,s^{(m)}, s^{(o)} \rightarrow \hat{s}^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(o)})                                                                                                                       \\
-        \iff \forall I \in \mathcal{I}: T^{(0)}_{I: s^{(0)}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot T^{(o)}_{IJ:\hat{s}^{(o)}}                                                                                           \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot \mu\left(\bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':s^{(i')}}\right) \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} \mu\left(T^{(i')}_{IJJ':s^{(i')}}\right) \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':\hat{s}^{(i')}}           \\
-                                                             & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:s^{(i)}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\hat{s}^{(i)}}                                   \\
-        \iff T^{(0)}                                         & = (s^{(1)},\dots,s^{(m)}, \hat{s}^{(m + 1)}, \dots, \hat{s}^{(m + n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m + n)})
+        V                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                   \\
+        \iff \forall I \in \mathcal{I}: V_{I: \bm{s_v}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot U_{IJ:\bm{\hat{s}_u}}                                                                                         \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':\bm{\hat{s}_{i'}}} \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJJ':\bm{\hat{s}_{i'}}}   \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\bm{\hat{s}_i}}                                                                                       \\
+        \iff V                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
+    where \dots
 \end{proof}
 
 \subsection{More Examples}
