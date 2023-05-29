@@ -1,10 +1,19 @@
 \section{Einsum}
 Given two third-order tensor $A \in \R^{3 \times 4 \times 5}, B \in \R^{3 \times 3 \times 5}$ and a vector $v \in \R^4$.
 Consider the following computation for a matrix $C \in \R^{3 \times 3}$:
-$$\forall i \in [3]: \forall j \in [4]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j.$$
-This can be written in a much shorter form with einsum:
-$$C = (ijk, iik, j \rightarrow ij, A, B, v)$$
+$$\forall i \in [3]: \forall j \in [4]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j$$
+The original Einstein-notation for summation removes redundant formalism ("boilerplate") from this expression:
+$$C_{ij} = A_{ijk} B_{iik} v_j$$
+where it is assumed that $C$ is defined for all possible $i,j$.
+We sum over all indices that are not used to index the output.
+In this example, we therefore have to sum over all possible values of $k$, because it is not used to index $C_{ij}$.
+Note how it is clear what the shape of $C$ is, because $i$ and $j$ were used to index the tensors $A$, $B$, and $v$,
+for which we defined the dimensions on every axis.
 
+This notation is essentially the inspiration for einsum, which might be apparent given the name einsum.
+Einsum is just an adaptation of this style, which makes it easier to use in programming.
+With it, we can write the above expression like this:
+$$C := (ijk, iik, j \rightarrow ij, A, B, v)$$
 Through the following definition, we hope to clear up why this einsum expression results in the computation above,
 and what computation a general einsum expression results in.
 
@@ -77,7 +86,7 @@ and what computation a general einsum expression results in.
     Because we also project the indices $I$ on the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
     e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
     This leaves some entries of the result undefined.
-    We define these entries to be the additive neutral element $\mymathbb{0}$ in the given semiring $R$.
+    We define these entries to be the additive neutral element $\0$ in the given semiring $R$.
     This may sound arbitrary at first, but will be useful for later theorems.
 
     There are still some special case which need to be considered.
@@ -113,6 +122,7 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
 
 \subsection{Nested Einsum Expressions}
 \begin{theorem}
+    \label{thm:nested_einsum:1}
     For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}, \bm{s_v}$ be index strings.
     Let
@@ -142,54 +152,168 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
     The fourth equality follows from the distributivity in a semiring.
 \end{proof}
 
-\subsection{A More General Result}
+\subsection{More General Results}
+
+Compressing these nested einsum expressions is already helpful when the output string of the inner expression is exactly the same as the input string of the outer expression,
+e.g. for $A \in \R^{m \times n}, v \in \R^{n}$:
+\begin{align*}
+    \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
+                        & = (ij,j,ij,j\rightarrow,A,v,A,v)
+\end{align*}
+But sometimes, we need to access a different multi-index set than the one we computed, e.g. for $A \in \R^{m \times n}, B \in \R^{n \times m}, v \in \R^{n}$:
+$$\text{trace}(A \cdot B) = (ii \rightarrow, (ik, kj \rightarrow ij, A, B))$$
+or
+$$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$
+For this, we need more general ways of compressing nested einsum expressions.
+
+In the following theorem, we explore a way of compressing the expression
+$$(ij, jjj \rightarrow i, A, (kl, lo \rightarrow kko, B, C))$$
+Note that, for the theorem, we use disjoined sets of symbols for the inner and outer expression.
+This helps in the proof, and is not a real constraint in practice,
+because we can just rename the symbols in different scopes.
+E.g. we could also write the above expression as
+$$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C))$$
 
 \begin{theorem}
-    For $i \in [m + n + 1]$, let $T^{(i)}$ be a $d^{(i)}$-th order tensor with index strings $s^{(i)} \in S^{d^{(i)}}$, $o := m + n + 1$.
-    Also let $\hat{s}^{(o)}$ be alternative index strings for $T^{(o)}$ with $s^{(o)}_j = s^{(o)}_{j'} \implies \hat{s}^{(o)}_j = \hat{s}^{(o)}_{j'}$ for all $j, j' \in [d^{(o)}]$.
-    Let
-    $$T^{(0)} := (s^{(1)},\dots,s^{(m)}, \hat{s}^{(o)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m)}, T^{(o)})$$
-    and
-    $$T^{(o)} = (s^{(m + 1)},\dots,s^{(m + n)} \rightarrow s^{(o)}, T^{(m + 1)},\dots,T^{(m + n)})$$
-    where the free symbols of the second einsum expression share no symbols with the first einsum expression.
-    Let $\nu: S \rightarrow S$ such that
-    $$\nu(s) = \begin{cases}
-            \hat{s}^{(o)}_j & \text{if }\exists j \in [d^{(o)}]: s^{(o)}_j = s \\
-            s               & \text{else}
-        \end{cases}$$
-    which maps symbols in $s^{(o)}$ to the symbol at the same index in $\hat{s}^{(o)}$ and all other symbols to themselves.
-    $\nu$ can be extended to map from axis symbol tuples by setting $\nu(s^{(i)}) \in S^{d^{(i)}}, \nu(s^{(i)})_j := \nu(s^{(i)}_j)$.
+    \label{thm:nested_einsum:2}
 
-    Let $\hat{s}^{(i)} := \nu(s^{(i)})$
-    Then
-    $$T^{(0)} = (s^{(1)},\dots,s^{(m)}, \hat{s}^{(m + 1)}, \dots, \hat{s}^{(m + n)} \rightarrow s^{(0)}, T^{(1)},\dots,T^{(m + n)})$$
+    For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
+    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$ with $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$ for all $j, j' \in [n_u]$,
+    which means that $\bm{\hat{s}_u}$ can only introduce new symbol duplications, and cannot remove any.
+
+    In our example, $\bm{s_u} = kko$ and $\bm{\hat{s}_u} = jjj$.
+    This does not break the symbol duplication of the first and second index,
+    and introduces a new duplication on the third index.
+
+    Let $s_v$ be an index string and
+    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    such that the first and second einsum expression share no symbols.
+    Then these nested einsum expressions can also be compressed into a single einsum expression.
+
+    In contrast to \autoref{thm:nested_einsum:1}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
+    Instead, we first need to apply a symbol map.
+    Let $\nu: S \rightarrow S$ such that
+    $$\nu(s) := \begin{cases}
+            \hat{s}_{uj} & \text{if }\exists j \in [n_u]: s_{uj} = s \\
+            s            & \text{else}
+        \end{cases}$$
+    which maps symbols in $\bm{s_u}$ to the symbol at the same index in $\bm{\hat{s}_u}$ and all other symbols to themselves.
+
+    This symbol map holds information about which symbols will be iterated over at the same time in the outer expression.
+    In our example, the interesting parts of the map are $\nu(k) = j$ and $\nu(o) = j$, which means that $k$ and $j$ will be iterated over at the same time.
+
+    $\nu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\nu(\bm{s_i}) \in S^{n_i}, \nu(\bm{s_i})_j := \nu(s_{ij})$.
+    Then we can write the substituted index strings by setting $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m + 1, m + n]$.
+
+    Then the compressed einsum expression is the following:
+    $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m + n)})$$
+    which helps us to compress the example:
+    $$(ij, jjj \rightarrow i, A, (kl, lo \rightarrow kko, B, C)) = (ij, jl, lj \rightarrow i, A, B, C)$$
 \end{theorem}
 \begin{proof}
-    % TODO: comment that we first want to show that we iterate over a subset of the multi-indices.
-    Let $\mathcal{I}' = \prod_{s \in \sigma(\hat{s}_u)} [d_s]$.
-    Let $\mathcal{M}:\bm{s} := \smallset{M: \bm{s} \mid M \in \mathcal{M}}$ for an index string $s$ and a multi-index space $\mathcal{M}$.
-    Then $\mathcal{I}':\bm{\hat{s}_u} \subseteq \mathcal{I}:\bm{s_u}$, because $d_{s_{uj}} = d_{\hat{s}_{uj}}$ per the definition of einsum,
-    and because the amount of axes contributing to $\mathcal{I}'$ ($\abs{\sigma(\bm{\hat{s}_u})}$) has to be smaller or equal to the amount of axes contributing to $\mathcal{I}$ ($\abs{\sigma(\bm{s_u})}$).
+    The fundamental idea behind this theorem is, that by using the index string $\bm{\hat{s}_u}$, we only iterate over a sub-space of the indices that we defined for the computation of $U$.
+    To formulate this, we need some idea of which multi-indices we iterate over.
+    Therefore, let $\mathcal{M}:\bm{s} := \smallset{M: \bm{s} \mid M \in \mathcal{M}}$ for an index string $\bm{s}$ and a multi-index space $\mathcal{M}$.
+
+    Let $\mathcal{K} = \prod_{s \in \sigma(\hat{s}_u)} [d_s]$ be the multi-index space in the input for the computation of $V$,
+    and let $\mathcal{K}' = \prod_{s \in \sigma(s_u)} [d_s]$ be the multi-index space in the output for the computation of $U$.
+    Then $\mathcal{K}:\bm{\hat{s}_u} \subseteq \mathcal{K}':\bm{s_u}$, because $d_{s_{uj}} = d_{\hat{s}_{uj}}$ per the definition of einsum,
+    and because the amount of axes contributing to $\mathcal{K}$ ($\abs{\sigma(\bm{\hat{s}_u})}$) has to be smaller or equal to the amount of axes contributing to $\mathcal{K}'$ ($\abs{\sigma(\bm{s_u})}$).
     This last fact follows from the constraint $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$.
 
     Then
-    $$\forall I \in \mathcal{I}: U_{I: \bm{s_u}} = \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\bm{s_{i}}}$$
+    $$\forall K' \in \mathcal{K}': U_{K': \bm{s_u}} = \bigoplus\limits_{J' \in \mathcal{J}'}\bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{K'J':\bm{s_{i}}}$$
     and therefore
-    $$\forall I \in \mathcal{I}': U_{I': \bm{\hat{s}_u}} = \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{I'J:\bm{\hat{s}_{i}}}$$
+    $$\forall K \in \mathcal{I}': U_{K: \bm{\hat{s}_u}} = \bigoplus\limits_{J' \in \mathcal{J}'}\bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{KJ':\bm{\hat{s}_{i}}}$$
     because of the previous observation,
-    and because the free symbols of the expression, which are used in $J$, are not changed by the symbol map $\nu$.
+    and because the free symbols of the expression, which are used in $J'$, are not changed by the symbol map $\nu$.
 
-    % TODO: consistent multi-index space names (I / I' get mixed up here)
     Therefore
     \begin{align*}
         V                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                   \\
         \iff \forall I \in \mathcal{I}: V_{I: \bm{s_v}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot U_{IJ:\bm{\hat{s}_u}}                                                                                         \\
                                                         & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':\bm{\hat{s}_{i'}}} \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJJ':\bm{\hat{s}_{i'}}}   \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\bm{\hat{s}_i}}                                                                                       \\
+                                                        & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\bm{\hat{s}_i}}                           \\
         \iff V                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
-    where \dots
+    where the third equality holds because we only iterate over a sub-space of the indices that we defined for the computation of $U$,
+    and because the first and second einsum expression share no symbols.
+    The rest of the steps are the same as in \autoref{thm:nested_einsum:1}.
+\end{proof}
+
+With this theorem we can prove a property of the the trace in a relatively simple manner, namely that for $A \in \R^{m \times n}, B \in \R^{n \times m}$,
+it holds that
+$$\text{trace}(A \cdot B) = \text{trace}(B \cdot A)$$
+
+\begin{proof}
+    \begin{align*}
+        \text{trace}(A \cdot B) & = (ii \rightarrow , (ik,kj \rightarrow ij, A, B)) \\
+                                & = (ik, ki \rightarrow ,A, B)                      \\
+                                & = (ki, ik \rightarrow ,A, B)                      \\
+                                & = (ik, ki \rightarrow ,B, A)                      \\
+                                & = (ii \rightarrow , (ik,kj \rightarrow ij, B, A)) \\
+                                & = \text{trace}(B \cdot A)
+    \end{align*}
+    where the second equality holds because of \autoref{thm:nested_einsum:2},
+    the third equality is just a renaming of the indices,
+    and the fourth equality holds because of the commutivity in the used semiring.
+\end{proof}
+
+This is already a useful tool for compressing nested expressions, but there are still some naturally occuring expressions we cannot compress with this,
+e.g. for $A \in \R^{m \times n}, v \in \R^{n}$:
+$$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$
+This is because we use more indices than the ones we computed by breaking the symbol duplication $ii$ with the index string $kj$.
+
+In the following theorem, we explore a way of compressing the expression
+$$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v))$$
+Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
+
+\begin{theorem}
+    \label{thm:nested_einsum:3}
+
+    For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
+    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$ with $s_{uj} \neq s_{uj'} \implies \hat{s}_{uj} \neq \hat{s}_{uj'}$ for all $j, j' \in [n_u]$,
+    which means that $\bm{\hat{s}_u}$ can only remove symbol duplications, and cannot introduce any.
+    Note that this is the converse of the constraint in \autoref{thm:nested_einsum:2}.
+
+    Let $s_v$ be an index string and
+    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    where the first and second einsum expression share no symbols.
+    Then these nested einsum expressions can also be compressed into a single einsum expression.
+
+    As in \autoref{thm:nested_einsum:3}, we need to apply a symbol map before substituting $\bm{\hat{s}_u}$.
+    Interestingly, the symbol map is not applied to the index strings in the computation of $U$ ($\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$),
+    but to the index strings in the computation of $V$ ($\bm{s_1},\dots,\bm{s_m}$).
+    Similarly, it does not map $\bm{s_u}$ to $\bm{\hat{s}_u}$, but $\bm{\hat{s}_u}$ to $\bm{s_u}$.
+
+    Let $\mu: S \rightarrow S$ such that
+    $$\mu(s) := \begin{cases}
+            s_{uj} & \text{if }\exists j \in [n_u]: \hat{s}_{uj} = s \\
+            s      & \text{else}
+        \end{cases}$$
+    $\mu$ can be extended in a similar way as $\nu$ to map entire index strings.
+
+    Let $\bm{\hat{s}_i} := \mu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \mu(\bm{s_v})$, then the compressed einsum expression is the following:
+    $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
+    Note how even the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
+    This will become apparent in the proof.
+\end{theorem}
+
+\begin{proof}
+    The key idea behind this proof, is that the entries of $U$, which were not defined in the computation, are set to the additive neutral element $\0$.
+    This is useful, because in a semiring over some set $M$, the additive neutral element \textit{annihilates} $M$.
+    This means, that for any $a \in M$, $a \cdot \0 = \0 \cdot a = \0$.
+    Therefore, for any multiindex where $U$ is set to $\0$, $V$ is also set to $\0$.
+    This means, that in the computation of $V$, only the indices which follow the duplications in $\bm{s_u}$ are defined.
+    % Let us prove this formally.
+
+    Let $\mathcal{I}, \mathcal{J}$ be the appropriate multi-index spaces for the computation of $V$. Then
+    $$U_{IJ:\bm{\hat{s}_u}} = \0$$
+    for all $IJ \in \mathcal{I} \times \mathcal{J}$ with
 \end{proof}
 
 \subsection{More Examples}
@@ -212,3 +336,40 @@ With these theorems, we can write some more complex expressions as einsum.
                                      & = (ij, j \rightarrow ij, A, v)                      \\
           \end{align*}
 \end{itemize}
+
+In the final generalisation of compressing nested einsum expressions, all duplication breaking is allowed.
+% TODO: write more motivating text
+
+\begin{theorem}
+    For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
+    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$.
+
+    Let $s_v$ be an index string and
+    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    where the first and second einsum expression share no symbols.
+    Then these nested einsum expressions can also be compressed into a single einsum expression.
+
+    Once again, a map $\omega: S \rightarrow S$ has to be applied to the index strings before substituting index strings.
+    The definition of the map this time is somewhat more complex.
+    As in the previous two theorems, this map holds information about which symbols are essentially used together as one index.
+
+    For the definition of the map $\omega$, we first construct an undirected graph $G = (V, E)$,
+    in which the nodes $V = \sigma(\bm{s_v}) \cup \sigma(\bm{s_u}) \cup \sigma(\bm{\hat{s}_u}) \cup \bigcup_{i \in [m + n]} \sigma(\bm{s_i})$ consist of all symbols from both expressions.
+    Now the edges of this graph are $E = \smallset{\smallset{s_{uj}, \hat{s}_{uj}} \mid \exists j \in [n_u]: s_{uj} \neq \hat{s}_{uj}}$,
+    which connects all symbols from $\bm{s_u}$ and $\bm{\hat{s}_u}$ that share an index.
+
+    In this graph, if two symbols are connected, then they to be iterated over at the same time in the compressed expression, because they are essentially the same index.
+    Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
+    Then we can define $\omega$ as follows:
+    $$\omega(s) := \begin{cases}
+        s_C & \text{if } s \in C \\
+        s   & \text{else}
+    \end{cases}$$
+
+    $\omega$ can be extended in a similar way as $\mu, \nu$ to map entire index strings.
+    In this general form, the this map is applied to all index strings from both expressions before the substitution.
+    Let $\bm{\hat{s}_i} := \omega(\bm{s_i})$ for $i \in [m + n]$, $\bm{\hat{s}_v} := \omega(\bm{s_v})$, then the compressed einsum expression is the following:
+    $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
+\end{theorem}
