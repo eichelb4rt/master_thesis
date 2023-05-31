@@ -121,8 +121,27 @@ All following examples use the standard semiring $R = (\R, +, \cdot)$.
 \end{itemize}
 
 \subsection{Nested Einsum Expressions}
+
+In practice, concatenations of operations come naturally, e.g. computing the squared norm of a matrix-vector product $\abs{A \cdot v}_2^2$
+for $A \in \R^{m \times n}, v \in \R^n$.
+This would lead to a nested einsum expression $\abs{A \cdot v}_2^2 = (i,i \rightarrow , (ij, j \rightarrow i, A, v), (ij, j \rightarrow i, A, v))$.
+This expression dictates the order of evaluating the expression.
+In the example of the norm, the expression $(ij, j \rightarrow i, A, v)$ has to be evaluated before squaring and summing over the results of this computation.
+
+This is limiting, because the order of evaluation might not yield optimal runtime.
+This can be seen with a simple matrix-matrix-vector multiplication, which can be written as follows:
+$$(A \cdot B) \cdot v = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v)$$
+which is clearly worse than the optimal contraction order
+$$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v))$$
+for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^r$.
+
+But fortunately, all nested einsum expressions can be compressed into a single einsum expression, if they are computed over the same semiring.
+This leaves the path of contraction up to the implementation.
+In the following theorems, we assume that the computations are all over the same semiring $R = (M, \oplus, \odot)$.
+
 \begin{theorem}
     \label{thm:nested_einsum:1}
+
     For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}, \bm{s_v}$ be index strings.
     Let
@@ -280,6 +299,9 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     which means that $\bm{\hat{s}_u}$ can only remove symbol duplications, and cannot introduce any.
     Note that this is the converse of the constraint in \autoref{thm:nested_einsum:2}.
 
+    In our example, $\bm{s_u} = ll$ and $\bm{\hat{s}_u} = jk$.
+    This removes the symbol duplication of the first and second index.
+
     Let $s_v$ be an index string and
     $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
     where the first and second einsum expression share no symbols.
@@ -299,10 +321,12 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
 
     Let $\bm{\hat{s}_i} := \mu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \mu(\bm{s_v})$, then the compressed einsum expression is the following:
     $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
+    which helps us to compress the example:
+    $$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v)) = (ill, l \rightarrow ill, A, v)$$
     Note how even the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
     This will become apparent in the proof.
-\end{theorem}
 
+\end{theorem}
 \begin{proof}
     The key idea behind this proof, is that the entries of $U$, which were not defined in the computation, are set to the additive neutral element $\0$.
     This is useful, because in a semiring over some set $M$, the additive neutral element \textit{annihilates} $M$.
@@ -338,9 +362,17 @@ With these theorems, we can write some more complex expressions as einsum.
 \end{itemize}
 
 In the final generalisation of compressing nested einsum expressions, all duplication breaking is allowed.
-% TODO: write more motivating text
+This has no application for linear algebra, as all the previous theorems had, because this first comes into play with third order tensors.
+This is because, with two or less axes, there is no possibility of simultaniously breaking a duplication and introducing a new one.
+Nevertheless, it serves as a useful tool for compressing all kinds of nested einsum expressions.
+
+% TODO: example
+% In the following theorem, we explore a way of compressing the expression
+% $$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v))$$
+% Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
 \begin{theorem}
+    \label{thm:nested_einsum:4}
     For $i \in [m + n]$, let $T^{(i)}$ be a $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
     $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
@@ -364,12 +396,15 @@ In the final generalisation of compressing nested einsum expressions, all duplic
     Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
     Then we can define $\omega$ as follows:
     $$\omega(s) := \begin{cases}
-        s_C & \text{if } s \in C \\
-        s   & \text{else}
-    \end{cases}$$
+            s_C & \text{if } s \in C \\
+            s   & \text{else}
+        \end{cases}$$
 
     $\omega$ can be extended in a similar way as $\mu, \nu$ to map entire index strings.
     In this general form, the this map is applied to all index strings from both expressions before the substitution.
     Let $\bm{\hat{s}_i} := \omega(\bm{s_i})$ for $i \in [m + n]$, $\bm{\hat{s}_v} := \omega(\bm{s_v})$, then the compressed einsum expression is the following:
-    $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
+    $$V = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
 \end{theorem}
+\begin{proof}
+    Wird spannend.
+\end{proof}
