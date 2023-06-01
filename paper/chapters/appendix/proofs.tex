@@ -1,5 +1,9 @@
 \chapter{Proofs}
-Proof that expanding the matrix multiplication in a neural network results in an exponentially big term in terms of the width of the skipped layer of the neural network:
+\label{chap:proofs}
+
+\section{Exponential Blow-Up}
+% TODO: what do we prove?
+% (Proof that expanding the matrix multiplication in a neural network results in an exponentially big term in terms of the width of the skipped layer of the neural network:)
 
 Given: fully connected neural network with two layers ($n \rightarrow m \rightarrow l$ neurons), ReLU Activations, maps inputs $x \in \R^n$ to outputs $y \in R^l$, with parameters $A^{(0)} \in \R^{m \times n}, A^{(1)} \in \R^{l \times m}, b^{(0)} \in \R^m, b^{(1)} \in \R^l$.
 Then the computation of the neural network is:
@@ -9,7 +13,10 @@ To reasonably work with matrix multiplication in the tropcial semiring, we can o
 Making the entries integers does not impact the strength of the neural network, because [...] (quote the paper).
 
 Now to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:
-$$\max(Ax + b, 0) = \max(A_+ x + b, A_- x) - A_- x$$
+\begin{align*}
+    \max(Ax + b, 0) & = \max(A_+ x - A_- x + b, A_- x - A_- x) \\
+                    & = \max(A_+ x + b, A_- x) - A_- x
+\end{align*}
 where $A_+ = \max(A, 0), A_- = \max(-A, 0)$ and therefore $A = A_+ - A_-$.
 
 This turns the network output into a tropical rational function (quote):
@@ -35,12 +42,6 @@ This expression maximizes over a number of subexpressions that grows exponential
 Which subexpressions can be removed before the evaluation remains an open question.
 Note that it depends on the non-linearities of the neural network, which might make it hard to find a general answer to this question.
 
-\section{General Einsum Stuff}
-Nested einsum expressions in the same semiring can be combined into one smaller einsum expression.
-
-(proof: basically distributive law.)
-Let $R = (M, \oplus, \odot)$ be a semiring, and $f: M \rightarrow M, g: M \rightarrow M$
-
 \section{Expressing Stuff as Einsum}
 
 Fully connected Feed-Forward Neural Net with ReLU activations (1 layer) $\nu: \R^n \rightarrow \R^m$ with weights $A \in \R^{m \times n}$ and biases $b \in \R^m$, input $x \in \R^n$
@@ -58,19 +59,20 @@ Fully connected Feed-Forward Neural Net with ReLU activations (1 layer) $\nu: \R
 
 Attention with einsum:
 \begin{align*}
-    (QK^\T)_{ij}              & = \sum\limits_{k} Q_{ik} K_{jk}                                                                                                                       \\
-    QK^\T                     & = (ik, jk \rightarrow ij, Q, K)                                                                                                                       \\
-    \text{softmax}(X)_{ij}    & = \frac{\exp(X_{ij})}{\sum\limits_{j'} \exp(X_{ij'})}                                                                                                 \\
-                              & = \exp(X_{ij}) \cdot \sum\limits_{j'} \exp(-X_{ij'})                                                                                                  \\
-    \text{softmax}(X)         & = (ij, i \rightarrow ij, \exp(X), (ij \rightarrow i, \exp(-X)))                                                                                       \\
-    (XV)_{ij}                 & = \sum\limits_{k} X_{ik} V_{kj}                                                                                                                       \\
-    XV                        & = (ik, kj \rightarrow ij, X, V)                                                                                                                       \\
-    \text{Attention}(Q, K, V) & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                                                               \\
-                              & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                                      \\
-                              & \phantom{{}= (ik, kj \rightarrow ij, (ij, i \rightarrow ij,} (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V) \\
-                              & = (ik, i, kj \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                                                          \\
-                              & \phantom{{}= (ik, i, kj \rightarrow ij,} (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))),                         \\
-                              & \phantom{{}= (ik, i, kj \rightarrow ij,} V)
+     & (QK^\T)_{ij}              &  & = \sum\limits_{k} Q_{ik} K_{jk}                                                                                  \\
+     & QK^\T                     &  & = (ik, jk \rightarrow ij, Q, K)                                                                                  \\
+     & \text{softmax}(X)_{ij}    &  & = \frac{\exp(X_{ij})}{\sum\limits_{j'} \exp(X_{ij'})}                                                            \\
+     &                           &  & = \exp(X_{ij}) \cdot \sum\limits_{j'} \exp(-X_{ij'})                                                             \\
+     & \text{softmax}(X)         &  & = (ij, i \rightarrow ij, \exp(X), (ij \rightarrow i, \exp(-X)))                                                  \\
+     & (XV)_{ij}                 &  & = \sum\limits_{k} X_{ik} V_{kj}                                                                                  \\
+     & XV                        &  & = (ik, kj \rightarrow ij, X, V)                                                                                  \\
+     & \text{Attention}(Q, K, V) &  & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                          \\
+     &                           &  & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), \\
+     &                           &  & \phantom{{}=} (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V)           \\
+     &                           &  & = (ik, i, kj \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                     \\
+     &                           &  & \phantom{{}= } (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))), V)           \\
+     &                           &  & = (ik, ij, kj \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                    \\
+     &                           &  & \phantom{{}=}\exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), V)
 \end{align*}
 
 \blindtext[1]

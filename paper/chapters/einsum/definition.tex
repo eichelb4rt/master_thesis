@@ -1,0 +1,128 @@
+\section{What is Einsum?}
+
+Given two third-order tensors $A \in \R^{3 \times 4 \times 5}$ and $B \in \R^{3 \times 3 \times 5}$, and a vector $v \in \R^4$.
+Consider the following computation resulting in a matrix $C \in \R^{3 \times 3}$:
+$$\forall i \in [3]: \forall j \in [4]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j$$
+The original Einstein-notation for summation removes redundant formalism ("boilerplate") from this expression:
+$$C_{ij} = A_{ijk} B_{iik} v_j$$
+where it is assumed that $C$ is defined for all possible $i,j$.
+We sum over all indices that are not used to index the output.
+In this example, we therefore have to sum over all possible values of $k$, because it is not used to index $C_{ij}$.
+Note how it is clear what the shape of $C$ is, because $i$ and $j$ were used to index the tensors $A$, $B$, and $v$,
+for which we defined the dimensions on every axis.
+
+This notation is essentially the inspiration for Einsum, which might be apparent given the name Einsum.
+Einsum is just an adaptation of this style, which makes it easier to use in programming.
+With it, we can write the above expression like this:
+$$C := (ijk, iik, j \rightarrow ij, A, B, v)$$
+Through the following definition, we hope to clear up why this Einsum expression results in the computation above,
+and what computation a general Einsum expression results in.
+
+\begin{definition}
+    Einsum expressions specify how several input tensors are combined into a single output tensor.
+    Let $T^{(1)},\dots,T^{(n)}$ be our input tensors,
+    where $T^{(i)}$ is an $n_i$-th order tensor for $i \in [n]$.
+    The core of the Einsum expression are index strings. For this, we first need a collection of symbols $S$.
+    The respective index string for a tensor $T^{(i)}$ is then just a tuple $\bm{s_i} \in S^{n_i}$,
+    composed of symbols $s_{ij} \in S$ for $j \in [n_i]$.
+    The index string that is right of the arrow ($\rightarrow$) belongs to the output tensor $T$ and is referred to as output string $\bm{s_t}$.
+    % TODO: warum s_t? vorher klären / ändern?
+
+    In our example this could be $S = \smallset{i,j,k}$ with respective index strings
+    $\bm{s_1} = ijk$ for $T^{(1)} = A$,
+    $\bm{s_2} = iik$ for $T^{(2)} = B$,
+    $\bm{s_3} = j$ for $T^{(3)} = v$,
+    and $\bm{s_t} = ij$.
+    The individual symbols are $s_{11} = i$, $s_{12} = j$, $s_{13} = k$, $s_{12} = i$, $s_{22} = i$, $s_{23} = k$, $s_{31} = j$, $s_{t1} = i$, $s_{t2} = j$.
+
+    In order to refer to individual tensor axes, let us numerate them with $a_{ij} \in \N$,
+    where $a_{ij}$ denotes the $j$-th axis of the tensor $i$-th tensor $T^{(i)}$.
+    The actual value of $a_{ij}$ does not matter.
+    These variables are just used as unique identifiers for the axes.
+    Note that we can combine the axes to describe the set of axes of a tensor $T^{(i)}$ with
+    $\bm{a_i} = \smallset{a_{ij} \mid j \in [n_i]}$.
+    In contrast to $\bm{s_i}$, this is a set and not a tuple.
+    This is because tensors can reuse symbols as indices, but cannot reuse axes.
+
+    The next step in the definition is to speak about the axis sizes.
+    If we want to iterate over shared indices, it is necessary that the axes, that these indices are used for, share the same size.
+    In our example, $A_{ijk}$ and $v_j$ share the symbol $s_{12} = s_{31} = j$.
+    This means that the respective axes $a_{12}$ and $a_{31}$ have to have the same size, which happens to be 4 (four?).
+    Let us express this formally.
+
+    Let $d_{ij} \in \N$ denote the size of the axis $a_{ij}$ for $i \in [n], j \in [n_i]$.
+    Then it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
+
+    Therefore we can also denote the size of all axes that a symbol $s \in S$ corresponds to as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
+    Note that not all same size axes have to assigned the same symbol. For instance a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
+
+    The next step of the definition is figuring out which symbols are used for summation and which symbols are used for saving the result of the computation.
+    In order to do this, it is useful to know which symbols are in an index string, because symbols can occur more than once in just one index string (as seen in $B_{iik}$ in our example).
+    Therefore, let $\sigma(\bm{s})$ denote the set with all symbols used in an index string $\bm{s}$.
+    That is, in out example $\sigma(\bm{s_2}) = \sigma(iik) = \smallset{i, k}$.
+
+    All symbols to the right of the arrow ($\rightarrow$) are used as an index for the result of the computation.
+    These symbols are called \textit{free} symbols $F = \sigma(\bm{s_t})$.
+    All other symbols used in the expression are called \textit{bound} symbols $B = \bigcup_{i \in [n]} \sigma(\bm{s_i}) \setminus \sigma(\bm{s_t})$.
+    The reasoning behind this name is, that these symbols are bound by the summation symbol in the original computation.
+    In Einsum, we sum over all axes that belong to bound symbols.
+    It follows that the multi-index space that we iterate over is $\mathcal{I} = \prod_{s \in F} [d_s]$ and the multi-index space we sum over is $\mathcal{J} = \prod_{s \in B} [d_s]$.
+    In our example, the free symbols are $F = \smallset{ij}$ and the bound symbols are $B = \smallset{k}$.
+    The multi-index space we iterate over is $d_i \times d_j = [3] \times [4]$.
+    The multi-index space we sum over is $d_k = [5]$.
+
+    From the definition of $\mathcal{I}$, it follows that $d_s$ has to be defined for all symbols $s \in F$.
+    This means we have to add the constraint $\sigma(\bm{s_t}) \subseteq \bigcup_{i \in [n]} \sigma(\bm{s_i})$.
+
+    However, we do not use every symbol in the multi-index spaces to index every input tensor.
+    Instead, we use the index strings $\bm{s}$ to index the tensor.
+    To formally express this, we need a projection from a multi-index $(\bm{i},\bm{j}) \in \mathcal{I} \times \mathcal{J}$ to another multi-index, which includes only the symbols used in $\bm{s}$,
+    in the same order as present in $\bm{s}$.
+    We denote this as $(\bm{i},\bm{j}):\bm{s}$.
+    Notice how this still allows duplication of indices given in $(\bm{i},\bm{j})$.
+    This is needed, as can be seen in our example for $B_{iik}$,
+    where a multi-index, e.g. $(1,4,2) \in \mathcal{I} \times \mathcal{J}$, is projected on the index string $iik$,
+    which results in the multi-index $(1,4,2):iik = (1,1,2)$.
+
+    In our example, we used the standard sum and multiplication as operators for computing our result.
+    But with Einsum, we allow the more general use of any semiring $R = (M, \oplus, \odot)$.
+    With this, we can finally define a general Einsum expression
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    in terms of semiring operations. Namely, $T$ is the $\abs{\bm{s_t}}$-th order tensor
+    $$\forall \bm{i} \in \mathcal{I}: T_{\bm{i}: \bm{s_t}} = \bigoplus\limits_{\bm{j} \in \mathcal{J}} \bigodot\limits_{k = 1}^{n} T^{(k)}_{(\bm{i},\bm{j}):\bm{s_t}}$$
+
+    Because we also project the indices $\bm{i}$ on the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
+    e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
+    This leaves some entries of the result undefined.
+    We define these entries to be the additive neutral element in the given semiring $R$.
+    This may sound arbitrary at first, but will be useful for later.
+
+    There are still some special case which need to be considered.
+    If there are no bound symbols in the expression, then the sum will be empty.
+    But we still want the result of the computation of the product.
+    Therefore, if $F = \emptyset$, then
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
+    $$\forall \bm{i} \in \mathcal{I}: T_{I: \bm{s_t}} = \bigodot\limits_{k = 1}^{n} T^{(k)}_{\bm{i}:\bm{s_t}}$$
+    If there are no free symbols, we will sum over all axes given by the symbols in the expression.
+    Therefore, if $B = \emptyset$, then
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+    results in the computation of a scalar $T$ with
+    $$T = \bigoplus\limits_{\bm{j} \in \mathcal{J}} \bigodot\limits_{k = 1}^{n} T^{(k)}_{\bm{j}:\bm{s_t}}$$
+
+    In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
+\end{definition}
+
+All following examples use the standard semiring $R = (\R, +, \cdot)$.
+\begin{itemize}
+    \item matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+          $$A \cdot v = (ij, j \rightarrow i, A, v)$$
+    \item matrix-matrix multiplication: Let $A \in \R^{m \times r}, B \in \R^{r \times n}$. Then
+          $$A \cdot B = (ik, kj \rightarrow ij, A, B)$$
+    \item trace: Let $A \in \R^{n \times n}$. Then
+          $$\text{trace}(A) = (ii \rightarrow, A)$$
+    \item squared Frobenius norm: Let $A \in \R^{n \times n}$. Then
+          $$\abs{A}_2^2 = (ij, ij \rightarrow,A,A)$$
+    \item diagonal matrix: Let $v \in \R^{n}$. Then
+          $$\text{diag}(v) = (i \rightarrow ii, v)$$
+\end{itemize}

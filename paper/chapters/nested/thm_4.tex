@@ -1,0 +1,51 @@
+\section{General Nested Expressions}
+
+In the final generalisation of compressing nested Einsum expressions, all duplication breaking is allowed.
+This has no application for linear algebra, as all the previous theorems had, because this first comes into play with third order tensors.
+This is because, with two or less axes, there is no possibility of simultaniously breaking a duplication and introducing a new one.
+Nevertheless, it serves as a useful tool for compressing all kinds of nested Einsum expressions.
+
+% TODO: example
+% In the following theorem, we explore a way of compressing the expression
+% $$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v))$$
+% Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
+
+\begin{theorem}
+    \label{thm:nested_einsum:4}
+    For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
+    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$.
+
+    Let $s_v$ be an index string and
+    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    where the first and second Einsum expression share no symbols.
+    Then these nested Einsum expressions can also be compressed into a single Einsum expression.
+
+    Once again, a map $\omega: S \rightarrow S$ has to be applied to the index strings before substituting index strings.
+    The definition of the map this time is somewhat more complex.
+    As in the previous two theorems, this map holds information about which symbols are essentially used together as one index.
+
+    For the definition of the map $\omega$, we first construct an undirected graph $G = (V, E)$,
+    in which the nodes $V = \sigma(\bm{s_v}) \cup \sigma(\bm{s_u}) \cup \sigma(\bm{\hat{s}_u}) \cup \bigcup_{i \in [m + n]} \sigma(\bm{s_i})$ consist of all symbols from both expressions.
+    Now the edges of this graph are $E = \smallset{\smallset{s_{uj}, \hat{s}_{uj}} \mid \exists j \in [n_u]: s_{uj} \neq \hat{s}_{uj}}$,
+    which connects all symbols from $\bm{s_u}$ and $\bm{\hat{s}_u}$ that share an index.
+
+    In this graph, if two symbols are connected, then they to be iterated over at the same time in the compressed expression, because they are essentially the same index.
+    Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
+    Then we can define $\omega$ as follows:
+    $$\omega(s) := \begin{cases}
+            s_C & \text{if } s \in C \\
+            s   & \text{else}
+        \end{cases}$$
+
+    $\omega$ can be extended in a similar way as $\mu, \nu$ to map entire index strings.
+    In this general form, the this map is applied to all index strings from both expressions before the substitution.
+    Let $\bm{\hat{s}_i} := \omega(\bm{s_i})$ for $i \in [m + n]$, $\bm{\hat{s}_v} := \omega(\bm{s_v})$, then the compressed Einsum expression is the following:
+    $$V = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
+\end{theorem}
+
+\begin{proof}
+    \small
+    Wird spannend.
+\end{proof}
