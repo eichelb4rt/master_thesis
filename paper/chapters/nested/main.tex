@@ -1,5 +1,7 @@
 \chapter{Nested Expressions}
 
+% TODO: switch bound and free
+
 In practice, concatenations of operations come naturally, e.g. computing the squared norm of a matrix-vector product $\abs{A \cdot v}_2^2$
 for $A \in \R^{m \times n}, v \in \R^n$.
 This would lead to a nested Einsum expression $\abs{A \cdot v}_2^2 = (i,i \rightarrow , (ij, j \rightarrow i, A, v), (ij, j \rightarrow i, A, v))$.
