@@ -16,20 +16,20 @@
 
 \begin{proof}
     \small
-    Let $B, B', F, F'$ be the bound and free symbols of the second and first einsum expression respectively.
+    Let $F, F', B, B'$ be the free and bound symbols of the second and first einsum expression respectively.
     W.l.o.g. they are all non-empty.
-    From them we can derive $\mathcal{I}, \mathcal{I}', \mathcal{J}, \mathcal{J}'$ as above.
+    From them we can derive $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
     Then
     \begin{align*}
-        V                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                   \\
-        \iff \forall I \in \mathcal{I}: V_{I: \bm{s_v}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot U_{IJ:\bm{s_u}}                                                                                         \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':\bm{s_{i'}}} \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJJ':\bm{s_{i'}}}   \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m + n} T^{(i)}_{IJ:\bm{s_i}}                                                                                       \\
-        \iff V                                          & = (\bm{s_1}, \dots, \bm{s_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
+        V                                                         & = (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                                                                \\
+        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_k}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                                                                     \\
+                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{s_{i'}}} \\
+                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{s_{i}}}                                      \\
+                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                                                                               \\
+        \iff V                                                    & = (\bm{s_1}, \dots, \bm{s_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
     where the third equality follows from
-    $$\forall I' \in \mathcal{I}': U_{I': \bm{s_u}} = \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{I'J':\bm{s_{i'}}},$$
-    $B' \subseteq B \cup F$, and $(B \cup F) \cap F' = \emptyset$. The last two facts are required so that $IJJ':\bm{s_{i'}}$ is well-defined and projects on the same indices as $I'J':\bm{s_{i'}}$.
+    $$\forall \bm{f'} \in \mathcal{F}': U_{\bm{f'}: \bm{s_u}} = \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{f'}, \bm{b'}):\bm{s_{i'}}},$$
+    $F' \subseteq B \cup F$, and $(B \cup F) \cap B' = \emptyset$. The last two facts are required so that $(\bm{f}, \bm{b}, \bm{b'}):\bm{s_{i'}}$ is well-defined and projects on the same indices as $(\bm{f'}, \bm{b'}):\bm{s_{i'}}$.
     The fourth equality follows from the distributivity in a semiring.
 \end{proof}

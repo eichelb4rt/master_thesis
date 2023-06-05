@@ -1,7 +1,5 @@
 \chapter{Nested Expressions}
 
-% TODO: switch bound and free
-
 In practice, concatenations of operations come naturally, e.g. computing the squared norm of a matrix-vector product $\abs{A \cdot v}_2^2$
 for $A \in \R^{m \times n}, v \in \R^n$.
 This would lead to a nested Einsum expression $\abs{A \cdot v}_2^2 = (i,i \rightarrow , (ij, j \rightarrow i, A, v), (ij, j \rightarrow i, A, v))$.
@@ -55,9 +53,10 @@ $$\text{trace}(A \cdot B) = \text{trace}(B \cdot A).$$
 \end{proof}
 
 This is already a useful tool for compressing nested expressions, but there are still some naturally occuring expressions we cannot compress with this,
-e.g. for $A \in \R^{m \times n}, v \in \R^{n}$:
+e.g.:
 $$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$
-This is because we use more indices than the ones we computed by breaking the symbol duplication $ii$ with the index string $kj$.
+for $A \in \R^{m \times n}, v \in \R^{n}$.
+This is because the symbol duplication $ii$ is broken by the index string $kj$, and therefore we access more entries than the ones we computed.
 
 \input{chapters/nested/thm_3.tex}
 

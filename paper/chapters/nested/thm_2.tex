@@ -6,7 +6,7 @@ for $A \in \R^{a \times b}, B \in \R^{b \times c}, C \in \R^{c \times b}$.
 Note that, for the theorem, we use disjoined sets of symbols for the inner and outer expression.
 This helps in the proof, and is not a real constraint in practice,
 because we can just rename the symbols in different scopes.
-E.g. we could also write the above expression as
+For instance, we could also write the above expression as
 $$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C)).$$
 
 \begin{theorem}
@@ -54,26 +54,29 @@ $$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C)).$$
     To formulate this, we need some idea of which multi-indices we iterate over.
     Therefore, let $\mathcal{M}:\bm{s} := \smallset{M: \bm{s} \mid M \in \mathcal{M}}$ for an index string $\bm{s}$ and a multi-index space $\mathcal{M}$.
 
-    Let $\mathcal{K} = \prod_{s \in \sigma(\hat{s}_u)} [d_s]$ be the multi-index space in the input for the computation of $V$,
-    and let $\mathcal{K}' = \prod_{s \in \sigma(s_u)} [d_s]$ be the multi-index space in the output for the computation of $U$.
-    Then $\mathcal{K}:\bm{\hat{s}_u} \subseteq \mathcal{K}':\bm{s_u}$, because $d_{s_{uj}} = d_{\hat{s}_{uj}}$ per the definition of einsum,
-    and because the amount of axes contributing to $\mathcal{K}$ ($\abs{\sigma(\bm{\hat{s}_u})}$) has to be smaller or equal to the amount of axes contributing to $\mathcal{K}'$ ($\abs{\sigma(\bm{s_u})}$).
-    This last fact follows from the constraint $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$.
+    Let $F, F', B, B'$ be the free and bound symbols of the second and first einsum expression respectively.
+    W.l.o.g. they are all non-empty.
+    From them we can derive $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
+    Then $(\mathcal{F} \times \mathcal{B}):\bm{\hat{s}_u} \subseteq \mathcal{F}':\bm{s_u}$.
+    This follows from $d_{s_{uj}} = d_{\hat{s}_{uj}}$ for $j \in [n_u]$,
+    and the amount of symbols in the projection of $(\mathcal{F} \times \mathcal{B}):\bm{\hat{s}_u}$ being smaller or equal to the amount of symbols in the projection of $\mathcal{F}':\bm{s_u}$.
+    The first fact is true per the definition of einsum.
+    The second fact can be rewritten as $\abs{\sigma(\bm{\hat{s}_u})} \leq \abs{\sigma(\bm{s_u})}$ and follows directly from the constraint $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$ for all $j,j' \in [n_u]$.
 
     Then
-    $$\forall K' \in \mathcal{K}': U_{K': \bm{s_u}} = \bigoplus\limits_{J' \in \mathcal{J}'}\bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{K'J':\bm{s_{i}}}$$
+    $$\forall \bm{f'} \in \mathcal{F}': U_{\bm{f'}: \bm{s_u}} = \bigoplus\limits_{\bm{b'} \in \mathcal{B}'}\bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f'}, \bm{b'}):\bm{s_{i}}}$$
     and therefore
-    $$\forall K \in \mathcal{I}': U_{K: \bm{\hat{s}_u}} = \bigoplus\limits_{J' \in \mathcal{J}'}\bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{KJ':\bm{\hat{s}_{i}}}$$
+    $$\forall (\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}: U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \bigoplus\limits_{\bm{b'} \in \mathcal{B}'}\bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{\hat{s}_{i}}}$$
     because of the previous observation,
-    and because the free symbols of the expression, which are used in $J'$, are not changed by the symbol map $\nu$.
+    and because the bound symbols of the expression, which are used in $\bm{b'}$, do not occur in $\bm{s_u}$, and are therefore not changed by the symbol map $\nu$.
 
     Therefore
     \begin{align*}
-        V                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                   \\
-        \iff \forall I \in \mathcal{I}: V_{I: \bm{s_v}} & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot U_{IJ:\bm{\hat{s}_u}}                                                                                         \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigoplus\limits_{J' \in \mathcal{J}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{IJJ':\bm{\hat{s}_{i'}}} \\
-                                                        & = \bigoplus\limits_{J \in \mathcal{J} \times \mathcal{J}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{IJ:\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{IJ:\bm{\hat{s}_i}}                           \\
-        \iff V                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
+        V                                                         & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                                                                \\
+        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                                                                     \\
+                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{\hat{s}_{i'}}} \\
+                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}}                                       \\
+        \iff V                                                    & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
     where the third equality holds because we only iterate over a sub-space of the indices that we defined for the computation of $U$,
     and because the first and second einsum expression share no symbols.

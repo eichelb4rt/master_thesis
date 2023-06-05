@@ -64,22 +64,22 @@ and what computation a general Einsum expression results in.
     All other symbols used in the expression are called \textit{bound} symbols $B = \bigcup_{i \in [n]} \sigma(\bm{s_i}) \setminus \sigma(\bm{s_t})$.
     The reasoning behind this name is, that these symbols are bound by the summation symbol in the original computation.
     In Einsum, we sum over all axes that belong to bound symbols.
-    It follows that the multi-index space that we iterate over is $\mathcal{I} = \prod_{s \in F} [d_s]$ and the multi-index space we sum over is $\mathcal{J} = \prod_{s \in B} [d_s]$.
+    It follows that the multi-index space that we iterate over is $\mathcal{F} = \prod_{s \in F} [d_s]$ and the multi-index space we sum over is $\mathcal{B} = \prod_{s \in B} [d_s]$.
     In our example, the free symbols are $F = \smallset{ij}$ and the bound symbols are $B = \smallset{k}$.
     The multi-index space we iterate over is $d_i \times d_j = [3] \times [4]$.
     The multi-index space we sum over is $d_k = [5]$.
 
-    From the definition of $\mathcal{I}$, it follows that $d_s$ has to be defined for all symbols $s \in F$.
+    From the definition of $\mathcal{F}$, it follows that $d_s$ has to be defined for all symbols $s \in F$.
     This means we have to add the constraint $\sigma(\bm{s_t}) \subseteq \bigcup_{i \in [n]} \sigma(\bm{s_i})$.
 
     However, we do not use every symbol in the multi-index spaces to index every input tensor.
     Instead, we use the index strings $\bm{s}$ to index the tensor.
-    To formally express this, we need a projection from a multi-index $(\bm{i},\bm{j}) \in \mathcal{I} \times \mathcal{J}$ to another multi-index, which includes only the symbols used in $\bm{s}$,
+    To formally express this, we need a projection from a multi-index $(\bm{f},\bm{b}) \in \mathcal{F} \times \mathcal{B}$ to another multi-index, which includes only the symbols used in $\bm{s}$,
     in the same order as present in $\bm{s}$.
-    We denote this as $(\bm{i},\bm{j}):\bm{s}$.
-    Notice how this still allows duplication of indices given in $(\bm{i},\bm{j})$.
+    We denote this as $(\bm{f},\bm{b}):\bm{s}$.
+    Notice how this still allows duplication of indices given in $(\bm{f},\bm{b})$.
     This is needed, as can be seen in our example for $B_{iik}$,
-    where a multi-index, e.g. $(1,4,2) \in \mathcal{I} \times \mathcal{J}$, is projected on the index string $iik$,
+    where a multi-index, e.g. $(1,4,2) \in \mathcal{F} \times \mathcal{B}$, is projected on the index string $iik$,
     which results in the multi-index $(1,4,2):iik = (1,1,2)$.
 
     In our example, we used the standard sum and multiplication as operators for computing our result.
@@ -87,9 +87,9 @@ and what computation a general Einsum expression results in.
     With this, we can finally define a general Einsum expression
     $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
     in terms of semiring operations. Namely, $T$ is the $\abs{\bm{s_t}}$-th order tensor
-    $$\forall \bm{i} \in \mathcal{I}: T_{\bm{i}: \bm{s_t}} = \bigoplus\limits_{\bm{j} \in \mathcal{J}} \bigodot\limits_{k = 1}^{n} T^{(k)}_{(\bm{i},\bm{j}):\bm{s_t}}$$
+    $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}.$$
 
-    Because we also project the indices $\bm{i}$ on the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
+    Because we also project the indices $\bm{f}$ on the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
     e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
     This leaves some entries of the result undefined.
     We define these entries to be the additive neutral element in the given semiring $R$.
@@ -101,12 +101,12 @@ and what computation a general Einsum expression results in.
     Therefore, if $F = \emptyset$, then
     $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
     results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
-    $$\forall \bm{i} \in \mathcal{I}: T_{I: \bm{s_t}} = \bigodot\limits_{k = 1}^{n} T^{(k)}_{\bm{i}:\bm{s_t}}$$
+    $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.$$
     If there are no free symbols, we will sum over all axes given by the symbols in the expression.
     Therefore, if $B = \emptyset$, then
     $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
     results in the computation of a scalar $T$ with
-    $$T = \bigoplus\limits_{\bm{j} \in \mathcal{J}} \bigodot\limits_{k = 1}^{n} T^{(k)}_{\bm{j}:\bm{s_t}}$$
+    $$T = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.$$
 
     In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
 \end{definition}
