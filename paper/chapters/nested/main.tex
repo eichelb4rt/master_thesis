@@ -39,17 +39,25 @@ $$\text{trace}(A \cdot B) = \text{trace}(B \cdot A).$$
 
 \begin{proof}
     \small
+    % \begin{align*}
+    %     \text{trace}(A \cdot B) & = (ii \rightarrow , (ik,kj \rightarrow ij, A, B)) \\
+    %                             & = (ik, ki \rightarrow ,A, B)                      \\
+    %                             & = (ki, ik \rightarrow ,A, B)                      \\
+    %                             & = (ik, ki \rightarrow ,B, A)                      \\
+    %                             & = (ii \rightarrow , (ik,kj \rightarrow ij, B, A)) \\
+    %                             & = \text{trace}(B \cdot A)
+    % \end{align*}
+    % where the second equality holds because of \autoref{thm:nested_einsum:2},
+    % the third equality is just a renaming of the indices,
+    % and the fourth equality holds because of the commutivity in the used semiring.
     \begin{align*}
         \text{trace}(A \cdot B) & = (ii \rightarrow , (ik,kj \rightarrow ij, A, B)) \\
                                 & = (ik, ki \rightarrow ,A, B)                      \\
-                                & = (ki, ik \rightarrow ,A, B)                      \\
-                                & = (ik, ki \rightarrow ,B, A)                      \\
-                                & = (ii \rightarrow , (ik,kj \rightarrow ij, B, A)) \\
+                                & = (ki, ik \rightarrow ,B, A)                      \\
                                 & = \text{trace}(B \cdot A)
     \end{align*}
     where the second equality holds because of \autoref{thm:nested_einsum:2},
-    the third equality is just a renaming of the indices,
-    and the fourth equality holds because of the commutivity in the used semiring.
+    and the third equality holds because of the commutativity of multiplication in the standard semiring.
 \end{proof}
 
 This is already a useful tool for compressing nested expressions, but there are still some naturally occuring expressions we cannot compress with this,
