@@ -69,7 +69,8 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
         \end{cases}$$
     for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ and $i \in [m + n]$,
     because $(\bm{f}, \bm{b}): \bm{s_i} = (\bm{f}, \bm{b}): \bm{\hat{s}_i}$ if $(\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'}$ for $j,j' \in [n_u]$ with $s_{uj} = s_{uj'}$,
-    because the duplications removed in $\bm{\hat{s}_u}$ are irrelevant if the indices of the projection \dots.
+    because the equality of $(\bm{f}, \bm{b}):s_{uj}$ and $(\bm{f}, \bm{b}):s_{uj'}$ reproduces the duplications in $\bm{s_u}$ that were removed in $\bm{\hat{s}_u}$.
+    (THINK ABOUT FORMULATION!)
 
     For the same reasons,
     $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
@@ -80,17 +81,20 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$, and
     $$V_{\bm{f}: \bm{s_u}} = \begin{cases}
             V_{\bm{f}: \bm{\hat{s}_u}} & \text{if } \bm{f}:s_{uj} = \bm{f}:s_{uj'} \text{ for } j,j' \in [n_u] \\
-                                 & \text{with } s_{uj} = s_{uj'} \text{ and } s_{uj} \in F               \\
-            \0                   & \text{else}
+                                       & \text{with } s_{uj} = s_{uj'} \text{ and } s_{uj} \in F               \\
+            \0                         & \text{else}
         \end{cases}$$
     for all $\bm{f} \in \mathcal{F}$.
 
-    Then (ADAPT)
+    Then
     \begin{align*}
-        V                                                         & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                                                                \\
-        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                                                                     \\
-                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{\hat{s}_{i'}}} \\
-                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}}                                       \\
-        \iff V                                                    & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
+        V                                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                          \\
+        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}       & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                               \\
+        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                               \\
+                                                                        & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
+        \iff V                                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
+    where the second equivalence and third equality hold because of the facts shown above.
+    The fourth equality just skips the steps already shown in \autoref{thm:nested_einsum:1}.
 \end{proof}
+\bigskip

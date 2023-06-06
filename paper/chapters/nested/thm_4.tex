@@ -30,12 +30,13 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     As in the previous two theorems, this map holds information about which symbols are essentially used together as one index.
 
     For the definition of the map $\omega$, we first construct an undirected graph $G = (V, E)$ that we call \textit{symbol graph}.
-    In the symbol graph, the nodes $V = \sigma(\bm{s_v}) \cup \sigma(\bm{s_u}) \cup \sigma(\bm{\hat{s}_u}) \cup \bigcup_{i \in [m + n]} \sigma(\bm{s_i})$ consist of all symbols from both expressions.
-    The edges are $E = \smallset{\smallset{s_{uj}, \hat{s}_{uj}} \mid \exists j \in [n_u]: s_{uj} \neq \hat{s}_{uj}}$,
+    % $V = \sigma(\bm{s_v}) \cup \sigma(\bm{s_u}) \cup \sigma(\bm{\hat{s}_u}) \cup \bigcup_{i \in [m + n]} \sigma(\bm{s_i})$
+    In the symbol graph, the nodes consist of all symbols from both expressions.
+    The edges are $E = \smallset{\smallset{s_{uj}, \hat{s}_{uj}} \mid j \in [n_u]}$,
     which connects all symbols from $\bm{s_u}$ and $\bm{\hat{s}_u}$ that share an index.
     The symbol graph for our example is displayed in \autoref{fig:nested_expressions:example_symbol_graph}.
 
-    In this graph, if two symbols are connected, then they need to be iterated over at the same time in the compressed expression, because they are essentially the same index.
+    In the symbol graph, if two symbols are connected, then they need to be iterated over at the same time in the compressed expression, because they are essentially the same index.
     Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
     Then we can define $\omega$ as follows:
     $$\omega(s) := \begin{cases}
