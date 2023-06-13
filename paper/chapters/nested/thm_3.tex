@@ -1,7 +1,7 @@
 \section{Removing Duplications}
 
 In the following theorem, we explore a way of compressing the expression
-$$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v))$$
+$$(ijk, jk \rightarrow ij, A, (l \rightarrow ll, v))$$
 for $A \in \R^{a \times b}, v \in \R^b$.
 Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
@@ -23,7 +23,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     where the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
-    As in \autoref{thm:nested_einsum:3}, we need to apply a symbol map before substituting $\bm{\hat{s}_u}$.
+    As in \autoref{thm:nested_einsum:2}, we need to apply a symbol map before substituting $\bm{\hat{s}_u}$.
     Interestingly, the symbol map is not applied to the index strings in the computation of $U$ ($\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$),
     but to the index strings in the computation of $V$ ($\bm{s_1},\dots,\bm{s_m}$).
     Similarly, it does not map $\bm{s_u}$ to $\bm{\hat{s}_u}$, but $\bm{\hat{s}_u}$ to $\bm{s_u}$.
@@ -38,8 +38,8 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Let $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \nu(\bm{s_v})$, then the compressed Einsum expression is the following:
     $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
-    $$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v)) = (ill, l \rightarrow ill, A, v)$$
-    Note how even the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
+    $$(ijk, jk \rightarrow ij, A, (l \rightarrow ll, v)) = (ill, l \rightarrow il, A, v)$$
+    Note how the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
     This will become apparent in the proof.
 \end{theorem}
 
@@ -48,53 +48,73 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     The key idea behind this proof, is that the entries of $U$, which were not defined in the computation, are set to the additive neutral element $\0$.
     This is useful, because in a semiring over some set $M$, the additive neutral element \textit{annihilates} $M$.
     This means, that for any $a \in M$, $a \cdot \0 = \0 \cdot a = \0$.
-    Therefore, for any multiindex where $U$ is set to $\0$, $V$ is also set to $\0$.
-    This means, that in the computation of $V$, only the indices which follow the duplications in $\bm{s_u}$ are defined.
+    Therefore, for any multi-index where $U$ is set to $\0$, $V$ is also set to $\0$.
+    This means, that in the computation of $V$, only the indices which respect the duplications in $\bm{s_u}$ are defined.
     % Let us prove this formally.
 
     Let $F, F', B, B'$ be the free and bound symbols of the second (outer) and first (inner) einsum expression respectively.
     W.l.o.g. they are all non-empty.
     From them we can derive $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
-    Then
-    $$U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-            U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \text{ for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'} \\
-            \0                             & \text{else}
-        \end{cases}$$
-    for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$.
-    Therefore,
-    $$T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-            T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
-                                                                                            & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
-            \0                                                                              & \text{else}
-        \end{cases}$$
-    for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ and $i \in [m + n]$,
-    because $(\bm{f}, \bm{b}): \bm{s_i} = (\bm{f}, \bm{b}): \bm{\hat{s}_i}$ if $(\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'}$ for $j,j' \in [n_u]$ with $s_{uj} = s_{uj'}$,
-    because the equality of $(\bm{f}, \bm{b}):s_{uj}$ and $(\bm{f}, \bm{b}):s_{uj'}$ reproduces the duplications in $\bm{s_u}$ that were removed in $\bm{\hat{s}_u}$.
-    (THINK ABOUT FORMULATION!)
+    Then $U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$ is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ with $(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$, where $j,j' \in [n_u]$ are indices of $\bm{s_u}$ where the symbols are duplicated, i.e. $s_{uj} = s_{uj'}$.
+    In our example, this means that $\text{diag}(v)_{jk}$ is only non-zero for $(j,k) \in [d_j] \times [d_k]$ with $j = k$, because $s_{u1} = s_{u2} = l$.
 
-    For the same reasons,
-    $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-            \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
-                                                                                                                        & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
-            \0                                                                                                          & \text{else}
-        \end{cases}$$
-    for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$, and
-    $$V_{\bm{f}: \bm{s_u}} = \begin{cases}
-            V_{\bm{f}: \bm{\hat{s}_u}} & \text{if } \bm{f}:s_{uj} = \bm{f}:s_{uj'} \text{ for } j,j' \in [n_u] \\
-                                       & \text{with } s_{uj} = s_{uj'} \text{ and } s_{uj} \in F               \\
-            \0                         & \text{else}
-        \end{cases}$$
-    for all $\bm{f} \in \mathcal{F}$.
+    Therefore, when $U$ is multiplied with the other tensors, the resulting entry
+    $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$$
+    is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ that respect the same conditions.
+    Now, because multiple indices \dots (to be continued)
+    % TODO: finish the proof
 
-    Then
-    \begin{align*}
-        V                                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                          \\
-        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}       & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                               \\
-        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                               \\
-                                                                        & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
-        \iff V                                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
-    \end{align*}
-    where the second equivalence and third equality hold because of the facts shown above.
-    The fourth equality just skips the steps already shown in \autoref{thm:nested_einsum:1}.
+    % $$\forall (\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}: \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
+    %         \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
+    %                                                                                                                     & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
+    %         \0                                                                                                          & \text{else}
+    %     \end{cases}$$
+
+    % $$U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
+    %         U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'} \text{ for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'} \\
+    %         \0                             & \text{else}
+    %     \end{cases}$$
+    % for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ by renaming the symbols .
+    % Therefore,
+    % $$T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
+    %         T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
+    %                                                                                         & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
+    %         \0                                                                              & \text{else}
+    %     \end{cases}$$
+    % for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ and $i \in [m + n]$,
+    % because the resulting tensor is only non-zero on multi-indices that respect the symbol duplication.
+    % That is, multi-indices, that hold different indices where $\bm{s_u}$ has a duplicate symbol, are multiplied by $\0$.
+    % This can be formally expressed in terms of multi-index projections:
+    % $$(\bm{f}, \bm{b}): \bm{s_i} = (\bm{f}, \bm{b}): \bm{\hat{s}_i}$$
+    % if
+    % $$(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$$
+    % for $j,j' \in [n_u]$ with $s_{uj} = s_{uj'}$.
+    % In our example, this is equivalent to the following observation:
+    % If $(\bm{f}, \bm{b}):j$
+
+    % For the same reasons,
+    % $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
+    %         \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
+    %                                                                                                                     & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
+    %         \0                                                                                                          & \text{else}
+    %     \end{cases}$$
+    % for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$, and
+    % $$V_{\bm{f}: \bm{s_u}} = \begin{cases}
+    %         V_{\bm{f}: \bm{\hat{s}_u}} & \text{if } \bm{f}:s_{uj} = \bm{f}:s_{uj'} \text{ for } j,j' \in [n_u] \\
+    %                                    & \text{with } s_{uj} = s_{uj'} \text{ and } s_{uj} \in F               \\
+    %         \0                         & \text{else}
+    %     \end{cases}$$
+    % for all $\bm{f} \in \mathcal{F}$.
+
+    % Then
+    % \begin{align*}
+    %     V                                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                          \\
+    %     \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}       & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                               \\
+    %     \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                               \\
+    %                                                                     & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
+    %     \iff V                                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
+    % \end{align*}
+    % where the second equivalence and third equality hold because of the facts shown above.
+    % The fourth equality just skips the steps already shown in \autoref{thm:nested_einsum:1}.
 \end{proof}
 \bigskip

@@ -71,7 +71,7 @@ This is because the symbol duplication $ii$ is broken by the index string $kj$, 
 
 \input{chapters/nested/thm_3.tex}
 
-With these theorems, we can write some more complex expressions as Einsum.
+With these theorems, we can write some more complex expressions from linear algebra as Einsum:
 \begin{itemize}
     \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
           \begin{align*}
@@ -83,8 +83,7 @@ With these theorems, we can write some more complex expressions as Einsum.
               \text{trace}(A \cdot B) & = (ii \rightarrow, (ik, kj \rightarrow ij, A, B)) \\
                                       & = (ik, ki \rightarrow, A, B)
           \end{align*}
-    \item The theorem for this still has to be shown \dots:
-          matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+    \item matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
           \begin{align*}
               A \cdot \text{diag}(v) & = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v)) \\
                                      & = (ij, j \rightarrow ij, A, v)                      \\
