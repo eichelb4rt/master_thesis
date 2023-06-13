@@ -14,7 +14,7 @@ Einsum is just an adaptation of this style, which makes it easier to use in prog
 With it, we can write the above expression like this:
 $$C := (ijk, iik, j \rightarrow ij, A, B, v)$$
 Through the following definition, we hope to clear up why this Einsum expression results in the computation above,
-and what computation a general Einsum expression results in.
+and what computation is the result of a general Einsum expression.
 
 \begin{definition}
     Einsum expressions specify how several input tensors are combined into a single output tensor.
@@ -26,11 +26,11 @@ and what computation a general Einsum expression results in.
     The index string that is right of the arrow ($\rightarrow$) belongs to the output tensor $T$ and is referred to as output string $\bm{s_t}$.
     % TODO: warum s_t? vorher klären / ändern?
 
-    In our example this could be $S = \smallset{i,j,k}$ with respective index strings
-    $\bm{s_1} = ijk$ for $T^{(1)} = A$,
-    $\bm{s_2} = iik$ for $T^{(2)} = B$,
-    $\bm{s_3} = j$ for $T^{(3)} = v$,
-    and $\bm{s_t} = ij$.
+    In our example this could be $S = \smallset{i,j,k}$.
+    The tensor $T^{(1)} = A$ has the index string $\bm{s_1} = ijk$,
+    $T^{(2)} = B$ has $\bm{s_2} = iik$,
+    $T^{(3)} = v$ has $\bm{s_3} = j$,
+    and the output string is $\bm{s_t} = ij$.
     The individual symbols are $s_{11} = i$, $s_{12} = j$, $s_{13} = k$, $s_{12} = i$, $s_{22} = i$, $s_{23} = k$, $s_{31} = j$, $s_{t1} = i$, $s_{t2} = j$.
 
     In order to refer to individual tensor axes, let us numerate them with $a_{ij} \in \N$,
@@ -45,7 +45,7 @@ and what computation a general Einsum expression results in.
     The next step in the definition is to speak about the axis sizes.
     If we want to iterate over shared indices, it is necessary that the axes, that these indices are used for, share the same size.
     In our example, $A_{ijk}$ and $v_j$ share the symbol $s_{12} = s_{31} = j$.
-    This means that the respective axes $a_{12}$ and $a_{31}$ have to have the same size, which happens to be 4 (four?).
+    This means that the respective axes $a_{12}$ and $a_{31}$ have to have the same size, which happens to be four.
     Let us express this formally.
 
     Let $d_{ij} \in \N$ denote the size of the axis $a_{ij}$ for $i \in [n], j \in [n_i]$.
