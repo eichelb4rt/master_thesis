@@ -1,8 +1,9 @@
 \section{Removing Duplications}
 
-In the following theorem, we explore a way of compressing the expression
+The following example is an expression, which we cannot compress with the previous theorems:
 $$(ijk, jk \rightarrow ij, A, (l \rightarrow ll, v))$$
 for $A \in \R^{a \times b}, v \in \R^b$.
+In the following theorem, we will explore how to compress expressions such as this one.
 Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
 \begin{theorem}
@@ -61,7 +62,14 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Therefore, when $U$ is multiplied with the other tensors, the resulting entry
     $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$$
     is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ that respect the same conditions.
-    Now, because multiple indices \dots (to be continued)
+    Now, because multiple indices\dots (to be continued)
+    $$\bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}$$
+    is
+
+    \begin{align*}
+        \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                              & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                           \\
+        \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_u}}
+    \end{align*}
     % TODO: finish the proof
 
     % $$\forall (\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}: \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}

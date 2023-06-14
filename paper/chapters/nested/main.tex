@@ -19,13 +19,18 @@ In the following theorems, we assume that the computations are all over the same
 
 \input{chapters/nested/thm_1.tex}
 
-Compressing these nested Einsum expressions is already helpful when the output string of the inner expression is exactly the same as the input string of the outer expression,
-e.g.
+This means that we can compress all nested Einsum expressions, where the output string of the inner expression, which is used to compute $U$, is exactly the same as the respective input string in the outer expression, when $U$ is used as an input tensor.
+This is already helpful for naturally occuring expressions in linear algebra, e.g.
 \begin{align*}
     \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
                         & = (ij,j,ij,j\rightarrow,A,v,A,v)
 \end{align*}
-for $A \in \R^{m \times n}, v \in \R^{n}$.
+for $A \in \R^{m \times n}, v \in \R^{n}$, or
+\begin{align*}
+    A \cdot B \cdot v & = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v) \\
+                      & = (ik,kj,j \rightarrow i, A, B, v)
+\end{align*}
+for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
 But sometimes, we need to access a different multi-index set than the one we computed, e.g.
 $$\text{trace}(A \cdot B) = (ii \rightarrow, (ik, kj \rightarrow ij, A, B))$$
 or
@@ -71,7 +76,7 @@ This is because the symbol duplication $ii$ is broken by the index string $kj$, 
 
 \input{chapters/nested/thm_3.tex}
 
-With these theorems, we can write some more complex expressions from linear algebra as Einsum:
+With these theorems, we can write some more complex expressions from linear algebra as a single Einsum expression respectively:
 \begin{itemize}
     \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
           \begin{align*}

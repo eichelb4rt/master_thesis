@@ -42,7 +42,7 @@ and what computation is the result of a general Einsum expression.
     In contrast to $\bm{s_i}$, this is a set and not a tuple.
     This is because tensors can reuse symbols as indices, but cannot reuse axes.
 
-    The next step in the definition is to speak about the axis sizes.
+    The next step in the definition is to speak about axis sizes.
     If we want to iterate over shared indices, it is necessary that the axes, that these indices are used for, share the same size.
     In our example, $A_{ijk}$ and $v_j$ share the symbol $s_{12} = s_{31} = j$.
     This means that the respective axes $a_{12}$ and $a_{31}$ have to have the same size, which happens to be four.
@@ -51,8 +51,8 @@ and what computation is the result of a general Einsum expression.
     Let $d_{ij} \in \N$ denote the size of the axis $a_{ij}$ for $i \in [n], j \in [n_i]$.
     Then it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
 
-    Therefore we can also denote the size of all axes that a symbol $s \in S$ corresponds to as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
-    Note that not all same size axes have to assigned the same symbol. For instance a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
+    Therefore we can also denote the size of all axes, that a symbol $s \in S$ corresponds to, as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
+    Note that not all same size axes have to be assigned the same symbol. For instance a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
 
     The next step of the definition is figuring out which symbols are used for summation and which symbols are used for saving the result of the computation.
     In order to do this, it is useful to know which symbols are in an index string, because symbols can occur more than once in just one index string (as seen in $B_{iik}$ in our example).
@@ -74,13 +74,20 @@ and what computation is the result of a general Einsum expression.
 
     However, we do not use every symbol in the multi-index spaces to index every input tensor.
     Instead, we use the index strings $\bm{s}$ to index the tensor.
-    To formally express this, we need a projection from a multi-index $(\bm{f},\bm{b}) \in \mathcal{F} \times \mathcal{B}$ to another multi-index, which includes only the symbols used in $\bm{s}$,
+    To formally express this, we need a projection from a multi-index $(\bm{f},\bm{b}) \in \mathcal{F} \times \mathcal{B}$
+    \footnote{
+        Here, we use $(\bm{f},\bm{b})$ as the notation for concatenating the tuples $\bm{f}$ and $\bm{b}$.
+        This means, $(\bm{f},\bm{b})$ is not a tuple of multi-indices, but another multi-index.
+    }
+    to another multi-index, which includes only the indices, that are represented by the symbols used in $\bm{s}$,
     in the same order as present in $\bm{s}$.
     We denote this as $(\bm{f},\bm{b}):\bm{s}$.
     Notice how this still allows duplication of indices given in $(\bm{f},\bm{b})$.
     This is needed, as can be seen in our example for $B_{iik}$,
-    where a multi-index, e.g. $(1,4,2) \in \mathcal{F} \times \mathcal{B}$, is projected on the index string $iik$,
-    which results in the multi-index $(1,4,2):iik = (1,1,2)$.
+    where a multi-index, e.g. $(i=1,j=4,k=2) \in \mathcal{F} \times \mathcal{B}$, is projected onto a different multi-index, by the index string $iik$.
+    With this index string, the index that is represented by the symbol $i$ is projected onto the first and second position,
+    and the index that is represented by the symbol $k$ is projected onto the third position.
+    Therefore, the resulting multi-index is $(i=1,j=4,k=2):iik = (1,1,2)$.
 
     In our example, we used the standard sum and multiplication as operators for computing our result.
     But with Einsum, we allow the more general use of any semiring $R = (M, \oplus, \odot)$.
@@ -89,15 +96,16 @@ and what computation is the result of a general Einsum expression.
     in terms of semiring operations. Namely, $T$ is the $\abs{\bm{s_t}}$-th order tensor
     $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}.$$
 
-    Because we also project the indices $\bm{f}$ on the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
+    Because we also project the indices $\bm{f}$ with the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
     e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
     This leaves some entries of the result undefined.
     We define these entries to be the additive neutral element in the given semiring $R$.
     This may sound arbitrary at first, but will be useful later.
 
-    There are still some special case which need to be considered.
-    If there are no bound symbols in the expression, then the sum will be empty.
-    But we still want the result of the computation of the product.
+    There are still some special cases which need to be considered.
+    If there are no bound symbols in the expression, then the sum in the original definition would be empty.
+    But the definition is still meaningful.
+    It boils down to computing the product of the tensor entries, without summing over them.
     Therefore, if $F = \emptyset$, then
     $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
     results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with

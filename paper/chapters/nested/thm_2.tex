@@ -1,12 +1,13 @@
 \section{Introducing Duplications}
 
-In the following theorem, we explore a way of compressing the expression
+The following example is an expression, which we cannot compress with the previous theorem:
 $$(ij, jjj \rightarrow i, A, (kl, lo \rightarrow kko, B, C))$$
 for $A \in \R^{a \times b}, B \in \R^{b \times c}, C \in \R^{c \times b}$.
+In the following theorem, we will explore how to compress expressions such as this one.
 Note that, for the theorem, we use disjoined sets of symbols for the inner and outer expression.
 This helps in the proof, and is not a real constraint in practice,
 because we can just rename the symbols in different scopes.
-For instance, we could also write the above expression as
+For example, we could also write the above expression as
 $$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C)).$$
 
 \begin{theorem}
