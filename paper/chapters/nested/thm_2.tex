@@ -38,7 +38,12 @@ $$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C)).$$
     which maps symbols in $\bm{s_u}$ to the symbol at the same index in $\bm{\hat{s}_u}$ and all other symbols to themselves.
 
     This symbol map holds information about which symbols will be iterated over at the same time in the outer expression.
-    In our example, the interesting parts of the map are $\nu(k) = j$ and $\nu(o) = j$, which means that $k$ and $j$ will be iterated over at the same time.
+    In our example, these are the important mappings:
+    \begin{align*}
+        k & \rightarrow j \\
+        o & \rightarrow j
+    \end{align*}
+    This means that $k$ and $o$ will be iterated over at the same time.
 
     $\nu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\nu(\bm{s_i}) \in S^{n_i}, \nu(\bm{s_i})_j := \nu(s_{ij})$.
     Then we can write the substituted index strings by setting $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m + 1, m + n]$.

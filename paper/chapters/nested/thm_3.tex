@@ -1,8 +1,8 @@
 \section{Removing Duplications}
 
 The following example is an expression, which we cannot compress with the previous theorems:
-$$(ijk, jk \rightarrow ij, A, (l \rightarrow ll, v))$$
-for $A \in \R^{a \times b}, v \in \R^b$.
+$$(ijkl, jklm \rightarrow ij, A, (op \rightarrow oopp, B))$$
+for $A \in \R^{a \times b \times b \times c}, B \in \R^{b \times c}$.
 In the following theorem, we will explore how to compress expressions such as this one.
 Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
@@ -16,8 +16,8 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     which means that $\bm{\hat{s}_u}$ can only remove symbol duplications, and cannot introduce any.
     Note that this is the converse of the constraint in \autoref{thm:nested_einsum:2}.
 
-    In our example, $\bm{s_u} = ll$ and $\bm{\hat{s}_u} = jk$.
-    This removes the symbol duplication of the first and second index.
+    In our example, $\bm{s_u} = oopp$ and $\bm{\hat{s}_u} = jklm$.
+    This removes the symbol duplication of the first and second index, as well as the symbol duplication of the third and fourth index.
 
     Let $s_v$ be an index string and
     $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
@@ -35,11 +35,19 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
             s      & \text{else}
         \end{cases},$$
     which can be extended to map entire index strings as in \autoref{thm:nested_einsum:2}.
+    In our example, these are the important mappings:
+    \begin{align*}
+        j & \rightarrow o \\
+        k & \rightarrow o \\
+        l & \rightarrow p \\
+        m & \rightarrow p
+    \end{align*}
+    This means that $j$ and $k$ will be iterated over at the same time, and $l$ and $m$ will be iterated over at the same time.
 
     Let $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \nu(\bm{s_v})$, then the compressed Einsum expression is the following:
     $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
-    $$(ijk, jk \rightarrow ij, A, (l \rightarrow ll, v)) = (ill, l \rightarrow il, A, v)$$
+    $$(ijkl, jklm \rightarrow ij, A, (op \rightarrow oopp, B)) = (ioop, op \rightarrow io, A, B)$$
     Note how the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
     This will become apparent in the proof.
 \end{theorem}
@@ -57,72 +65,72 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     W.l.o.g. they are all non-empty.
     From them we can derive $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
     Then $U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$ is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ with $(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$, where $j,j' \in [n_u]$ are indices of $\bm{s_u}$ where the symbols are duplicated, i.e. $s_{uj} = s_{uj'}$.
-    In our example, this means that $\text{diag}(v)_{jk}$ is only non-zero for $(j,k) \in [d_j] \times [d_k]$ with $j = k$, because $s_{u1} = s_{u2} = l$.
+    In our example, this means that $(op \rightarrow oopp, B)$ is only non-zero for $(j,k,l,m) \in [d_j] \times [d_k] \times [d_l] \times [d_m]$ with $j = k$ and $l = m$, because $s_{u1} = s_{u2} = o$ and $s_{u3} = s_{u4} = p$.
 
     Therefore, when $U$ is multiplied with the other tensors, the resulting entry
     $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$$
     is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ that respect the same conditions.
-    Now, because multiple indices\dots (to be continued)
-    $$\bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}$$
-    is
+    Therefore, and because $a \oplus \0 = a$ for any $a \in M$, the summation is reduced to only those summands, which have multi-indices that respect the duplications.
+    Therefore we can iterate over the summands in such a way, that only those multi-indices are considered, that respect the duplications.
+    For this, we define a different set of bound symbols $\hat{B} = \left(\bigcup_{i \in [m]} \sigma(\bm{\hat{s}_i}) \cup \sigma(\bm{s_u})\right) \setminus \sigma(\bm{\hat{s}_v})$.
+    From these bound symbols, we can derive its corresponding multi-index space $\mathcal{\hat{B}} = \prod_{s \in \hat{B}} [d_s]$.
+    In our example, the new set of bound symbols is $\hat{B} = \smallset{p}$, and the original set of bound symbols is $B = \set{k, l, m}$.
 
+    Now, in order to use these multi-indices in a well-defined manner together with the multi-indices of the free symbols, we can define an incomplete symbol map $\mu: S \rightarrow S$.
+    This symbol map is incomplete because it does not contain all mappings, that are contained in the complete symbol map $\nu$.
+    It is restricted on only those symbols, that will be part of the bound symbols after application of the complete map.
+    The symbol map also has to produce index strings that are able to project the multi-indices $(\bm{f},\bm{\hat{b}}) \in \mathcal{F} \times \mathcal{\hat{B}}$ in a well-defined manner, which is possible in the first place because $F \cap \hat{B} = \emptyset$.
+    Therefore we define
+    $$\mu(s) := \begin{cases}
+            s_{uj} & \text{if } \exists j: \hat{s}_{uj} = s \text{ and } s_{uj} \in \hat{B} \\
+            s      & \text{else}
+        \end{cases}.$$
+    To indicate the incompletely mapped index strings, we denote $\mu(\bm{s_i})$ as $\bm{\check{s}_i}$.
+    In our example, these are the important mappings:
     \begin{align*}
-        \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                              & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                           \\
-        \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_u}}
+        l & \rightarrow p \\
+        m & \rightarrow p
     \end{align*}
-    % TODO: finish the proof
 
-    % $$\forall (\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}: \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-    %         \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
-    %                                                                                                                     & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
-    %         \0                                                                                                          & \text{else}
-    %     \end{cases}$$
+    Then
+    % TODO: reformulate to fit example, expand example to demonstrate cases where \bm{f} could not respect duplications
+    $$\bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}
+        = \begin{cases}
+            \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{\hat{b}}):\bm{\check{s}_i}} \odot U_{(\bm{f}, \bm{\hat{b}}):\bm{s_u}} & \text{if } \bm{f} \text{ respects the duplications} \\
+            \0                                                                                                                                                                            & \text{else}
+        \end{cases}$$
+    for all $\bm{f} \in \mathcal{F}$.
+    When applied to our example, this is equivalent to:
+    $$\bigoplus\limits_{k, l, m} A_{ijkl} \odot U_{jklm}
+        = \begin{cases}
+            \bigoplus\limits_{p} A_{ijkp} \odot U_{jkpp} & \text{if } j = k \\
+            \0                                           & \text{else}
+        \end{cases}$$
+    for all $(i,j) \in [d_i] \times [d_j]$.
 
-    % $$U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-    %         U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'} \text{ for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'} \\
-    %         \0                             & \text{else}
-    %     \end{cases}$$
-    % for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ by renaming the symbols .
-    % Therefore,
-    % $$T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-    %         T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
-    %                                                                                         & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
-    %         \0                                                                              & \text{else}
-    %     \end{cases}$$
-    % for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ and $i \in [m + n]$,
-    % because the resulting tensor is only non-zero on multi-indices that respect the symbol duplication.
-    % That is, multi-indices, that hold different indices where $\bm{s_u}$ has a duplicate symbol, are multiplied by $\0$.
-    % This can be formally expressed in terms of multi-index projections:
-    % $$(\bm{f}, \bm{b}): \bm{s_i} = (\bm{f}, \bm{b}): \bm{\hat{s}_i}$$
-    % if
-    % $$(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$$
-    % for $j,j' \in [n_u]$ with $s_{uj} = s_{uj'}$.
-    % In our example, this is equivalent to the following observation:
-    % If $(\bm{f}, \bm{b}):j$
-
-    % For the same reasons,
-    % $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}} = \begin{cases}
-    %         \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}): \bm{s_u}} & \text{if } (\bm{f}, \bm{b}):s_{uj} = (\bm{f}, \bm{b}):s_{uj'} \\
-    %                                                                                                                     & \text{for } j,j' \in [n_u] \text{ with } s_{uj} = s_{uj'}     \\
-    %         \0                                                                                                          & \text{else}
-    %     \end{cases}$$
-    % for all $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$, and
-    % $$V_{\bm{f}: \bm{s_u}} = \begin{cases}
-    %         V_{\bm{f}: \bm{\hat{s}_u}} & \text{if } \bm{f}:s_{uj} = \bm{f}:s_{uj'} \text{ for } j,j' \in [n_u] \\
-    %                                    & \text{with } s_{uj} = s_{uj'} \text{ and } s_{uj} \in F               \\
-    %         \0                         & \text{else}
+    % For this, we define a new multi-index space $\mathcal{\hat{B}} = \left(\bigcup_{i \in [m]} \sigma(\bm{\hat{s}_i}) \cup \sigma(\bm{s_u})\right) \setminus \sigma(\bm{\hat{s}_v})$,
+    % and project these multi-indices with index strings $\bm{\hat{s}_i}$ that respect the duplications.
+    % % TODO: the projection is not defined, because the new free variables aren't introduced yet.
+    % Then
+    % $$\bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}
+    %     = \begin{cases}
+    %         \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{\hat{b}}):\bm{s_u}} & \text{if } \bm{f} \text{ respects the duplications} \\
+    %         \0                                                                                                                                                                          & \text{else}
     %     \end{cases}$$
     % for all $\bm{f} \in \mathcal{F}$.
 
-    % Then
-    % \begin{align*}
-    %     V                                                               & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                          \\
-    %     \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}       & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                               \\
-    %     \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                               \\
-    %                                                                     & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{\hat{s}_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
-    %     \iff V                                                          & = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})
-    % \end{align*}
-    % where the second equivalence and third equality hold because of the facts shown above.
-    % The fourth equality just skips the steps already shown in \autoref{thm:nested_einsum:1}.
+    Now, because all $\bm{f} \in \mathcal{F}$ that do not respect the duplications are $\0$, we can also iterate over the free variables in such a way, that only those multi-indices are considered, that respect the duplications.
+    For this, we define a new multi-index space $\mathcal{\hat{F}} = \sigma(\bm{\hat{s}_v})$,
+    and project these multi-indices with index strings $\bm{\hat{s}_i}$ and $\bm{\hat{s}_v}$ that respect the duplications. Then
+    \begin{align*}
+        V                                                                                 & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                                                                                                                 \\
+        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                         & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                                                                                                                      \\
+        \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_u}}                                                                                                                  \\
+                                                                                          & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot \left[\bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{\hat{f}}, \bm{\hat{b}}, \bm{b'}):\bm{s_{i'}}}\right] \\
+                                                                                          & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_i}}                                                                                        \\
+        \iff V                                                                            & = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)}, \dots, T^{(m + n)})
+    \end{align*}
+    % TODO: expand
+    TODO: expand?
 \end{proof}
 \bigskip
