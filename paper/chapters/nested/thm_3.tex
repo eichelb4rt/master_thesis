@@ -1,8 +1,9 @@
 \section{Removing Duplications}
 
 The following example is an expression, which we cannot compress with the previous theorems:
-$$(ijkl, jklm \rightarrow ij, A, (op \rightarrow oopp, B))$$
-for $A \in \R^{a \times b \times b \times c}, B \in \R^{b \times c}$.
+$$(ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))$$
+% TODO: adapt
+for $A \in \R^{m \times b \times b \times c}, B \in \R^{b \times c}$.
 In the following theorem, we will explore how to compress expressions such as this one.
 Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
@@ -36,6 +37,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
         \end{cases},$$
     which can be extended to map entire index strings as in \autoref{thm:nested_einsum:2}.
     In our example, these are the important mappings:
+    % TODO: adapt
     \begin{align*}
         j & \rightarrow o \\
         k & \rightarrow o \\
@@ -47,6 +49,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Let $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \nu(\bm{s_v})$, then the compressed Einsum expression is the following:
     $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
+    % TODO: adapt
     $$(ijkl, jklm \rightarrow ij, A, (op \rightarrow oopp, B)) = (ioop, op \rightarrow io, A, B)$$
     Note how the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
     This will become apparent in the proof.
@@ -70,6 +73,68 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Therefore, when $U$ is multiplied with the other tensors, the resulting entry
     $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$$
     is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ that respect the same conditions.
+    In our example, this is equivalent to
+    $$A_{ij} B_{k,l} C_{mn} \odot U_{ijklmn} = \begin{cases}
+            A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} & \text{if } i = j, k = l, m = n \\
+            \0                                    & \text{else}
+        \end{cases}.$$
+
+    Now, this already looks like not all symbols are needed for this computation.
+    But to see, in which way we can replace symbols, we need to consider the three ways in which duplications can be broken.
+    Either a duplication is broken only by free symbols, only by bound symbols, or by a combination of both.
+    In our example, we have all of these cases.
+    The duplication $aa$ is broken by $i$ and $j$, which are both free symbols.
+    The duplication $cc$ is broken by $m$ and $n$, which are both bound symbols.
+    The duplication $bb$ is broken by $k$ and $l$, where $k$ is a free symbol and $l$ is a bound symbol.
+    Every one of these cases leads to the same result, but in a slightly different way.
+
+    First let us consider the case where a duplication is broken only by free symbols.
+    In this case, the free symbols that break the duplication can be replaced by a single symbol,
+    because all entries of $V$, with a multi-index that does not respect the duplication, is $\0$.
+    In our example, this is equivalent to replacing $i$ and $j$ by a single symbol $a$:
+    \begin{align*}
+        \forall i,j,k: V_{ijk} & = \bigoplus\limits_{l,m,n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} \\
+        \forall i,j,k: V_{aak} & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
+    \end{align*}
+
+    For the next two cases, we need to use that $a \oplus \0 = a$ for any $a \in M$.
+    % This helps us to reduce the number of symbols that are used in the summation.
+    This means, that only those summands that respect the duplications will be summed over,
+    because all summands which do not respect the summation are $\0$.
+    This affects the remaining two cases in different ways.
+    If a duplication is broken only by bound symbols, then we need a single symbol to sum over all the multi-indices that respect the duplication.
+    In our example, this is equivalent to replacing $m$ and $n$ by a single symbol $c$:
+    $$\bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn} = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc}$$
+
+    Now, if a duplication is broken by free symbols and by bound symbols,
+    then the free symbols can again be replaced by a single symbol, as in the first case.
+    In our example, this is useless, because there is already only one symbol $k$ where this can be applied.
+    Let us do it anyway, because it might clear up what needs to be done in this step.
+    \begin{align*}
+        \forall i,j,k: V_{aak} & = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc} \\
+        \forall i,j,k: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}
+    \end{align*}
+    Then, the values held by the breaking bound symbols are already defined by the value held by the now only breaking free symbol.
+    Therefore, the summation over the values of this symbol is useless, because there is only one combination of indices, which respects the duplication.
+    Therefore, the breaking bound symbols need to hold the same exact value as the breaking free symbol,
+    and these symbols can be replaced by the same symbol, that was used to replace the free symbols.
+    Because of this, the occurence of the symbol also needs to be removed from the sum.
+    In our example, this is equivalent to replacing $l$ by $b$ and removing it from the sum:
+    \begin{align*}
+        \forall i,j,k: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc} \\
+                               & = \bigoplus\limits_{c} A_{aa} B_{bb} C_{cc} \odot U_{aabbcc}
+    \end{align*}
+    $$\bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc} = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}$$
+
+    Therefore, in all three cases, the symbols, that break a duplication, can simply be replaced by a single symbol.
+    Conveniently, as a replacing symbol, we can just use the symbol that defined the duplication in the first place,
+    because the inner expression shares no symbols with the outer expression.
+    Just as convenient is, that replacing the breaking symbols that include a combination of free and bound symbols, already removes the breaking bound symbols from the sum,
+    because the bound symbols are by definition only those symbols, which are not free.
+    In our example, this means that replacing $k$ and $l$ by $b$ already removes $l$ from the sum, because $b$ is now a free symbol as well.
+
+    Now, because $a \oplus \0 = a$ for any $a \in M$, if a duplication is broken by symbols
+
     Therefore, and because $a \oplus \0 = a$ for any $a \in M$, the summation is reduced to only those summands, which have multi-indices that respect the duplications.
     Therefore we can iterate over the summands in such a way, that only those multi-indices are considered, that respect the duplications.
     For this, we define a different set of bound symbols $\hat{B} = \left(\bigcup_{i \in [m]} \sigma(\bm{\hat{s}_i}) \cup \sigma(\bm{s_u})\right) \setminus \sigma(\bm{\hat{s}_v})$.
@@ -94,6 +159,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
 
     Then
     % TODO: reformulate to fit example, expand example to demonstrate cases where \bm{f} could not respect duplications
+    % TODO: not the bound symbols in the new expression get mapped, but the bound symbols in the old expression.
     $$\bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}
         = \begin{cases}
             \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{\hat{b}}):\bm{\check{s}_i}} \odot U_{(\bm{f}, \bm{\hat{b}}):\bm{s_u}} & \text{if } \bm{f} \text{ respects the duplications} \\
@@ -101,12 +167,20 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
         \end{cases}$$
     for all $\bm{f} \in \mathcal{F}$.
     When applied to our example, this is equivalent to:
-    $$\bigoplus\limits_{k, l, m} A_{ijkl} \odot U_{jklm}
+    $$\bigoplus\limits_{l, m, n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn}
         = \begin{cases}
-            \bigoplus\limits_{p} A_{ijkp} \odot U_{jkpp} & \text{if } j = k \\
-            \0                                           & \text{else}
+            \bigoplus\limits_{l, m, n} A_{aa} B_{b,l} C_{mn} \odot U_{aablmn} & \text{if } a = i = j, b = k \\
+            \0                                                                & \text{else}
         \end{cases}$$
-    for all $(i,j) \in [d_i] \times [d_j]$.
+    for all $(i,j,k)$.
+
+    When applied to our example, this is equivalent to:
+    $$\bigoplus\limits_{l, m, n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn}
+        = \begin{cases}
+            \bigoplus\limits_{b, c} A_{ij} B_{bb} C_{cc} \odot U_{ijbbcc} & \text{if } i = j \\
+            \0                                                            & \text{else}
+        \end{cases}$$
+    for all $(i,j,k)$.
 
     % For this, we define a new multi-index space $\mathcal{\hat{B}} = \left(\bigcup_{i \in [m]} \sigma(\bm{\hat{s}_i}) \cup \sigma(\bm{s_u})\right) \setminus \sigma(\bm{\hat{s}_v})$,
     % and project these multi-indices with index strings $\bm{\hat{s}_i}$ that respect the duplications.
