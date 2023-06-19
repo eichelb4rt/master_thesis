@@ -1,0 +1,102 @@
+\section{Translated Structures}
+\subsection{Fully Connected Feed-Forward Net}
+A single layer of a fully connected Feed-Forward Neural Net with ReLU activations can be expressed as a nested Einsum expression, with the use of multiple semirings.
+For this, let
+\begin{itemize}
+    \item $R_{(+, \cdot)}$ be the standard semiring,
+    \item $R_{(\max, +)}$ be the tropical semiring,
+    \item $R_{(\min, \max)}$ be the minimax semiring.
+\end{itemize}
+Let $\nu: \R^n \rightarrow \R^m$ be the function that computes the output of the layer for a given input vector $x \in \R^n$, with weights $A \in \R^{m \times n}$ and biases $b \in \R^m$.
+Then
+\begin{align*}
+    \nu(x) & = \max(Ax + b, 0)                                                                                                                   \\
+           & = (i,i\rightarrow i, 0, (i,i \rightarrow i, b, (ij, j \rightarrow i, A, x)_{R_{(+, \cdot)}} )_{R_{(\max, +)}} )_{R_{(\min, \max)}}.
+\end{align*}
+A multi-layer network can the be achieved by nesting the respective Einsum expressions of each layer.
+
+% TODO: beschreiben, wieso wir nicht compressen können
+Because each level of nesting needs a different semiring, we can not use the theorems from \autoref{chap:nested} to compress the expression.
+But if we could find a way of compressing the massively nested expressions of deeper neural networks despite of that, then we could benefit from the advantages mentioned in \autoref{sec:methods:comp_advantages} such as the optimisation of contraction paths.
+Unfortunately, it is unlikely that this is possible.
+% hier geht's los
+
+% TODO: beschreiben, wieso das trotzdem nützlich sein könnte? (Pipelining?)
+
+
+\subsection{Attention}
+% TODO: beschreiben, wieso attention mechanismus so wichtig ist
+The attention mechanism\dots
+Now, for $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism is comprised of multiple steps, which can all be expressed with Einsum expressions:
+\begin{itemize}
+    \item matrix multiplication $Q K^T$:
+          \begin{align*}
+              (QK^\T)_{ij} & = \sum\limits_{k \in [d_k]} Q_{ik} K_{jk} \\
+              QK^\T        & = (ik, jk \rightarrow ij, Q, K)
+          \end{align*}
+    \item scaling by $\sqrt{d_k}$ (no Einsum needed)
+          % TODO: komplett falsch
+    \item normalizing with softmax: Let $X \in \R^{m \times n}$, then
+          $$\text{softmax}(X)_{ij} := \frac{\exp(X_{ij})}{\omega_i}$$
+          where
+          $$\omega_i := \sum\limits_{j \in [n]} \exp(X_{ij}).$$
+          Therefore
+          $$\text{softmax}(X) = (ij, i \rightarrow ij, \exp(X), 1 / (ij \rightarrow i, \exp(X)))$$
+    \item another matrix multiplication with $V$. Let $X \in \R^{m \times n}$:
+          $$X V = (ik, kj \rightarrow ij, X, V)$$
+\end{itemize}
+
+Then the whole attention mechanism can be expressed with Einsum expressions and the use of element-wise functions:
+\begin{align*}
+    \text{Attention}(Q, K, V) & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                          \\
+                              & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), \\
+                              & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V)        \\
+                              & = (ik, kj, k \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))                      \\
+                              & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))), V)
+\end{align*}
+
+
+\subsection{Discrete Fourier Transform}
+Let $T$ be an $n$-th order tensor where all axes have size $m$.
+Then the Discrete Fourier Transform $\text{DFT}(T)$ is the $n$-th order tensor where all axes have size $m$ with:
+$$\text{DFT}(T)_{x_1,\dots,x_n} = \sum\limits_{y_1,\dots,y_n \in [m]} T_{y_1, \dots, y_n} \cdot \prod\limits_{j + k \leq n + 1} \exp(i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}})$$
+for $x_1,\dots,x_n \in [m]$.
+This form of the DFT is slightly rewritten from the form in (TODO: quote).
+
+Then we can define $\binom{m + 1}{2}$ matrices $T^{(j,k)} \in \C^{m \times m}$ for $j + k \leq n + 1$ in the following way:
+$$T^{(j,k)}_{x_j y_k} = \exp(i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}}).$$
+Then
+$$\text{DFT}(T)_{x_1,\dots,x_n} = \sum\limits_{y_1,\dots,y_n \in [m]} T_{y_1, \dots, y_n} \cdot \prod\limits_{j + k \leq n + 1} T^{(j,k)}_{x_j y_k}$$
+for $x_1,\dots,x_n \in [m]$.
+Therefore the DFT can be written as an Einsum expression with index strings consisting of symbols $s_{xi}$ and $s_{yj}$ for $j,k \in [n]$:
+\begin{itemize}
+    \item $\bm{s_x} = s_{x1}\dots s_{x n}$
+    \item $\bm{s_y} = s_{y1}\dots s_{y n}$
+    \item $\bm{s_{j,k}} = s_{xj} s_{yk}$ for $j,k \in [n]$
+\end{itemize}
+Then
+\begin{align*}
+    \text{DFT}(T) & = (\bm{s_y}, \bm{s_{1,1}}, \dots, \bm{s_{1,n}}, \bm{s_{2,1}}, \dots, \bm{s_{2,n - 1}}, \dots, \bm{s_{n, 1}} \rightarrow \bm{s_x}, \\
+                  & \phantom{{}=(} T, T^{(1,1)}, \dots, T^{(1, n)}, T^{(2,1)}, \dots, T^{(2, n-1)}, \dots, T^{(n, 1)}).
+\end{align*}
+
+
+\subsection{Hadamard Transform}
+Let $T$ be an $n$-th order tensor where all axes have size $m$.
+Then the Hadamard Transform $H(T)$ is the $n$-th order tensor where all axes have size $m$ with:
+$$H(T)_{x_1 \dots x_n} = \sum\limits_{y_1, \dots, y_n \in [m]} T_{y_1 \dots y_n} (-1)^{x_1 y_1 + \ldots + x_n y_n}$$
+for $x_1,\dots,x_n \in [m]$.
+
+Then we can define $n$ matrices $T^{(i)} \in \R^{m \times m}$ for $i \in n$:
+$$T^{(i)}_{x_i y_i} = (-1)^{x_i y_i}$$
+Then
+$$H(T)_{x_1 \dots x_n} = \sum\limits_{y_1 \dots y_n \in [m]} T_{y_1 \dots y_n} \cdot \prod\limits_{i \in [n]} T^{(i)}_{x_i y_i}$$
+for $x_1,\dots,x_n \in [m]$.
+Therefore the Hadamard Transform can be written as an Einsum expression with index strings consisting of symbols $s_{xi}$ and $s_{yj}$ for $j,k \in [n]$:
+\begin{itemize}
+    \item $\bm{s_x} = s_{x1}\dots s_{x n}$
+    \item $\bm{s_y} = s_{y1}\dots s_{y n}$
+    \item $\bm{s_i} = s_{xi} s_{yi}$ for $i \in [n]$
+\end{itemize}
+Then
+$$H(T) = (\bm{s_y}, \bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_x}, T, T^{(1)}, \dots, T^{(n)}).$$

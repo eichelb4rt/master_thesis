@@ -1,4 +1,5 @@
 \chapter{Nested Expressions}
+\label{chap:nested}
 
 In practice, concatenations of operations come naturally, e.g. computing the squared norm of a matrix-vector product $\abs{A \cdot v}_2^2$
 for $A \in \R^{m \times n}, v \in \R^n$.
@@ -76,7 +77,11 @@ This is because the symbol duplication $ii$ is broken by the index string $kj$, 
 
 \input{chapters/nested/thm_3.tex}
 
-With these theorems, we can write some more complex expressions from linear algebra as a single Einsum expression respectively:
+% TODO: can i really write "every"?
+With these theorems, we can write every naturally occuring complex expression from linear algebra as a single Einsum expression.
+The reason for this is, that in linear algebra, only up to two indices are used for a single tensor,
+which means that with two index strings, it cannot happen that a duplication is removed and anonther duplication is introduced simultaniously.
+Here are some more complex expressions as examples:
 \begin{itemize}
     \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
           \begin{align*}
@@ -94,5 +99,14 @@ With these theorems, we can write some more complex expressions from linear alge
                                      & = (ij, j \rightarrow ij, A, v)                      \\
           \end{align*}
 \end{itemize}
+
+To write every expression from linear algebra as a single Einsum expression respectively was already possible before, with (TODO: quote Julien).
+% There, (beschreib, was Julien gemacht hat).
+With these theorems, we can derive the Einsum expression to a linear algebra expression in a different way.
+First, every function is translated to their respective Einsum expression, which results in a nested einsum expression.
+Then, the nested expressions are compressed from the bottom up.
+
+But we still do not have a way of compressing nested Einsum expressions where a duplication is removed and another is introduced simultaniously.
+If we could do that, then we could build a compiler that is able to compress every possible nested Einsum expression, regardless of duplications.
 
 \input{chapters/nested/thm_4.tex}

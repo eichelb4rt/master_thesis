@@ -41,38 +41,3 @@ and the last equality follows from the distributive law in the tropical semiring
 This expression maximizes over a number of subexpressions that grows exponentially in the width of the inner layer.
 Which subexpressions can be removed before the evaluation remains an open question.
 Note that it depends on the non-linearities of the neural network, which might make it hard to find a general answer to this question.
-
-\section{Expressing Stuff as Einsum}
-
-Fully connected Feed-Forward Neural Net with ReLU activations (1 layer) $\nu: \R^n \rightarrow \R^m$ with weights $A \in \R^{m \times n}$ and biases $b \in \R^m$, input $x \in \R^n$
-\setlist{nolistsep}
-\begin{itemize}[noitemsep]
-    \item $(\text{einsum\_expression})_{R}$ indicates that the einsum expression uses the semiring $R$
-    \item $R_{(+, \cdot)}$ indicates the standard semiring
-    \item $R_{(\max, +)}$ indicates the tropical semiring
-    \item $R_{(\min, \max)}$ indicates the minimax semiring
-\end{itemize}
-\begin{align*}
-    \nu(x) & = \max(Ax + b, 0)                                                                                                                  \\
-           & = (i,i\rightarrow i, 0, (i,i \rightarrow i, b, (ij, j \rightarrow i, A, x)_{R_{(+, \cdot)}} )_{R_{(\max, +)}} )_{R_{(\min, \max)}}
-\end{align*}
-
-Attention with einsum:
-\begin{align*}
-     & (QK^\T)_{ij}              &  & = \sum\limits_{k} Q_{ik} K_{jk}                                                                                  \\
-     & QK^\T                     &  & = (ik, jk \rightarrow ij, Q, K)                                                                                  \\
-     & \text{softmax}(X)_{ij}    &  & = \frac{\exp(X_{ij})}{\sum\limits_{j'} \exp(X_{ij'})}                                                            \\
-     &                           &  & = \exp(X_{ij}) \cdot \sum\limits_{j'} \exp(-X_{ij'})                                                             \\
-     & \text{softmax}(X)         &  & = (ij, i \rightarrow ij, \exp(X), (ij \rightarrow i, \exp(-X)))                                                  \\
-     & (XV)_{ij}                 &  & = \sum\limits_{k} X_{ik} V_{kj}                                                                                  \\
-     & XV                        &  & = (ik, kj \rightarrow ij, X, V)                                                                                  \\
-     & \text{Attention}(Q, K, V) &  & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                          \\
-     &                           &  & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), \\
-     &                           &  & \phantom{{}=} (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V)           \\
-     &                           &  & = (ik, i, kj \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                     \\
-     &                           &  & \phantom{{}= } (ij \rightarrow i, \exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))), V)           \\
-     &                           &  & = (ik, ij, kj \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)),                    \\
-     &                           &  & \phantom{{}=}\exp(-\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), V)
-\end{align*}
-
-\blindtext[1]

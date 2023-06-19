@@ -2,15 +2,15 @@
 
 In the final generalisation of compressing nested Einsum expressions, all duplication breaking is allowed.
 This has no application for linear algebra, as all the previous theorems had, because this first comes into play with third order tensors.
-This is because, with two or less axes, there is no possibility of simultaniously breaking a duplication and introducing a new one.
+% This is because, with two or less axes, there is no possibility of simultaniously breaking a duplication and introducing a new one.
 Nevertheless, it serves as a useful tool for compressing all kinds of nested Einsum expressions.
 
-In the following theorem, we explore a way of compressing the expression
-% $$(ijk, jk \rightarrow ijk, A, (l \rightarrow ll, v))$$
+The following example is an expression, which we cannot compress with the previous theorems:
 $$(a,b,c,d,e,abbde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
     i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
     ))$$
 for $v^{(i)} \in \R^{d_{vi}}$ with $i \in [9]$, $\bm{d_v} = (f, f, g, g, h, f, f, g, h) \in \N^{9}$.
+In the following theorem, we will explore how to compress expressions such as this one.
 Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
 \begin{theorem}
@@ -42,7 +42,8 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     $$\nu(s) := \begin{cases}
             s_C & \text{if } s \in C \\
             s   & \text{else}
-        \end{cases}$$
+        \end{cases},$$
+    which can be extended to map entire index strings as in \autoref{thm:nested_einsum:2}.
     In our example, the components are $\smallset{a,b,i,j}$, $\smallset{c,d,k}$, and $\smallset{e,l}$.
     Therefore we could use
     $$\nu(s) := \begin{cases}
@@ -50,8 +51,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
             y & \text{if } s \in \smallset{c,d,k}   \\
             z & \text{if } s \in \smallset{e,l}     \\
             s & \text{else}
-        \end{cases},$$
-    which can be extended to map entire index strings as in \autoref{thm:nested_einsum:2}.
+        \end{cases}.$$
 
     \begin{figure}[h]
         \centering
