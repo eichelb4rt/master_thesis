@@ -100,13 +100,14 @@ Here are some more complex expressions as examples:
           \end{align*}
 \end{itemize}
 
-To write every expression from linear algebra as a single Einsum expression respectively was already possible before, with (TODO: quote Julien).
+But to write every expression from linear algebra as a single Einsum expression respectively was already possible before, with (TODO: quote Julien).
 % There, (beschreib, was Julien gemacht hat).
-With these theorems, we can derive the Einsum expression to a linear algebra expression in a different way.
+With these theorems, we just derived a different way of achieving that.
+For this, we can state a very simple procedure.
 First, every function is translated to their respective Einsum expression, which results in a nested einsum expression.
 Then, the nested expressions are compressed from the bottom up.
 
-But we still do not have a way of compressing nested Einsum expressions where a duplication is removed and another is introduced simultaniously.
+But we still do not have a way of compressing general nested Einsum expressions, where duplications might be removed and introduced simultaniously.
 If we could do that, then we could build a compiler that is able to compress every possible nested Einsum expression, regardless of duplications.
 
 \input{chapters/nested/thm_4.tex}

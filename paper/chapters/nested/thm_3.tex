@@ -92,7 +92,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     In our example, this is equivalent to replacing $i$ and $j$ by a single symbol $a$:
     \begin{align*}
         \forall i,j,k: V_{ijk} & = \bigoplus\limits_{l,m,n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} \\
-        \forall i,j,k: V_{aak} & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
+        \forall a,k: V_{aak} & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
     \end{align*}
 
     For the next two cases, we need to use that $a \oplus \0 = a$ for any $a \in M$.
@@ -109,8 +109,8 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     In our example, this is useless, because there is already only one symbol $k$ where this can be applied.
     Let us do it anyway, because it might clear up what needs to be done in this step.
     \begin{align*}
-        \forall i,j,k: V_{aak} & = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc} \\
-        \forall i,j,k: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}
+        \forall a,k: V_{aak} & = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc} \\
+        \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}
     \end{align*}
     Then, the values held by the breaking bound symbols are already defined by the value held by the now only breaking free symbol.
     Therefore, the summation over the values of this symbol is useless, because there is only one combination of indices, which respects the duplication.
@@ -119,7 +119,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Because of this, the occurence of the symbol also needs to be removed from the sum.
     In our example, this is equivalent to replacing $l$ by $b$ and removing it from the sum:
     \begin{align*}
-        \forall i,j,k: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc} \\
+        \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc} \\
                                & = \bigoplus\limits_{c} A_{aa} B_{bb} C_{cc} \odot U_{aabbcc}
     \end{align*}
 

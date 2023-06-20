@@ -1,0 +1,30 @@
+\section{Attention}
+% TODO: beschreiben, wieso attention mechanismus so wichtig ist
+The attention mechanism\dots
+Now, for $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism is comprised of multiple steps, which can all be expressed with Einsum expressions:
+\begin{itemize}
+    \item matrix multiplication $Q K^T$:
+          \begin{align*}
+              (QK^\T)_{ij} & = \sum\limits_{k \in [d_k]} Q_{ik} K_{jk} \\
+              QK^\T        & = (ik, jk \rightarrow ij, Q, K)
+          \end{align*}
+    \item scaling by $\sqrt{d_k}$ (no Einsum needed)
+          % TODO: komplett falsch
+    \item normalizing with softmax: Let $X \in \R^{m \times n}$, then
+          $$\text{softmax}(X)_{ij} := \frac{\exp(X_{ij})}{\omega_i}$$
+          where
+          $$\omega_i := \sum\limits_{j \in [n]} \exp(X_{ij}).$$
+          Therefore
+          $$\text{softmax}(X) = (ij, i \rightarrow ij, \exp(X), 1 / (ij \rightarrow i, \exp(X)))$$
+    \item another matrix multiplication with $V$. Let $X \in \R^{m \times n}$:
+          $$X V = (ik, kj \rightarrow ij, X, V)$$
+\end{itemize}
+
+Then the whole attention mechanism can be expressed with Einsum expressions and the use of element-wise functions:
+\begin{align*}
+    \text{Attention}(Q, K, V) & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                          \\
+                              & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), \\
+                              & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V)        \\
+                              & = (ik, kj, k \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))                      \\
+                              & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))), V)
+\end{align*}

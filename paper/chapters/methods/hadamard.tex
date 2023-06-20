@@ -1,0 +1,20 @@
+\section{Hadamard Transform}
+Let $T$ be an $n$-th order tensor where all axes have size $m$.
+Then the Hadamard Transform $H(T)$ is the $n$-th order tensor where all axes have size $m$ with:
+$$H(T)_{x_1 \dots x_n} = \sum\limits_{y_1, \dots, y_n \in [m]} T_{y_1 \dots y_n} (-1)^{x_1 y_1 + \ldots + x_n y_n}$$
+for $x_1,\dots,x_n \in [m]$.
+
+Then we can define $n$ matrices $T^{(i)} \in \R^{m \times m}$ for $i \in n$:
+$$T^{(i)}_{x_i y_i} = (-1)^{x_i y_i}$$
+for $x_i, y_i \in [m]$.
+Then
+$$H(T)_{x_1 \dots x_n} = \sum\limits_{y_1 \dots y_n \in [m]} T_{y_1 \dots y_n} \cdot \prod\limits_{i \in [n]} T^{(i)}_{x_i y_i}$$
+for $x_1,\dots,x_n \in [m]$.
+Therefore the Hadamard Transform can be written as an Einsum expression with index strings consisting of symbols $s_{xi}$ and $s_{yj}$ for $j,k \in [n]$:
+\begin{itemize}
+    \item $\bm{s_x} = s_{x1}\dots s_{x n}$
+    \item $\bm{s_y} = s_{y1}\dots s_{y n}$
+    \item $\bm{s_i} = s_{xi} s_{yi}$ for $i \in [n]$
+\end{itemize}
+Then
+$$H(T) = (\bm{s_y}, \bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_x}, T, T^{(1)}, \dots, T^{(n)}).$$

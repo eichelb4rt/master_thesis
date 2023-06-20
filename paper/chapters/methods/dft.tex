@@ -1,0 +1,40 @@
+\section{Discrete Fourier Transform}
+Let $T$ be an $n$-th order tensor where all axes have size $m$.
+Then the Discrete Fourier Transform $\text{DFT}(T)$ is the $n$-th order tensor where all axes have size $m$ with:
+$$\text{DFT}(T)_{x_1,\dots,x_n} = \sum\limits_{y_1,\dots,y_n \in [m]} T_{y_1, \dots, y_n} \cdot \prod\limits_{j + k \leq n + 1} \exp(i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}})$$
+for $x_1,\dots,x_n \in [m]$.
+This formulation of the DFT is slightly rewritten form of the formulation in (TODO: quote).
+
+To write the DFT as an Einsum expression, we need to define $\binom{m + 1}{2}$ matrices $T^{(j,k)} \in \C^{m \times m}$ for $j + k \leq n + 1$ in the following way:
+$$T^{(j,k)}_{x_j y_k} := \exp\left(i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}}\right)$$
+for $x_j, y_k \in [m]$.
+Then
+$$\text{DFT}(T)_{x_1,\dots,x_n} = \sum\limits_{y_1,\dots,y_n \in [m]} T_{y_1, \dots, y_n} \cdot \prod\limits_{j + k \leq n + 1} T^{(j,k)}_{x_j y_k}$$
+for $x_1,\dots,x_n \in [m]$.
+Therefore the DFT can be written as an Einsum expression with index strings consisting of symbols $s_{xi}$ and $s_{yj}$ for $j,k \in [n]$:
+\begin{itemize}
+    \item $\bm{s_x} = s_{x1}\dots s_{x n}$
+    \item $\bm{s_y} = s_{y1}\dots s_{y n}$
+    \item $\bm{s_{j,k}} = s_{xj} s_{yk}$ for $j,k \in [n]$
+\end{itemize}
+With these index strings, the Einsum expression for a general DFT over any number of dimensions is the following:
+\begin{align*}
+    \text{DFT}(T) & = (\bm{s_y}, \bm{s_{1,1}}, \dots, \bm{s_{1,n}}, \bm{s_{2,1}}, \dots, \bm{s_{2,n - 1}}, \dots, \bm{s_{n, 1}} \rightarrow \bm{s_x}, \\
+                  & \phantom{{}=(} T, T^{(1,1)}, \dots, T^{(1, n)}, T^{(2,1)}, \dots, T^{(2, n-1)}, \dots, T^{(n, 1)})
+\end{align*}
+
+Because this notation is hard to read, we will explore an example of the DFT of a third-order tensor with axes of size 32.
+In this example, we have to define 6 matrices $T^{(1,1)}$, $T^{(1,2)}$, $T^{(1,3)}$, $T^{(2,1)}$, $T^{(2, 2)}$, and $T^{(3,1)}$.
+We will use $a,b,c$ as symbols for the indices of $T$, and $x,y,z$ as the symbols for the indices of $\text{DFT}(T)$.
+Then the matrices are defined in the following way:
+\begin{align*}
+    T^{(1,1)}_{xa} & = \exp\left(i2\pi \frac{(x - 1)(a - 1)}{32^3}\right) & T^{(1,3)}_{xc} & = \exp\left(i2\pi \frac{(x - 1)(c - 1)}{32}\right) \\
+    T^{(1,2)}_{xb} & = \exp\left(i2\pi \frac{(x - 1)(b - 1)}{32^2}\right) & T^{(2,2)}_{yb} & = \exp\left(i2\pi \frac{(y - 1)(b - 1)}{32}\right) \\
+    T^{(2,1)}_{ya} & = \exp\left(i2\pi \frac{(y - 1)(a - 1)}{32^2}\right) & T^{(3,1)}_{za} & = \exp\left(i2\pi \frac{(z - 1)(a - 1)}{32}\right)
+\end{align*}
+for $x, y, z, a, b, c \in [32]$.
+Then the Einsum expression is the following:
+\begin{align*}
+    \text{DFT}(T) & = (abc, xa, xb, xc, ya, yb, za \rightarrow xyz,                                     \\
+                  & \phantom{{}=(} T, T^{(1,1)}, T^{(1,2)}, T^{(1,2)}, T^{(2,1)}, T^{(2,2)}, T^{(3,1)})
+\end{align*}

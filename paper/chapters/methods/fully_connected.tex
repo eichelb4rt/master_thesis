@@ -1,0 +1,73 @@
+\section{Fully Connected Feed-Forward Net}
+A single layer of a fully connected Feed-Forward Neural Net with ReLU activations can be expressed as a nested Einsum expression, with the use of multiple semirings.
+For this, let
+\begin{itemize}
+    \item $R_{(+, \cdot)}$ be the standard semiring,
+    \item $R_{(\max, +)}$ be the tropical semiring,
+    \item $R_{(\min, \max)}$ be the minimax semiring.
+\end{itemize}
+Let $\nu: \R^n \rightarrow \R^m$ be the function that computes the output of the layer for a given input vector $x \in \R^n$, with weights $A \in \R^{m \times n}$ and biases $b \in \R^m$.
+Then
+\begin{align*}
+    \nu(x) & = \max(Ax + b, 0)                                                                                                                   \\
+           & = (i,i\rightarrow i, 0, (i,i \rightarrow i, b, (ij, j \rightarrow i, A, x)_{R_{(+, \cdot)}} )_{R_{(\max, +)}} )_{R_{(\min, \max)}}.
+\end{align*}
+A multi-layer network can the be achieved by nesting the respective Einsum expressions of each layer.
+
+Because each level of nesting needs a different semiring, we can not use the theorems from \autoref{chap:nested} to compress the expression.
+But if we could find a way of compressing the massively nested expressions of deeper neural networks despite of that, then we could benefit from the advantages mentioned in \autoref{sec:methods:comp_advantages} such as the optimisation of contraction paths.
+Unfortunately, it is unlikely that this is possible, because we found that expanding the matrix multiplication, that transforms the outputs of another layer, results in an exponentially big term.
+
+To see this, we use the tropical semiring $(\R, \oplus, \odot)$, where $a \oplus b = \max(a,b)$ and $a \odot b = a + b$.
+We do this because tropical semiring can naturally express all the operations used in a fully connected neural network.
+For this we need to define the tropical power:
+$$a^{\odot n} = \underbrace{a \odot a \odot \ldots \odot a}_{n \text{ times}}$$
+for $n \in \N$. The following property of the tropical power is also needed:
+$$\left(a^{\odot b}\right)^{\odot c} = a^{\odot(b + c)}.$$
+The tropical semiring also allows us to use the distributive law of maximization and addition
+$$a \odot (b \oplus c) = a \odot b \oplus a \odot c,$$
+as well as the distributive law of addition and multiplication
+$$(a \odot b)^{\odot n} = a^{\odot n} \odot b^{\odot n},$$
+and the distributive law of maximization and multiplication, which is restricted on natural numbers
+$$(a \oplus b)^{\odot n} = a^{\odot n} \oplus b^{\odot n}.$$
+
+Let $\nu: \R^n \rightarrow \R^l$ be the function that computes the output of a two-layer fully connected neural network ($n \rightarrow m \rightarrow l$ neurons) with ReLU activations,
+which maps inputs $x \in \R^n$ to outputs $\nu(y) \in R^l$, with parameters $A^{(0)} \in \R^{m \times n}, A^{(1)} \in \R^{l \times m}, b^{(0)} \in \R^m, b^{(1)} \in \R^l$.
+Then the computation of the neural network is:
+$$\nu(x) = \max(A^{(1)}\max(A^{(0)}x + b^{(0)}, 0) + b^{(1)}, 0)$$
+
+In order to reasonably work with matrix multiplication in the tropcial semiring, we can only view matrices with positive integer entries.
+% TODO: quote
+This is not a limitation, because making the entries integers does not impact the strength of the neural network, because [...] (quote the paper).
+
+In order to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:
+\begin{align*}
+    \max(Ax + b, 0) & = \max(A_+ x - A_- x + b, A_- x - A_- x) \\
+                    & = \max(A_+ x + b, A_- x) - A_- x
+\end{align*}
+where $A_+ = \max(A, 0), A_- = \max(-A, 0)$ and therefore $A = A_+ - A_-$.
+% TODO: quote
+This turns the network output into a tropical rational function (quote):
+\begin{align*}
+    \nu(x) & = \max(\overbrace{A^{(1)}_+ \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x)}^z + A^{(1)}_- A^{(0)}_+ x + b^{(1)}, \\
+           & \phantom{{} =} A^{(1)}_- \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x) + A^{(1)}_+ A^{(0)}_+ x)                 \\
+           & \phantom{{} =} -\left[A^{(1)}_- \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x) + A^{(1)}_+ A^{(0)}_+ x\right]
+\end{align*}
+We focus on the subexpression $z$, which makes the calculation a bit simpler, but keeps the point.
+
+Now, if we want to avoid switching semirings, we need to apply the distributive law a bunch of times.
+\begin{align*}
+    z   & = A^{(1)}_+ \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x)                                                                                                                                                                                                                                                                                                          \\
+    z_i & = \bigodot\limits_{j = 1}^{m}\left(b^{(0)}_j \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk+}} \oplus \bigodot\limits_{k = 1}^{n} x_k^{\odot A^{(0)}_{jk-}}\right)^{\odot A^{(1)}_{ij+}}                                                                                                                                                            \\
+        & = \bigodot\limits_{j = 1}^{m}\left(\left(b^{(0)}_j\right)^{\odot A^{(1)}_{ij+}} \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk+}\right)} \oplus \bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk-}\right)}\right)                                                                                     \\
+        & = \bigoplus\limits_{J \in 2^{[m]}} \bigodot\limits_{j \in J} \left[\left(b^{(0)}_j\right)^{\odot A^{(1)}_{ij+}} \odot \bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk+}\right)}\right] \odot \bigodot\limits_{j \in [n] \setminus J} \left[\bigodot\limits_{k = 1}^{n} x_k^{\odot \left(A^{(1)}_{ij+} + A^{(0)}_{jk-}\right)}\right]
+\end{align*}
+Where the second equality is just the first equality written with the operations of the tropical semiring,
+the third equality follows from the distributive law of standard addition and multiplication and the distributive law of maximization and multiplication,
+and the last equality follows from the distributive law of maximization and addition.
+
+This expression maximizes over a number of subexpressions that grows exponentially in the width of the inner layer.
+Which subexpressions can be removed before the evaluation remains an open question.
+Note that it depends on the non-linearities of the neural network, which might make it hard to find a general answer to this question.
+
+% TODO: beschreiben, wieso das trotzdem nützlich sein könnte? (Pipelining?)
