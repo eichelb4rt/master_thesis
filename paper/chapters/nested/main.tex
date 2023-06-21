@@ -20,7 +20,7 @@ In the following theorems, we assume that the computations are all over the same
 
 \input{chapters/nested/thm_1.tex}
 
-This means that we can compress all nested Einsum expressions, where the output string of the inner expression, which is used to compute $U$, is exactly the same as the respective input string in the outer expression, when $U$ is used as an input tensor.
+This means that we can compress all nested Einsum expressions, where the output string of the inner expression, which is used to compute $U$, is exactly the same as the respective input string in the outer expression, where $U$ is used as an input tensor.
 This is already helpful for naturally occuring expressions in linear algebra, e.g.
 \begin{align*}
     \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
@@ -32,7 +32,7 @@ for $A \in \R^{m \times n}, v \in \R^{n}$, or
                       & = (ik,kj,j \rightarrow i, A, B, v)
 \end{align*}
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
-But sometimes, we need to access a different multi-index set than the one we computed, e.g.
+However, sometimes we need to access a different multi-index set than the one we computed, e.g.
 $$\text{trace}(A \cdot B) = (ii \rightarrow, (ik, kj \rightarrow ij, A, B))$$
 or
 $$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$

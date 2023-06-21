@@ -4,7 +4,7 @@ The following example is an expression, which we cannot compress with the previo
 $$(ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))$$
 for $A \in \R^{x \times x}, B \in \R^{y \times y}, C \in \R^{z \times z}, D \in \R^{x \times y \times z}$.
 In the following theorem, we will explore how to compress expressions such as this one.
-Again, we use disjoined sets of symbols for the inner and outer expression to help us in the formulation and the proof.
+Again, we use disjoint sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
 \begin{theorem}
     \label{thm:nested_einsum:3}
@@ -25,8 +25,8 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
     As in \autoref{thm:nested_einsum:2}, we need to apply a symbol map before substituting $\bm{\hat{s}_u}$.
-    Interestingly, the symbol map is not applied to the index strings in the computation of $U$ ($\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$),
-    but to the index strings in the computation of $V$ ($\bm{s_1},\dots,\bm{s_m}$).
+    Interestingly, the symbol map is not applied to the index strings of the inner expression ($\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$),
+    but to the index strings of the outer expression ($\bm{s_1},\dots,\bm{s_m}$ and $\bm{s_v}$).
     Similarly, it does not map $\bm{s_u}$ to $\bm{\hat{s}_u}$, but $\bm{\hat{s}_u}$ to $\bm{s_u}$.
 
     Let $\nu: S \rightarrow S$ such that
@@ -64,7 +64,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
 
     Let $F, F', B, B'$ be the free and bound symbols of the second (outer) and first (inner) einsum expression respectively.
     W.l.o.g. they are all non-empty.
-    From them we can derive $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
+    from them we can derive the multi-index spaces $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
     Then $U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$ is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ with $(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$, where $j,j' \in [n_u]$ are indices of $\bm{s_u}$ where the symbols are duplicated, i.e. $s_{uj} = s_{uj'}$.
     In our example, this means that $(op \rightarrow oopp, B)$ is only non-zero for $(j,k,l,m) \in [d_j] \times [d_k] \times [d_l] \times [d_m]$ with $j = k$ and $l = m$, because $s_{u1} = s_{u2} = o$ and $s_{u3} = s_{u4} = p$.
 
@@ -92,7 +92,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     In our example, this is equivalent to replacing $i$ and $j$ by a single symbol $a$:
     \begin{align*}
         \forall i,j,k: V_{ijk} & = \bigoplus\limits_{l,m,n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} \\
-        \forall a,k: V_{aak} & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
+        \forall a,k: V_{aak}   & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
     \end{align*}
 
     For the next two cases, we need to use that $a \oplus \0 = a$ for any $a \in M$.
@@ -120,7 +120,7 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     In our example, this is equivalent to replacing $l$ by $b$ and removing it from the sum:
     \begin{align*}
         \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc} \\
-                               & = \bigoplus\limits_{c} A_{aa} B_{bb} C_{cc} \odot U_{aabbcc}
+                             & = \bigoplus\limits_{c} A_{aa} B_{bb} C_{cc} \odot U_{aabbcc}
     \end{align*}
 
     Therefore, in all three cases, the symbols, that break a duplication, can simply be replaced by a single symbol.
@@ -137,13 +137,12 @@ Again, we use disjoined sets of symbols for the inner and outer expression to he
     Let $\mathcal{\hat{F}} = \prod_{s \in \hat{F}} [d_s]$ and $\mathcal{\hat{B}} = \prod_{s \in \hat{B}} [d_s]$.
     Then
     \begin{align*}
-        V                                                                                 & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                                                                                                                 \\
-        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                         & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                                                                                                                                      \\
-        \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_u}}                                                                                                                  \\
-                                                                                          & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot \left[\bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{\hat{f}}, \bm{\hat{b}}, \bm{b'}):\bm{s_{i'}}}\right] \\
-                                                                                          & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_i}}                                                                                        \\
-        \iff V                                                                            & = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)}, \dots, T^{(m + n)})
+        V                                                                                 & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                \\
+        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                         & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                     \\
+        \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_u}} \\
+        \iff V                                                                            & = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_u} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                    \\
+                                                                                          & = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)}, \dots, T^{(m + n)})
     \end{align*}
-    where the second equivalence holds because of the previously discussed symbol replacements, and the rest is similar to the steps in \autoref{thm:nested_einsum:1} and \autoref{thm:nested_einsum:2}.
+    where the second equivalence holds because of the previously discussed symbol replacements, the third equivalence is the definition of einsum, and the last equality holds because of \autoref{thm:nested_einsum:1}, because the symbols of the outer expression have not been mapped to any of the bound symbols of the inner expression.
 \end{proof}
 \bigskip
