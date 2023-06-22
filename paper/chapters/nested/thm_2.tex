@@ -58,7 +58,7 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     The symbol map $\nu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\nu(\bm{s_i}) \in S^{n_i}, \nu(\bm{s_i})_j := \nu(s_{ij})$.
     Then we can write the substituted index strings by setting $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m + 1, m + n]$.
 
-    Then the compressed Einsum expression is the following:
+    The compressed Einsum expression now becomes the following:
     $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
     $$(ij, jjj \rightarrow i, A, (kl, lo \rightarrow kko, B, C)) = (ij, jl, lj \rightarrow i, A, B, C)$$

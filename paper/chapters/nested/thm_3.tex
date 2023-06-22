@@ -140,9 +140,11 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
         V                                                                                 & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                \\
         \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                         & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                     \\
         \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_u}} \\
-        \iff V                                                                            & = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_u} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                    \\
-                                                                                          & = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)}, \dots, T^{(m + n)})
+        \iff V                                                                            & = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_u} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m)}, U)
     \end{align*}
-    where the second equivalence holds because of the previously discussed symbol replacements, the third equivalence is the definition of einsum, and the last equality holds because of \autoref{thm:nested_einsum:1}, because the symbols of the outer expression have not been mapped to any of the bound symbols of the inner expression.
+    where the second equivalence holds because of the previously discussed symbol replacements.
+    Then we can use \autoref{thm:nested_einsum:1} for
+    $$V = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)}, \dots, T^{(m + n)})$$
+    because the symbols of the outer expression have not been mapped to any of the bound symbols of the inner expression.
 \end{proof}
 \bigskip

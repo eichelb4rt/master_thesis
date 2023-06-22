@@ -1,2 +1,12 @@
 \section{Convolution}
-\dots
+
+Let $F$ and $G$ be two $n$-th order tensors where all axes of $F$ have size $d_F$ and all axes of $G$ have size $d_G$ with $d_F < d_G$.
+Let $d_O = d_G - d_F + 1$.
+Then the convolution $F * G$ is defined in the following way:
+$$(F * G)_x := \sum\limits_{y \in [d_F]^n} F_y \cdot G_{x + d_F - y}$$
+for all $x \in [d_O]^n$, where $x + d_F - y$ indicates the element-wise addition $(x + d_F - y)_i = x_i + d_F - y_i$ for $i \in [n]$.
+
+This can be expressed as an Einsum expression with
+$$G'_{(x, y)} := G_{x + d_F - y}$$
+for $x \in [d_G]^n, y \in [d_F]^n$ in the following way:
+$$(F * G)_x = \sum\limits_{y \in [d_G]^n} F_y G'_{(x, y)}$$

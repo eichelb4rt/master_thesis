@@ -1,7 +1,6 @@
 \section{Attention}
 % TODO: beschreiben, wieso attention mechanismus so wichtig ist
-The attention mechanism\dots
-Now, for $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism is comprised of multiple steps, which can all be expressed with Einsum expressions:
+For $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism is comprised of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
 \begin{itemize}
     \item matrix multiplication $Q K^T$:
           \begin{align*}
@@ -16,7 +15,7 @@ Now, for $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \t
           $$\omega_i := \sum\limits_{j \in [n]} \exp(X_{ij}).$$
           Therefore
           $$\text{softmax}(X) = (ij, i \rightarrow ij, \exp(X), 1 / (ij \rightarrow i, \exp(X)))$$
-    \item another matrix multiplication with $V$. Let $X \in \R^{m \times n}$:
+    \item another matrix multiplication with $V$. Let $X \in \R^{d_v \times d_v}$:
           $$X V = (ik, kj \rightarrow ij, X, V)$$
 \end{itemize}
 
@@ -28,3 +27,5 @@ Then the whole attention mechanism can be expressed with Einsum expressions and 
                               & = (ik, kj, k \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))                      \\
                               & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))), V)
 \end{align*}
+% TODO: what about the optional mask?
+% TODO: talk about what this means (we still got a duplication in here)
