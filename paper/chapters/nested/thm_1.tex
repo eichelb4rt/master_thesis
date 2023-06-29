@@ -1,5 +1,9 @@
 \section{Simple Nested Expressions}
 
+In the following, we will explore how to compress such expressions as
+$$\underbrace{(ij, j \rightarrow i, \overbrace{(ik, kj \rightarrow ij, A, B)}^{\text{inner expression}}, v)}_{\text{outer expression}}$$
+for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
+
 \begin{theorem}
     \label{thm:nested_einsum:1}
 
@@ -14,9 +18,10 @@
     $$V = (\bm{s_1}, \dots, \bm{s_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})$$
 \end{theorem}
 
+\bigskip
 \begin{proof}
     \small
-    Let $F, F', B, B'$ be the free and bound symbols of the second (outer) and first (inner) einsum expression respectively.
+    Let $F, F', B, B'$ be the free and bound symbols of the outer and inner Einsum expression respectively.
     W.l.o.g. they are all non-empty.
     From them we can derive the multi-index spaces $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
     Then

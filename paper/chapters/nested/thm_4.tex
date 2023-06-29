@@ -11,11 +11,20 @@ The following example is an expression, which we cannot compress with the previo
 $$(a,b,c,d,e,abbde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
     i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
     ))$$
-for $v^{(i)} \in \R^{d_{vi}}$ with $i \in [9]$, $\bm{d_v} = (f, f, g, g, h, f, f, g, h) \in \N^{9}$.
-In the following theorem, we will explore how to compress expressions such as this one.
-Again, we use disjoint sets of symbols for the inner and outer expression to help us in the formulation and the proof.
+for $v^{(i)} \in \R^{d_{vi}}$ with $i \in [9]$ and
+\begin{gather*}
+    d_{v1} = d_{v2} = d_{v6} = d_{v7},\\
+    d_{v2} = d_{v3} = d_{v8},\\
+    d_{v5} = d_{v9}.
+\end{gather*}
+This is because, from the output string $\bm{s_u} = iijkkl$ to the input string $\bm{\hat{s}_u} = abbde$,
+duplications are simultaniously removed and introduced.
+For example, the duplication $ii$ is removed by the symbols $ab$, and a new duplication $bb$ is introduced on the second and third index, which holds the symbols $ij$ in the output string.
+In the following theorem, we will explore how to compress such expressions.
+Again, we use disjoint sets of symbols for the inner and outer expression to help us in the formulation.
+% ... help us in the formulation (and the proof).
 
-\begin{theorem}
+\begin{conjecture}
     \label{thm:nested_einsum:4}
     For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
@@ -103,11 +112,6 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
         (a,b,c,d,e,abbde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
         i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
         ))\\
-        =(x,x,y,y,z,x,x,y,z \rightarrow xy, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)})
+        =(x,x,y,y,z,x,x,y,z \rightarrow xy, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}).
     \end{gather*}
-\end{theorem}
-
-\begin{proof}
-    \small
-    Wird spannend.
-\end{proof}
+\end{conjecture}

@@ -2,9 +2,9 @@
 A single layer of a fully connected Feed-Forward Neural Net with ReLU activations can be expressed as a nested Einsum expression, with the use of multiple semirings.
 For this, let
 \begin{itemize}
-    \item $R_{(+, \cdot)}$ be the standard semiring,
-    \item $R_{(\max, +)}$ be the tropical semiring,
-    \item $R_{(\min, \max)}$ be the minimax semiring.
+    \item $R_{(+, \cdot)}$ be the standard semiring $(\R, +, \cdot)$,
+    \item $R_{(\max, +)}$ be the tropical semiring $(\R \cup \smallset{-\infty}, \max, +)$,
+    \item $R_{(\min, \max)}$ be the minimax semiring $(\R \cup \smallset{-\infty, +\infty}, \min, \max)$.
 \end{itemize}
 Let $\nu: \R^n \rightarrow \R^m$ be the function that computes the output of the layer for a given input vector $x \in \R^n$, with weights $A \in \R^{m \times n}$ and biases $b \in \R^m$.
 Then

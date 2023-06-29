@@ -44,14 +44,14 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     This symbol map holds information about which symbols will be iterated over at the same time in the outer expression.
     In our example, we have the following symbols on the same positions:
     \begin{itemize}
-        \item $s_{u1} = k$ and $\hat{s}_{u1} = j$
-        \item $s_{u2} = k$ and $\hat{s}_{u2} = j$
-        \item $s_{u3} = o$ and $\hat{s}_{u3} = j$
+        \item $s_{u1} = k$ and $\hat{s}_{u1} = j$,
+        \item $s_{u2} = k$ and $\hat{s}_{u2} = j$,
+        \item $s_{u3} = o$ and $\hat{s}_{u3} = j$.
     \end{itemize}
     Therefore these are the important mappings:
     \begin{align*}
-        k & \rightarrow j \\
-        o & \rightarrow j
+        k & \rightarrow j, \\
+        o & \rightarrow j.
     \end{align*}
     This means that $k$ and $o$ will be iterated over at the same time.
 
@@ -61,9 +61,10 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     The compressed Einsum expression now becomes the following:
     $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
-    $$(ij, jjj \rightarrow i, A, (kl, lo \rightarrow kko, B, C)) = (ij, jl, lj \rightarrow i, A, B, C)$$
+    $$(ij, jjj \rightarrow i, A, (kl, lo \rightarrow kko, B, C)) = (ij, jl, lj \rightarrow i, A, B, C).$$
 \end{theorem}
 
+\bigskip
 \begin{proof}
     \small
     The fundamental idea behind this theorem is, that by using the index string $\bm{\hat{s}_u}$, we only iterate over a sub-space of the indices that we defined for the computation of $U$.
@@ -72,14 +73,14 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     To formulate this, we need some idea of which multi-indices we iterate over.
     Therefore, let $\mathcal{I}:\bm{s} := \smallset{\bm{i}: \bm{s} \mid \bm{i} \in \mathcal{I}}$ for an index string $\bm{s}$ and a multi-index space $\mathcal{I}$.
 
-    Let $F', B'$ be the free and bound symbols of the first (inner) Einsum expression.
+    Let $F', B'$ be the free and bound symbols of the inner Einsum expression.
     W.l.o.g. they are both non-empty.
     From them we can derive the multi-index spaces $\mathcal{F}', \mathcal{B}'$ as in the definition.
     Let $\hat{F}' = \sigma(\bm{\hat{s}_u})$ and $\mathcal{\hat{F}}' = \prod_{s \in \hat{F}'} [d_s]$.
     Then $\mathcal{\hat{F}}':\bm{\hat{s}_u} \subseteq \mathcal{F}':\bm{s_u}$.
     This follows from $d_{s_{uj}} = d_{\hat{s}_{uj}}$ for $j \in [n_u]$,
     and the amount of symbols in the projection of $\mathcal{\hat{F}}':\bm{\hat{s}_u}$ being smaller or equal to the amount of symbols in the projection of $\mathcal{F}':\bm{s_u}$.
-    The first fact is true per the definition of einsum.
+    The first fact is true per the definition of Einsum.
     The second fact can be rewritten as $\abs{\sigma(\bm{\hat{s}_u})} \leq \abs{\sigma(\bm{s_u})}$ and follows directly from the constraint $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$ for all $j,j' \in [n_u]$.
 
     Then

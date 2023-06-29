@@ -5,8 +5,44 @@ Let $d_O = d_G - d_F + 1$.
 Then the convolution $F * G$ is defined in the following way:
 $$(F * G)_x := \sum\limits_{y \in [d_F]^n} F_y \cdot G_{x + d_F - y}$$
 for all $x \in [d_O]^n$, where $x + d_F - y$ indicates the element-wise addition $(x + d_F - y)_i = x_i + d_F - y_i$ for $i \in [n]$.
-
-This can be expressed as an Einsum expression with
+Let
 $$G'_{(x, y)} := G_{x + d_F - y}$$
-for $x \in [d_G]^n, y \in [d_F]^n$ in the following way:
-$$(F * G)_x = \sum\limits_{y \in [d_G]^n} F_y G'_{(x, y)}$$
+for $x \in [d_O]^n, y \in [d_F]^n$.
+Then
+$$(F * G)_x = \sum\limits_{y \in [d_G]^n} F_y G'_{(x, y)}.$$
+Let
+$$P_{(x, y, z)} = \begin{cases}
+        1 & \text{if } z = x + d_F - y \\
+        0 & \text{else}
+    \end{cases}$$
+for $x \in [d_O]^n, y \in [d_F]^n, z \in [d_G]^n$.
+Then
+$$G'_{(x, y)} = \sum\limits_{z \in [d_G]^n} P_{(x, y, z)} G_z.$$
+Therefore, convolution can be expressed as an Einsum expression:
+$$(F * G) = ((\bm{s_x},\bm{s_y},\bm{s_z}),\bm{s_y}, \bm{s_z}  \rightarrow \bm{s_x}, P, F, G)$$
+where $\bm{s_x},\bm{s_y},\bm{s_z} \in S^n$ use distinct symbols.
+
+The manual computation of the design tensor $P$ is quite expensive, and therefore this expression could be inefficient.
+It could lead to a more efficient computation, if this design tensor could be described as an \textit{outer product} of 2 or more smaller tensors.
+Sadly, this is not possible.
+
+\begin{proof}
+    \small
+    To prove this, we will first show that, if $P$ can be described as an outer product, then the factors also have to be scaled design tensors.
+    And then we will show that it is not possible for an outer product of design tensors to result in $P$ because its \textit{diagonal} structure does not match the structure of outer products of design tensors.
+
+    Let $U$ be an $m$-th order tensor, and $V$ an $(3n-m)$-th order tensor.
+    Let $\bm{s_u} \in S^{m}$ be the index string for $U$,
+    and let $\bm{s_v} \in S^{3n - m}$ be the index string for $V$ such that $\bm{s_u}$ and $\bm{s_v}$ use distinct symbols.
+    Then $P$ being the outer product of $U$ and $V$ means
+    $$P = (\bm{s_u}, \bm{s_v} \rightarrow (\bm{s_u}, \bm{s_v}), U, V)$$
+    up to reordering of axes.
+
+    Let $u$ and $v$ be entries of $U$ and $V$ respectively, and let $\bm{i_u}$ and $\bm{i_v}$ be a multi-index of $U$ and $V$ respectively, where this value occurs.
+    Then the value $u \cdot v$ occurs in $P$ at the multi-index $(\bm{i_u}, \bm{i_v})$.
+    Therefore, if the sets of values contained in $U$ and $V$ are not of the form $\smallset{0, c}$ and $\smallset{0, \frac{1}{c}}$ for some $c \in \R$, then we can produce more values than $0$ and $1$ in $P$.
+    Therefore $U$ and $V$ must be design tensors that were scaled by $c$ and $\frac{1}{c}$ respectively for some $c \in \R$.
+
+    W.l.o.g. we now assume that $U$ and $V$ are both unscaled design tensors.
+    \dots
+\end{proof}

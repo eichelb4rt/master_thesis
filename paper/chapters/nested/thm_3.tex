@@ -3,6 +3,7 @@
 The following example is an expression, which we cannot compress with the previous theorems:
 $$(ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))$$
 for $A \in \R^{x \times x}, B \in \R^{y \times y}, C \in \R^{z \times z}, D \in \R^{x \times y \times z}$.
+This is because duplications in $\bm{s_u} = aabbcc$ are removed by the input string $\bm{\hat{s}_u} = ijklmn$.
 In the following theorem, we will explore how to compress expressions such as this one.
 Again, we use disjoint sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
@@ -37,22 +38,23 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     which can be extended to map entire index strings as in \autoref{thm:nested_einsum:2}.
     In our example, these are the important mappings:
     \begin{align*}
-        i & \rightarrow a & k & \rightarrow b & m & \rightarrow c \\
-        j & \rightarrow a & l & \rightarrow b & n & \rightarrow c
+        i & \rightarrow a, & k & \rightarrow b, & m & \rightarrow c, \\
+        j & \rightarrow a, & l & \rightarrow b, & n & \rightarrow c.
     \end{align*}
-    This means that $j$ and $k$ will be iterated over at the same time, and $l$ and $m$ will be iterated over at the same time.
+    This means that $i$ and $j$ will be iterated over at the same time, $k$ and $l$ will be iterated over at the same time, and $m$ and $l$ will be iterated over at the same time.
 
     Let $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \nu(\bm{s_v})$, then the compressed Einsum expression is the following:
     $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
     \begin{gather*}
         (ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))\\
-        = (aa, bb, cc, abc \rightarrow aab, A, B, C, D)
+        = (aa, bb, cc, abc \rightarrow aab, A, B, C, D).
     \end{gather*}
     Note how the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
     This will become apparent in the proof.
 \end{theorem}
 
+\bigskip
 \begin{proof}
     \small
     The key idea behind this proof, is that the entries of $U$, which were not defined in the computation, are set to the additive neutral element $\0$.
@@ -62,9 +64,9 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     This means, that in the computation of $V$, only the indices which respect the duplications in $\bm{s_u}$ are defined.
     % Let us prove this formally.
 
-    Let $F, F', B, B'$ be the free and bound symbols of the second (outer) and first (inner) einsum expression respectively.
+    Let $F, F', B, B'$ be the free and bound symbols of the outer and inner Einsum expression respectively.
     W.l.o.g. they are all non-empty.
-    from them we can derive the multi-index spaces $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
+    From them we can derive the multi-index spaces $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
     Then $U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$ is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ with $(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$, where $j,j' \in [n_u]$ are indices of $\bm{s_u}$ where the symbols are duplicated, i.e. $s_{uj} = s_{uj'}$.
     In our example, this means that $(op \rightarrow oopp, B)$ is only non-zero for $(j,k,l,m) \in [d_j] \times [d_k] \times [d_l] \times [d_m]$ with $j = k$ and $l = m$, because $s_{u1} = s_{u2} = o$ and $s_{u3} = s_{u4} = p$.
 
@@ -72,7 +74,7 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$$
     is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ that respect the same conditions.
     In our example, this is equivalent to
-    $$A_{ij} B_{k,l} C_{mn} \odot U_{ijklmn} = \begin{cases}
+    $$A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} = \begin{cases}
             A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} & \text{if } i = j, k = l, m = n \\
             \0                                    & \text{else}
         \end{cases}.$$
@@ -91,8 +93,8 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     because all entries of $V$, with a multi-index that does not respect the duplication, is $\0$.
     In our example, this is equivalent to replacing $i$ and $j$ by a single symbol $a$:
     \begin{align*}
-        \forall i,j,k: V_{ijk} & = \bigoplus\limits_{l,m,n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} \\
-        \forall a,k: V_{aak}   & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
+        \forall i,j,k: V_{ijk}    & = \bigoplus\limits_{l,m,n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} \\
+        \iff \forall a,k: V_{aak} & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
     \end{align*}
 
     For the next two cases, we need to use that $a \oplus \0 = a$ for any $a \in M$.
@@ -109,8 +111,8 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     In our example, this is useless, because there is already only one symbol $k$ where this can be applied.
     Let us do it anyway, because it might clear up what needs to be done in this step.
     \begin{align*}
-        \forall a,k: V_{aak} & = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc} \\
-        \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}
+        \forall a,k: V_{aak}      & = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc} \\
+        \iff \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}
     \end{align*}
     Then, the values held by the breaking bound symbols are already defined by the value held by the now only breaking free symbol.
     Therefore, the summation over the values of this symbol is useless, because there is only one combination of indices, which respects the duplication.

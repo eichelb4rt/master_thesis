@@ -15,13 +15,23 @@ $$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v))$$
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
 
 But fortunately, all nested Einsum expressions can be compressed into a single Einsum expression, if they are computed over the same semiring.
+For instance,
+\begin{align*}
+    \abs{A \cdot v}_2^2 & = (i,i \rightarrow , (ij, j \rightarrow i, A, v), (ij, j \rightarrow i, A, v)) \\
+                        & = (ij, j, ij, j \rightarrow, A, v, A, v)
+\end{align*}
+and
+\begin{align*}
+    (A \cdot B) \cdot v & = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v) \\
+                        & = (ik, kj, j \rightarrow i, A, B, v).
+\end{align*}
 This leaves the path of contraction up to the implementation.
 In the following theorems, we assume that the computations are all over the same semiring $R = (M, \oplus, \odot)$.
 
 \input{chapters/nested/thm_1.tex}
 
 This means that we can compress all nested Einsum expressions, where the output string of the inner expression, which is used to compute $U$, is exactly the same as the respective input string in the outer expression, where $U$ is used as an input tensor.
-This is already helpful for naturally occuring expressions in linear algebra, e.g.
+This is already helpful for some naturally occuring expressions in linear algebra, e.g.
 \begin{align*}
     \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
                         & = (ij,j,ij,j\rightarrow,A,v,A,v)
@@ -59,12 +69,13 @@ $$\text{trace}(A \cdot B) = \text{trace}(B \cdot A).$$
     % the third equality is just a renaming of the indices,
     % and the fourth equality holds because of the commutivity in the used semiring.
     \begin{align*}
-        \text{trace}(A \cdot B) & = (ii \rightarrow , (ik,kj \rightarrow ij, A, B)) \\
-                                & = (ik, ki \rightarrow ,A, B)                      \\
-                                & = (ki, ik \rightarrow ,B, A)                      \\
+        \text{trace}(A \cdot B) & = (ll \rightarrow , (ik,kj \rightarrow ij, A, B))  \\
+                                & = (lk, kl \rightarrow ,A, B)                       \\
+                                & = (kl, lk \rightarrow ,B, A)                       \\
+                                & = (kk \rightarrow , (il, lj \rightarrow ij, B, A)) \\
                                 & = \text{trace}(B \cdot A)
     \end{align*}
-    where the second equality holds because of \autoref{thm:nested_einsum:2},
+    where the second and fourth equality hold because of \autoref{thm:nested_einsum:2},
     and the third equality holds because of the commutativity of multiplication in the standard semiring.
 \end{proof}
 \bigskip
@@ -104,7 +115,7 @@ But to write every expression from linear algebra as a single Einsum expression 
 % There, (beschreib, was Julien gemacht hat).
 With these theorems, we just derived a different way of achieving that.
 For this, we can state a very simple procedure.
-First, every function is translated to their respective Einsum expression, which results in a nested einsum expression.
+First, every function is translated to their respective Einsum expression, which results in a nested Einsum expression.
 Then, the nested expressions are compressed from the bottom up.
 
 But we still do not have a way of compressing general nested Einsum expressions, where duplications might be removed and introduced simultaniously.
