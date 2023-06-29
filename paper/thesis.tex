@@ -54,10 +54,9 @@
 \fancyfoot{}
 \pagestyle{fancy}
 
-\definecolor{myblue}{RGB}{46, 59, 160}
-
 \graphicspath{{graphics/}}
 
+\definecolor{myblue}{RGB}{46, 59, 160}
 \hypersetup{
 	pdfstartpage=7,
     pdfstartview = FitB,
@@ -84,6 +83,12 @@
 
 % \setparsizes{1em}{0.25\baselineskip plus .25\baselineskip}{1em plus 1fil}
 \raggedbottom
+
+% fixes autoref not capitalizing chapters and sections
+\AtBeginDocument{\def\chapterautorefname{Chapter}}
+\AtBeginDocument{\def\sectionautorefname{Section}}
+\AtBeginDocument{\def\subsectionautorefname{Subsection}}
+\AtBeginDocument{\def\subsubsectionautorefname{Subsubsection}}
 
 
 % TODO: remove for digital version
