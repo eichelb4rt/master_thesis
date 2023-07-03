@@ -1,0 +1,45 @@
+\section{Batch Norm}
+% quote: https://arxiv.org/pdf/1502.03167.pdf
+Let $x^{(1)},\dots,x^{(m)}$ be $m$ 4th-order tensors.
+Let $X$ be the 5th-order tensor that consists of all those tensors combined along a new axis.
+Then the Batch Norm with parameters $\gamma,\beta \in \R$ over this \textit{mini-batch} of tensors is defined in the following way:
+$$\text{BN}_{\gamma,\beta}(X)_i = \frac{x_i - \text{E}_j[x_j]}{\sqrt{\text{Var}_j[x_j] + \epsilon}} \cdot \gamma + \beta$$
+for $i \in [m]$, where $\epsilon$ is some constant added for numerical stability [quote].
+This computation is comprised of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
+\begin{itemize}
+    \item mini-batch mean:
+          \begin{align*}
+              \mu_{abcd} & = \frac{1}{m} \sum\limits_{i = 1}^{m} x^{(i)}_{abcd} \\
+              \mu        & = \frac{1}{m} (abcdi \rightarrow abcd, X)
+          \end{align*}
+    \item centralize:
+          \begin{align*}
+              \overline{x}^{(i)}_{abcd} & = x^{(i)}_{abcd} - \mu_{abcd}                            \\
+              \overline{X}              & = (abcdi, abcd \rightarrow abcd, X, -\mu)_{R_{(\max,+)}}
+          \end{align*}
+    \item mini-batch variance:
+          \begin{align*}
+              \sigma^2_{abcd} & = \frac{1}{m} \sum\limits_{i = 1}^{m} \left(\overline{x}^{(i)}_{abcd}\right)^2 \\
+              \sigma^2        & = \frac{1}{m} (abcdi,abcdi \rightarrow abcd, \overline{X})
+          \end{align*}
+    \item normalize:
+          \begin{align*}
+              \hat{x}^{(i)}_{abcd} & = \frac{\overline{x}^{(i)}_{abcd}}{\sqrt{\sigma^2_{abcd} + \epsilon}}                \\
+              \hat{X}              & = (abcdi, abcd \rightarrow abcd, \overline{X}, (\sigma^2 + \epsilon)^{-\frac{1}{2}})
+          \end{align*}
+    \item scale and shift:
+          \begin{align*}
+              y^{(i)}_{abcd} & = \gamma \hat{x}^{(i)}_{abcd} + \beta \\
+              Y              & = \gamma \hat{X} + \beta
+          \end{align*}
+\end{itemize}
+
+Therefore the whole attention mechanism can be expressed with Einsum expressions and the use of element-wise operations:
+\begin{align*}
+    \text{BN}_{\gamma,\beta}(X) & = (abcdi, abcd \rightarrow abcd,                                                                                   \\
+                                & \phantom{{}=\quad}(abcdi, abcd \rightarrow abcd, X,-\frac{1}{m} (abcdi \rightarrow abcd, X))_{R_{(\max,+)}},       \\
+                                & \phantom{{}=\quad} (\frac{1}{m} (abcdi,abcdi \rightarrow abcd,                                                     \\
+                                & \phantom{{}=\quad\quad} (abcdi, abcd \rightarrow abcd, X, -\frac{1}{m} (abcdi \rightarrow abcd, X))_{R_{(\max,+)}} \\
+                                & \phantom{{}=\quad}) + \epsilon)^{-\frac{1}{2}}                                                                     \\
+                                & \phantom{{}=}) \cdot \gamma + \beta
+\end{align*}
