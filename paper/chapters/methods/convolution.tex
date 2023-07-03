@@ -1,4 +1,5 @@
 \section{Convolution}
+\label{sec:translating_inference:convolution}
 
 Let $F$ and $G$ be two $n$-th order tensors where all axes of $F$ have size $d_F$ and all axes of $G$ have size $d_G$ with $d_F < d_G$.
 Let $d_O = d_G - d_F + 1$.
@@ -9,20 +10,22 @@ Let
 $$G'_{(x, y)} := G_{x + d_F - y}$$
 for $x \in [d_O]^n, y \in [d_F]^n$.
 Then
-$$(F * G)_x = \sum\limits_{y \in [d_G]^n} F_y G'_{(x, y)}.$$
+$$(F * G)_x = \sum\limits_{y \in [d_G]^n} F_y G'_{(x, y)}$$
+for $x \in [d_O]^n$.
 Let
-$$P_{(x, y, z)} = \begin{cases}
+$$P_{(x, y, z)} := \begin{cases}
         1 & \text{if } z = x + d_F - y \\
         0 & \text{else}
     \end{cases}$$
 for $x \in [d_O]^n, y \in [d_F]^n, z \in [d_G]^n$.
 Then
-$$G'_{(x, y)} = \sum\limits_{z \in [d_G]^n} P_{(x, y, z)} G_z.$$
+$$G'_{(x, y)} = \sum\limits_{z \in [d_G]^n} P_{(x, y, z)} G_z$$
+for $x \in [d_O]^n, y \in [d_F]^n$.
 Therefore, convolution can be expressed as an Einsum expression:
 $$(F * G) = ((\bm{s_x},\bm{s_y},\bm{s_z}),\bm{s_y}, \bm{s_z}  \rightarrow \bm{s_x}, P, F, G)$$
 where $\bm{s_x},\bm{s_y},\bm{s_z} \in S^n$ use distinct symbols.
 
-The manual computation of the design tensor $P$ is quite expensive, and therefore this expression could be inefficient.
+The manual computation of the design tensor\footnote{A design tensor is a tensor that is filled only with the additive and multiplicative neutral element of the used semiring.} $P$ is quite expensive, and therefore this expression could be inefficient.
 It could lead to a more efficient computation, if this design tensor could be expressed as an \textit{outer product} of 2 or more smaller tensors.
 Sadly, this is not possible.
 
@@ -61,7 +64,7 @@ Sadly, this is not possible.
             0 & \text{else}
         \end{cases}$$
     for $x \in [2], y \in [2], z \in [3]$.
-    This is illustrated in \autoref{fig:translating_inference:dft:example_p}.
+    This is illustrated in \autoref{fig:translating_inference:convolution:example_p}.
     \begin{figure}
         \centering
         \begin{tikzpicture}
@@ -94,7 +97,7 @@ Sadly, this is not possible.
             \draw[->] (d0) to node[midway, above] {$z$} (dz);
         \end{tikzpicture}
         \caption{$P$ for $F \in \R^2$ and $G \in \R^3$}
-        \label{fig:translating_inference:dft:example_p}
+        \label{fig:translating_inference:convolution:example_p}
     \end{figure}
 
     Now, the only two possibilities for $m$ are $m = 1$ and $m = 2$, because $n = 1$ and therefore $1 \leq m < 3$.
@@ -108,11 +111,11 @@ Sadly, this is not possible.
     \end{align*}
     In the first case, it has to hold that $U_{xy} = 1$ where $P_{xyz} = 1$ for any $z \in [3]$,
     because otherwise, no design tensor $V$ could produce the entry $P_{xyz} = 1$.
-    For the other two cases, the analogue fact holds:
+    For the other two cases, the analogous fact holds:
     all the entries, where missing index exists such that $P_{xyz} = 1$, have to hold one as well.
     And unless $V$ is full of zeros (which it cannot be), the converse is true as well,
     meaning if all entries of the missing index hold $P_{xyz} = 0$, then the entry in $U$ also has to hold zero.
-    Therefore there is only possibility for $U$ for each of the cases, which are illustrated in \autoref{fig:translating_inference:dft:example_us}:
+    Therefore there is only possibility for $U$ for each of the cases, which are illustrated in \autoref{fig:translating_inference:convolution:example_us}:
     \begin{align*}
         P_{xyz} & = U_{xy} V_z & U & = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} \\
         P_{xyz} & = U_{xz} V_y & U & = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix} \\
@@ -179,7 +182,7 @@ Sadly, this is not possible.
             \caption{$P_{xyz} = U_{yz} V_x$}
         \end{subfigure}
         \caption{Possiblities for $U$ in the factorization of $P$}
-        \label{fig:translating_inference:dft:example_us}
+        \label{fig:translating_inference:convolution:example_us}
     \end{figure}
 
     Therefore, the multiplication with $V$ has to spread out the ones across different values of the missing index,

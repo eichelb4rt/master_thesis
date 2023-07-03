@@ -1,2 +1,84 @@
 \section{Max-Pooling}
-\dots
+
+Let $T$ be an $n$-th order tensor where all axes have size $m$.
+Let $p \in \N$ be the \textit{pool size} such that $m = k \cdot p$ for $k \in \N$.
+Then the max-pooling of $T$ is defined in the following way:
+$$M(T)_{x} := \max\limits_{y \in [p]^n} T_{p (x - 1) + y}$$
+for $x \in [k]^n$, where $x - 1$ indicates the element-wise substraction $(x - 1)_i = x_i - 1$ for $i \in [n]$.
+Let
+$$T'_{(x,y)} = T_{p (x - 1) + y}$$
+for $x \in [k]^n, y \in [p]^n$.
+Then
+$$M(T)_{x} = \max\limits_{y \in [p]^n} T'_{(x,y)}$$
+for $x \in [k]^n$. Let
+$$P_{(x,y,z)} := \begin{cases}
+    0 & \text{if } z = p (x - 1) + y\\
+    -\infty & \text{else}
+\end{cases}$$
+for $x \in [k]^n, y \in [p]^n, z \in [m]^n$.
+Then
+$$T'_{(x,y)} = \max\limits_{z \in [m]^n} P_{(x,y,z)} + T_{z}$$
+for $x \in [k]^n, y \in [p]^n$.
+Therefore, Max-Pooling can be expressed as an Einsum expression:
+$$M(T) = ((\bm{s_x},\bm{s_y},\bm{s_z}), \bm{s_z}  \rightarrow \bm{s_x}, P, T)_{R_{(\max, +)}}$$
+where $\bm{s_x},\bm{s_y},\bm{s_z} \in S^n$ use distinct symbols and $R_{(\max, +)}$ denotes the tropical semiring $(\R \cup \smallset{-\infty}, \max, +)$.
+
+As in \autoref{sec:translating_inference:convolution}, the efficiency of the computation could benefit from decomposition of the design tensor $P$ into an outer product of lower-order design tensors.
+But yet again, this is not possible.
+
+\begin{proof}
+    Because $-\infty$ and $0$ are the additive neutral and multiplicative neutral element of the used semiring respectively,
+    the argument in \autoref{sec:translating_inference:convolution}, that the factors have to be scaled design tensors, holds here as well.
+
+    Therefore, w.l.o.g. we assume that $U$ and $V$ are design tensors of order one or higher.
+    Consider max-pooling where $n = 1$, $m = 4$, $p = 2$, and $k = 2$.
+    Then
+    $$P_{(x,y,z)} := \begin{cases}
+        0 & \text{if } z = 2 (x - 1) + y\\
+        -\infty & \text{else}
+    \end{cases}$$
+    for $x \in [2], y \in [2], z \in [4]$.
+    This is illustrated in \autoref{fig:translating_inference:max_pooling:example_p}, where $\0$ and $\1$ were used to indicate the additive and multiplicative neutral element of the tropical semiring, $-\infty$ and $0$.
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}
+            % vertical horizontal shift
+            \def\dx{1.1}
+            \def\dy{0.5}
+            % P
+            \matrix[draw, fill=white] (layer_4) at (3 * \dx, 3 * \dy) {
+                \node (114) {$\0$}; & \node (124) {$\0$}; \\
+                \node (214) {$\0$}; & \node (224) {$\1$}; \\
+            };
+            \matrix[draw, fill=white] (layer_3) at (2 * \dx, 2 * \dy) {
+                \node (113) {$\0$}; & \node (123) {$\0$}; \\
+                \node (213) {$\1$}; & \node (223) {$\0$}; \\
+            };
+            \matrix[draw, fill=white] (layer_2) at (1 * \dx, 1 * \dy) {
+                \node (112) {$\0$}; & \node (122) {$\1$}; \\
+                \node (212) {$\0$}; & \node (222) {$\0$}; \\
+            };
+            \matrix[draw, fill=white] (layer_1) at (0 * \dx, 0 * \dy) {
+                \node (111) {$\1$}; & \node (121) {$\0$}; \\
+                \node (211) {$\0$}; & \node (221) {$\0$}; \\
+            };
+            \draw [dashed,gray](layer_1.north west) -- (layer_4.north west);
+            \draw [dashed,gray](layer_1.north east) -- (layer_4.north east);
+            \draw [dashed,gray](layer_1.south east) -- (layer_4.south east);
+            % the directions
+            \node (d0) at (-4 * \dx, \dy) {};
+            \node (dx) at (-4 * \dx, -\dy) {};
+            \node (dy) at (-4 * \dx + 2 * \dx, \dy) {};
+            \node (dz) at (-4 * \dx + 1.4 * \dx, 2.4 * \dy) {};
+            \draw[->] (d0) to node[midway, left] {$x$} (dx);
+            \draw[->] (d0) to node[midway, below] {$y$} (dy);
+            \draw[->] (d0) to node[midway, above] {$z$} (dz);
+        \end{tikzpicture}
+        \caption{$P$ for $F \in \R^2$ and $G \in \R^3$}
+        \label{fig:translating_inference:max_pooling:example_p}
+    \end{figure}
+
+    The rest of the proof is analogous to the proof in \autoref{sec:translating_inference:convolution},
+    where the key argument is, that the multiplicative neutral element cannot be distributed with an outer product in such a way,
+    that there are no copied slices in $P$.
+\end{proof}
