@@ -1,21 +1,3 @@
-Given two third-order tensors $A \in \R^{3 \times 4 \times 5}$ and $B \in \R^{3 \times 3 \times 5}$, and a vector $v \in \R^4$.
-Consider the following computation resulting in a matrix $C \in \R^{3 \times 3}$:
-$$\forall i \in [3]: \forall j \in [4]: C_{ij} = \sum\limits_{k = 1}^{5} A_{ijk} B_{iik} v_j$$
-The original Einstein-notation for summation removes redundant formalism ("boilerplate") from this expression:
-$$C_{ij} = A_{ijk} B_{iik} v_j$$
-where it is assumed that $C$ is defined for all possible $i,j$.
-We sum over all indices that are not used to index the output.
-In this example, we therefore have to sum over all possible values of $k$, because it is not used to index $C_{ij}$.
-Note how it is clear what the shape of $C$ is, because $i$ and $j$ were used to index the tensors $A$, $B$, and $v$,
-for which we defined the dimensions on every axis.
-
-This notation is essentially the inspiration for Einsum, which might be apparent given the name Einsum.
-Einsum is just an adaptation of this style, which makes it easier to use in programming.
-With it, we can write the above expression like this:
-$$C := (ijk, iik, j \rightarrow ij, A, B, v)$$
-Through the following definition, we hope to clear up why this Einsum expression results in the computation above,
-and what computation is the result of a general Einsum expression.
-
 \begin{definition}
     Einsum expressions specify how several input tensors are combined into a single output tensor.
     Let $T^{(1)},\dots,T^{(n)}$ be our input tensors,
@@ -118,17 +100,3 @@ and what computation is the result of a general Einsum expression.
 
     In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
 \end{definition}
-
-All following examples use the standard semiring $R = (\R, +, \cdot)$.
-\begin{itemize}
-    \item matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
-          $$A \cdot v = (ij, j \rightarrow i, A, v)$$
-    \item matrix-matrix multiplication: Let $A \in \R^{m \times r}, B \in \R^{r \times n}$. Then
-          $$A \cdot B = (ik, kj \rightarrow ij, A, B)$$
-    \item trace: Let $A \in \R^{n \times n}$. Then
-          $$\text{trace}(A) = (ii \rightarrow, A)$$
-    \item squared Frobenius norm: Let $A \in \R^{n \times n}$. Then
-          $$\abs{A}_2^2 = (ij, ij \rightarrow,A,A)$$
-    \item diagonal matrix: Let $v \in \R^{n}$. Then
-          $$\text{diag}(v) = (i \rightarrow ii, v)$$
-\end{itemize}
