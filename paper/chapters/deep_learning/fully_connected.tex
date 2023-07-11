@@ -37,8 +37,7 @@ Then the computation of the neural network is:
 $$\nu(x) = \max(A^{(1)}\max(A^{(0)}x + b^{(0)}, 0) + b^{(1)}, 0)$$
 
 In order to reasonably work with matrix multiplication in the tropcial semiring, we can only view matrices with positive integer entries.
-% TODO: quote
-This is not a limitation, because making the entries integers does not impact the strength of the neural network, because [...] (quote the paper).
+This is not a limitation, because making the entries integers does not impact the strength of the neural network \citep[see][sec.~4]{Zhang2018}.
 
 In order to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:
 \begin{align*}
@@ -46,8 +45,7 @@ In order to only use positive valued matrices, we can rewrite the expression of 
                     & = \max(A_+ x + b, A_- x) - A_- x
 \end{align*}
 where $A_+ = \max(A, 0), A_- = \max(-A, 0)$ and therefore $A = A_+ - A_-$.
-% TODO: quote
-This turns the network output into a tropical rational function (quote):
+This turns the network output into a tropical rational function \citep[see][sec.~5]{Zhang2018}:
 \begin{align*}
     \nu(x) & = \max(\overbrace{A^{(1)}_+ \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x)}^z + A^{(1)}_- A^{(0)}_+ x + b^{(1)}, \\
            & \phantom{{} =} A^{(1)}_- \max(A^{(0)}_+ x + b^{(0)}, A^{(0)}_- x) + A^{(1)}_+ A^{(0)}_+ x)                 \\

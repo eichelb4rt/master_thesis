@@ -3,8 +3,7 @@ Let $T$ be an $n$-th order tensor where all axes have size $m$.
 Then the Discrete Fourier Transform $\text{DFT}(T)$ is the $n$-th order tensor where all axes have size $m$ with:
 $$\text{DFT}(T)_{x_1,\dots,x_n} = \sum\limits_{y_1,\dots,y_n \in [m]} T_{y_1, \dots, y_n} \cdot \prod\limits_{j + k \leq n + 1} \exp\left(-i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}}\right)$$
 for $x_1,\dots,x_n \in [m]$.
-% TODO: quote
-This formulation of the DFT is slightly rewritten form of the formulation by (author) in [quote].
+This formulation of the DFT is slightly rewritten form of the formulation by \citet{Aji2000}.
 
 To write the DFT as an Einsum expression, we need to define $\binom{n + 1}{2}$ matrices $T^{(j,k)} \in \C^{m \times m}$ for $j + k \leq n + 1$ in the following way:
 $$T^{(j,k)}_{x_j y_k} := \exp\left(-i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}}\right)$$
