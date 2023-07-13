@@ -1,3 +1,5 @@
+\section{Syntax and Semantics}
+
 \begin{definition}
     Einsum expressions specify how several input tensors are combined into a single output tensor.
     Let $T^{(1)},\dots,T^{(n)}$ be our input tensors,
@@ -15,22 +17,13 @@
     and the output string is $\bm{s_t} = ij$.
     The individual symbols are $s_{11} = i$, $s_{12} = j$, $s_{13} = k$, $s_{12} = i$, $s_{22} = i$, $s_{23} = k$, $s_{31} = j$, $s_{t1} = i$, $s_{t2} = j$.
 
-    In order to refer to individual tensor axes, let us numerate them with $a_{ij} \in \N$,
-    where $a_{ij}$ denotes the $j$-th axis of the tensor $i$-th tensor $T^{(i)}$.
-    The actual value of $a_{ij}$ does not matter.
-    These variables are just used as unique identifiers for the axes.
-    Note that we can combine the axes to describe the set of axes of a tensor $T^{(i)}$ with
-    $\bm{a_i} = \smallset{a_{ij} \mid j \in [n_i]}$.
-    In contrast to $\bm{s_i}$, this is a set and not a tuple.
-    This is because tensors can reuse symbols as indices, but cannot reuse axes.
-
     The next step in the definition is to speak about axis sizes.
     If we want to iterate over shared indices, it is necessary that the axes, that these indices are used for, share the same size.
     In our example, $A_{ijk}$ and $v_j$ share the symbol $s_{12} = s_{31} = j$.
-    This means that the respective axes $a_{12}$ and $a_{31}$ have to have the same size, which happens to be four.
+    This means that the second axis of $A$ and the first axis of $v$ have to have the same size, which happens to be four.
     Let us express this formally.
 
-    Let $d_{ij} \in \N$ denote the size of the axis $a_{ij}$ for $i \in [n], j \in [n_i]$.
+    Let $d_{ij} \in \N$ denote the size of the $j$-th axis of $T^{(i)}$ for $i \in [n], j \in [n_i]$.
     Then it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
 
     Therefore we can also denote the size of all axes, that a symbol $s \in S$ corresponds to, as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
@@ -84,19 +77,63 @@
     We define these entries to be the additive neutral element in the given semiring $R$.
     This may sound arbitrary at first, but will be useful later.
 
-    There are still some special cases which need to be considered.
-    If there are no bound symbols in the expression, then the sum in the original definition would be empty.
-    But the definition is still meaningful.
-    It boils down to computing the product of the tensor entries, without summing over them.
-    Therefore, if $F = \emptyset$, then
-    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
-    results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
-    $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.$$
-    If there are no free symbols, we will sum over all axes given by the symbols in the expression.
-    Therefore, if $B = \emptyset$, then
-    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
-    results in the computation of a scalar $T$ with
-    $$T = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.$$
-
     In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
+
+    % There are still some special cases which need to be considered.
+    % If there are no bound symbols in the expression, then the sum in the original definition would be empty.
+    % But the definition is still meaningful.
+    % It boils down to computing the product of the tensor entries, without summing over them.
+    % Therefore, if $F = \emptyset$, then
+    % $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    % results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
+    % $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.$$
+    % If there are no free symbols, we will sum over all axes given by the symbols in the expression.
+    % Therefore, if $B = \emptyset$, then
+    % $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+    % results in the computation of a scalar $T$ with
+    % $$T = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.$$
+
 \end{definition}
+\bigskip
+
+The careful reader might have noticed two potential problems that could arise in the above definition.
+The first potential problem could arise when one of the input tensors is a scalar, which is a 0-th order tensor.
+This would mean that the index string $\bm{s}$ for that input tensor has to be the empty string $\epsilon$.
+Now when the multi-index $(\bm{f}, \bm{b})$ is projected by this empty index string, then the resulting multi-index can only be the empty multi-index $\lambda := ()$.
+One might expect that this leads to a problem, because we can not access any entries of a tensor with an empty multi-index.
+But for scalars, it makes sense to define the empty multi-index in such a way, that it accesses precisely the only entry that is stored in the scalar, i.e. $T_\lambda := T$ for a scalar $T$.
+This way, we can easily support scalars with empty index strings in Einsum.
+
+The second potential problem could arise when either the free symbols $F$ or the bound symbols $B$ are empty,
+because the universal quantor over an empty multi-index space $\mathcal{F}$ is always trivially true, and the sum over an empty multi-index space $\mathcal{B}$ is always trivially zero.
+But in fact, this leads to no problem, because the induced multi-index spaces of empty $F$ or $B$ are not empty themselves.
+They contain one element, namely the set including only the empty multi-index $\smallset{\lambda}$.
+In the following, we will explain why this is the case, and how this solves any problems with empty $F$ or $B$.
+
+Notice the definition of the product we use for to sets $M, N$:
+$$M \times N = \set{(m, n) \mid m \in M, n \in N}.$$
+This looks like an ordinary cartesian product, but the hidden difference lies in the meaning of $(m,n)$.
+Namely, if $m$ and $n$ are multi-indices $\bm{m} = (m_1, \dots, m_{k_1})$ and $\bm{n} = (n_1, \dots, n_{k_2})$ for $k_1, k_2 \in \N$, then we defined $(\bm{m}, \bm{n})$ to be the concatenation of the multi-indices:
+$$(\bm{m}, \bm{n}) = (m_1, \dots, m_{k_1}, n_1, \dots, n_{k_2}),$$
+which is one tuple with the entries of $\bm{m}$ and $\bm{n}$, instead of the tuple of tuples
+$$((m_1, \dots, m_{k_1}), (n_1, \dots, n_{k_2})).$$
+
+Therefore we can name a neutral element for concatenation, which is the empty multi-index $\lambda$ with $(\bm{i}, \lambda) = \bm{i}$ for any multi-index $\bm{i}$.
+From this, we can derive a neutral element for our product of multi-index spaces, which is the set including only the empty multi-index $\smallset{\lambda}$ with $\mathcal{I} \times \smallset{\lambda} = \mathcal{I}$ for any multi-index space $\mathcal{I}$.
+
+Now, because it makes sense to define an operation over an empty set of operands as the neutral element of said operation, we can safely define
+$$\prod\limits_{i \in \emptyset} [d_i] := \set{\lambda}.$$
+Therefore, if $F = \emptyset$, then
+$$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
+\begin{align*}
+    \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} &= \sum\limits_{\bm{b} \in \smallset{\lambda}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}\\
+    \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} &= \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.
+\end{align*}
+And if $B = \emptyset$, then
+$$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+results in the computation of a scalar $T$ with
+\begin{align*}
+    \forall \bm{f} \in \smallset{\lambda}: T_{\bm{f}: \epsilon} &= \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}\\
+    \iff T &= \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.
+\end{align*}

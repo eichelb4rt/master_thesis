@@ -20,19 +20,5 @@ Through the following definition, we hope to clear up why this Einsum expression
 and what computation is the result of a general Einsum expression.
 
 \input{chapters/einsum/definition.tex}
-
-All following examples use the standard semiring $R = (\R, +, \cdot)$.
-\begin{itemize}
-    \item matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
-          $$A \cdot v = (ij, j \rightarrow i, A, v)$$
-    \item matrix-matrix multiplication: Let $A \in \R^{m \times r}, B \in \R^{r \times n}$. Then
-          $$A \cdot B = (ik, kj \rightarrow ij, A, B)$$
-    \item trace: Let $A \in \R^{n \times n}$. Then
-          $$\text{trace}(A) = (ii \rightarrow, A)$$
-    \item squared Frobenius norm: Let $A \in \R^{n \times n}$. Then
-          $$\abs{A}_2^2 = (ij, ij \rightarrow,A,A)$$
-    \item diagonal matrix: Let $v \in \R^{n}$. Then
-          $$\text{diag}(v) = (i \rightarrow ii, v)$$
-\end{itemize}
-
+\input{chapters/einsum/examples.tex}
 \input{chapters/einsum/comp_advantages.tex}
