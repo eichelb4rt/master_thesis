@@ -1,76 +1,62 @@
 import torch
 import torch_semiring_einsum
-
-equation = torch_semiring_einsum.compile_equation("ik,kj->ij")
-m = 4
-r = 5
-n = 6
-matrix_1 = torch.rand(m, r)
-matrix_2 = torch.rand(r, n)
+from enum import Enum
+from typing import Callable
 
 
-def standard_semiring(compute_sum):
-    def add_in_place(a, b):
-        a += b
-
-    def sum_block(a, dims):
-        if dims:
-            return torch.sum(a, dim=dims)
-        else:
-            # This is an edge case that `torch.sum` does not
-            # handle correctly.
-            return a
-
-    def multiply_in_place(a, b):
-        a *= b
-    return compute_sum(add_in_place, sum_block, multiply_in_place)
+class Operations(Enum):
+    MIN = "min"
+    MAX = "max"
+    ADDITION = "plus"
+    MULTPLICATION = "mul"
 
 
-def tropical_semiring(compute_sum):
-    def add_in_place(a, b):
-        a = torch.maximum(a, b)
+def build_in_place_function(operation: Operations) -> Callable:
+    if operation == Operations.MIN:
+        def in_place_function(a, b):
+            a = min(a, b)
+    elif operation == Operations.MAX:
+        def in_place_function(a, b):
+            a = max(a, b)
+    elif operation == Operations.ADDITION:
+        def in_place_function(a, b):
+            a += b
+    elif operation == Operations.MULTPLICATION:
+        def in_place_function(a, b):
+            a *= b
+    else:
+        raise ValueError(f"Operation {operation} not supported for in place functions.")
+    return in_place_function
 
-    def sum_block(a, dims):
-        if dims:
+
+def build_block_function(operation: Operations) -> Callable:
+    if operation == Operations.MIN:
+        def block_function(a, dims):
+            if dims is None:
+                return a
+            return torch.amin(a, dim=dims)
+    elif operation == Operations.MAX:
+        def block_function(a, dims):
+            if dims is None:
+                return a
             return torch.amax(a, dim=dims)
-        else:
-            # This is an edge case that `torch.sum` does not
-            # handle correctly.
-            return a
-
-    def multiply_in_place(a, b):
-        a += b
-    return compute_sum(add_in_place, sum_block, multiply_in_place)
-
-
-def standard_einsum(equation, *args, block_size):
-    return torch_semiring_einsum.semiring_einsum_forward(equation, args=args, block_size=block_size, func=standard_semiring)
+    elif operation == Operations.ADDITION:
+        def block_function(a, dims):
+            if dims is None:
+                return a
+            return torch.sum(a, dim=dims)
+    else:
+        raise ValueError(f"Operation {operation} not supported for block functions.")
+    return block_function
 
 
-def tropical_einsum(equation, *args, block_size):
-    return torch_semiring_einsum.semiring_einsum_forward(equation, args=args, block_size=block_size, func=tropical_semiring)
+def build_semiring(plus_operation: Operations, times_operation: Operations) -> Callable:
+    plus_in_place = build_in_place_function(plus_operation)
+    plus_block = build_block_function(plus_operation)
+    times_in_place = build_in_place_function(times_operation)
+    return lambda compute_sum: compute_sum(plus_in_place, plus_block, times_in_place)
 
 
-def manual_tropical_matmul(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
-    assert len(a.shape) == 2, "Matrix multiplication is only defined for matrices."
-    assert len(b.shape) == 2, "Matrix multiplication is only defined for matrices."
-    assert a.shape[1] == b.shape[0], "Number of columns of left matrix has to equal number of rows of right matrix."
-    m = a.shape[0]
-    r = a.shape[1]
-    n = b.shape[1]
-    c = torch.empty((m, n))
-    for i in range(m):
-        for j in range(n):
-            c[i, j] = -torch.inf
-            for k in range(r):
-                c[i, j] = max(c[i, j], a[i, k] + b[k, j])
-    return c
-
-
-normal_result = torch.einsum("ik,kj->ij", matrix_1, matrix_2)
-semiring_result = standard_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
-assert torch.allclose(semiring_result, normal_result)
-tropical_torch_result = tropical_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
-tropical_manual_result = manual_tropical_matmul(matrix_1, matrix_2)
-assert torch.allclose(tropical_torch_result, tropical_manual_result)
-print("all tests passed.")
+def build_semiring_einsum(plus_operation: Operations, times_operation: Operations) -> Callable:
+    semiring = build_semiring(plus_operation, times_operation)
+    return lambda equation, *args, block_size: torch_semiring_einsum.semiring_einsum_forward(equation, args=args, block_size=block_size, func=semiring)
