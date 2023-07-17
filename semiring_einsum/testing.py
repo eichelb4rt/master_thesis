@@ -34,6 +34,7 @@ def manual_tropical_matmul(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
     return c
 
 
+print("started tests.")
 expected_result = torch.einsum(einsum_string, matrix_1, matrix_2)
 semiring_result = standard_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
 assert torch.allclose(semiring_result, expected_result), "Unexpected result in the standard semiring."
