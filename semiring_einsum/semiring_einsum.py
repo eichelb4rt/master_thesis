@@ -32,17 +32,17 @@ def build_in_place_function(operation: Operations) -> Callable:
 def build_block_function(operation: Operations) -> Callable:
     if operation == Operations.MIN:
         def block_function(a, dims):
-            if dims is None:
+            if not dims:
                 return a
             return torch.amin(a, dim=dims)
     elif operation == Operations.MAX:
         def block_function(a, dims):
-            if dims is None:
+            if not dims:
                 return a
             return torch.amax(a, dim=dims)
     elif operation == Operations.ADDITION:
         def block_function(a, dims):
-            if dims is None:
+            if not dims:
                 return a
             return torch.sum(a, dim=dims)
     else:
@@ -94,7 +94,7 @@ def manual_tropical_norm(matrix: torch.Tensor, vector: torch.Tensor) -> float:
         for j in range(n):
             resulting_vector[i] = max(resulting_vector[i], matrix[i, j] + vector[j])
     # compute the "tropical norm" ("tropical squared")
-    return 2 * torch.max(vector)
+    return 2 * torch.max(resulting_vector)
 
 
 def main():
@@ -127,8 +127,6 @@ def main():
     equation = torch_semiring_einsum.compile_equation(einsum_string)
     expected_result = torch.einsum(einsum_string, matrix_1, matrix_2)
     my_result = my_standard_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
-    print(equation.output_variables)
-    print(expected_result, my_result)
     assert torch.allclose(my_result, expected_result), "Unexpected result during element-wise: standard semiring."
     print("element-wise: standard semiring test passed.")
     expected_result = matrix_1 + matrix_2
