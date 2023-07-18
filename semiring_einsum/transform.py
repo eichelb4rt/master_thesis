@@ -1,4 +1,7 @@
+from typing import Callable
+
 import torch
+import torch_semiring_einsum
 from torch.nn.modules import Module
 from torch.nn.modules.linear import Linear
 from torch.nn.modules.activation import ReLU
@@ -13,7 +16,11 @@ from nts_net.model import ProposalNet
 from nts_net.resnet import ResNet
 from nts_net.resnet import Bottleneck
 
-model = torch.hub.load('nicolalandro/ntsnet-cub200', 'ntsnet', pretrained=True, **{'topN': 6, 'device': 'cpu', 'num_classes': 200})
+from semiring_einsum import Operations, build_semiring_einsum
+
+
+tropical_einsum = build_semiring_einsum(Operations.MAX, Operations.ADDITION)
+linear_bias_equation = torch_semiring_einsum.compile_equation("i,i->i")
 
 
 def transform_conv_2d(model: Conv2d):
@@ -34,11 +41,14 @@ def transform_relu(_: ReLU):
     print("ReLU")
 
 
-def transform_linear(model: Linear):
-    print("Linear", {
-        "weight": model.weight,
-        "bias": model.bias,
-    })
+def transform_linear(model: Linear) -> Callable:
+    def forward(input_vector: torch.Tensor) -> torch.Tensor:
+        y = torch.einsum("ij,j->i", model.weight, input_vector)
+        return tropical_einsum(
+            linear_bias_equation,
+            y, model.bias
+        )
+    return forward
 
 
 def transform_max_pool_2d(model: MaxPool2d):
@@ -67,7 +77,7 @@ def transform(model: Module):
         return
     # we don't have to go deeper here
     if isinstance(model, Linear):
-        transform_linear(model)
+        test_linear_model(model)
     elif isinstance(model, Conv2d):
         transform_conv_2d(model)
     elif isinstance(model, BatchNorm2d):
@@ -84,7 +94,17 @@ def transform(model: Module):
         raise ValueError(f"Module not known: {model.__class__}")
 
 
+def test_linear_model(model: Linear):
+    input_vector = torch.rand(model.weight.shape[1])
+    transformed_model = transform_linear(model)
+    expected_result = model.forward(input_vector)
+    transformed_result = transformed_model(input_vector)
+    assert torch.allclose(expected_result, transformed_result), "Unexpected result during test_linear_model."
+    
+
+
 def main():
+    model = torch.hub.load('nicolalandro/ntsnet-cub200', 'ntsnet', pretrained=True, **{'topN': 6, 'device': 'cpu', 'num_classes': 200})
     transform(model)
 
 

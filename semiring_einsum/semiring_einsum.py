@@ -11,6 +11,11 @@ class Operations(Enum):
     MULTPLICATION = "mul"
 
 
+################################################################
+# build functions to evaluate einsum on a semiring
+################################################################
+
+
 def build_in_place_function(operation: Operations) -> Callable:
     if operation == Operations.MIN:
         def in_place_function(a, b):
@@ -50,16 +55,12 @@ def build_block_function(operation: Operations) -> Callable:
     return block_function
 
 
-def build_semiring(plus_operation: Operations, times_operation: Operations) -> Callable:
+def build_semiring_einsum(plus_operation: Operations, times_operation: Operations) -> Callable:
     plus_in_place = build_in_place_function(plus_operation)
     plus_block = build_block_function(plus_operation)
     times_in_place = build_in_place_function(times_operation)
-    return lambda compute_sum: compute_sum(plus_in_place, plus_block, times_in_place)
-
-
-def build_semiring_einsum(plus_operation: Operations, times_operation: Operations) -> Callable:
-    semiring = build_semiring(plus_operation, times_operation)
-    return lambda equation, *args, block_size: torch_semiring_einsum.semiring_einsum_forward(equation, args=args, block_size=block_size, func=semiring)
+    semiring_func = lambda compute_sum: compute_sum(plus_in_place, plus_block, times_in_place)
+    return lambda equation, *args, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE: torch_semiring_einsum.semiring_einsum_forward(equation, args=args, block_size=block_size, func=semiring_func)
 
 
 ################################################################
@@ -110,11 +111,11 @@ def main():
     einsum_string = "ik,kj->ij"
     equation = torch_semiring_einsum.compile_equation(einsum_string)
     expected_result = torch.einsum(einsum_string, matrix_1, matrix_2)
-    my_result = my_standard_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
+    my_result = my_standard_einsum(equation, matrix_1, matrix_2)
     assert torch.allclose(my_result, expected_result), "Unexpected result during matmul: standard semiring."
     print("matmul: standard semiring passed.")
-    expected_result = my_tropical_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
-    my_result = manual_tropical_matmul(matrix_1, matrix_2)
+    expected_result = manual_tropical_matmul(matrix_1, matrix_2)
+    my_result = my_tropical_einsum(equation, matrix_1, matrix_2)
     assert torch.allclose(expected_result, my_result), "Unexpected result during matmul: tropical semiring."
     print("matmul: tropical semiring test passed.")
 
@@ -126,11 +127,11 @@ def main():
     einsum_string = "ij,ij->ij"
     equation = torch_semiring_einsum.compile_equation(einsum_string)
     expected_result = torch.einsum(einsum_string, matrix_1, matrix_2)
-    my_result = my_standard_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
+    my_result = my_standard_einsum(equation, matrix_1, matrix_2)
     assert torch.allclose(my_result, expected_result), "Unexpected result during element-wise: standard semiring."
     print("element-wise: standard semiring test passed.")
     expected_result = matrix_1 + matrix_2
-    my_result = my_tropical_einsum(equation, matrix_1, matrix_2, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
+    my_result = my_tropical_einsum(equation, matrix_1, matrix_2)
     assert torch.allclose(my_result, expected_result), "Unexpected result during element-wise: tropical semiring."
     print("element-wise: tropical semiring test passed.")
 
@@ -142,11 +143,11 @@ def main():
     einsum_string = "ij,j,ij,j->"
     equation = torch_semiring_einsum.compile_equation(einsum_string)
     expected_result = torch.einsum(einsum_string, matrix_1, vector_1, matrix_1, vector_1)
-    my_result = my_standard_einsum(equation, matrix_1, vector_1, matrix_1, vector_1, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
+    my_result = my_standard_einsum(equation, matrix_1, vector_1, matrix_1, vector_1)
     assert torch.isclose(my_result, expected_result), "Unexpected result during norm: standard semiring."
     print("norm: standard semiring test passed.")
     expected_result = manual_tropical_norm(matrix_1, vector_1)
-    my_result = my_tropical_einsum(equation, matrix_1, vector_1, matrix_1, vector_1, block_size=torch_semiring_einsum.AUTOMATIC_BLOCK_SIZE)
+    my_result = my_tropical_einsum(equation, matrix_1, vector_1, matrix_1, vector_1)
     assert torch.isclose(my_result, expected_result), "Unexpected result during norm: tropical semiring."
     print("norm: tropical semiring test passed.")
 
