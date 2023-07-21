@@ -1,0 +1,39 @@
+\begin{lemma}
+    For $i \in [n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_t}$ be the index string for $T$ with
+    $$T = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)}).$$
+    Let $F$ and $B$ be the free and bound symbols of this expression.
+    Let $k \in [n]$ and $j \in [n_k]$, then we can replace the $j$-th symbol of the $k$-th index string with a new symbol $s_{\text{new}} \in S \setminus (F \cup B)$ by adding the unity matrix $\1_{d_{kj}}$ as an input tensor in the following way:
+
+    Let $\bm{s'_k}$ be a new index string such that
+    $$s'_{ki} := \begin{cases}
+            % TODO: make every "if" in cases this way
+            s_{\text{new}} & \text{if $i = j$} \\
+            s_{ki}         & \text{else}
+        \end{cases}$$
+    for $i \in [n_k]$.
+    Let $\bm{s_\1} = (s_{kj}, s_{\text{new}})$.
+    Then
+    $$T = (\bm{s_1}, \dots, \bm{s'_k}, \dots, \bm{s_n}, \bm{s_\1} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)}, \1_{d_{kj}}).$$
+\end{lemma}
+
+\begin{proof}
+    \small
+    Let $\mathcal{F}$ and $\mathcal{B}$ be the induces multi-index spaces for the free and bound symbols of the Einsum expression.
+    Then
+    \begin{align*}
+        T                                                        & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                                                                                                             \\
+        \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                                                                                         \\
+                                                                 & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]} \bigodot\limits_{1 \leq i < k} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot T^{(k)}_{(\bm{f}, \bm{b}):\bm{s'_k}} \odot \bigodot\limits_{k < i \leq n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
+                                                                 & \phantom{{}=\bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]}} \odot \begin{cases}
+            \1 & \text{if $(\bm{f}, \bm{b}): s_{kj} = (\bm{f}, \bm{b}): s_{\text{new}}$} \\
+            \0 & \text{else}
+        \end{cases}                                                                                                                                             \\
+                                                                 & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]} \bigodot\limits_{1 \leq i < k} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot T^{(k)}_{(\bm{f}, \bm{b}):\bm{s'_k}} \odot \bigodot\limits_{k < i \leq n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
+                                                                 & \phantom{{}=\bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]}} \odot \left(\1_{d_{kj}}\right)_{(\bm{f}, \bm{b}):\bm{s_\1}}                                                                                                                 \\
+        \iff T                                                   & = (\bm{s_1}, \dots, \bm{s'_k}, \dots, \bm{s_n}, \bm{s_\1} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)}, \1_{d_{kj}})
+    \end{align*}
+    where the third equality holds because in the summation over $\mathcal{B} \times [d_{kj}]$, exactly those summands get selected by the condition, which are also valid summands in the previous summation over $\mathcal{B}$.
+    All other summands are disregarded because they are multiplied by $\0$, which is the additive neutral element in the semiring and \textit{annihilates} every element, which means $a \odot \0 = \0$ for every $a \in M$.
+\end{proof}
+\bigskip

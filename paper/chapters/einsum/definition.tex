@@ -122,18 +122,18 @@ Therefore we can name a neutral element for concatenation, which is the empty mu
 From this, we can derive a neutral element for our product of multi-index spaces, which is the set including only the empty multi-index $\smallset{\lambda}$ with $\mathcal{I} \times \smallset{\lambda} = \mathcal{I}$ for any multi-index space $\mathcal{I}$.
 
 Now, because it makes sense to define an operation over an empty set of operands as the neutral element of said operation, we can safely define
-$$\prod\limits_{i \in \emptyset} [d_i] := \set{\lambda}.$$
+$$\prod\limits_{s \in \emptyset} [d_s] := \set{\lambda}.$$
 Therefore, if $F = \emptyset$, then
 $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
 results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
 \begin{align*}
-    \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} &= \sum\limits_{\bm{b} \in \smallset{\lambda}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}\\
-    \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} &= \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.
+    \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}}      & = \sum\limits_{\bm{b} \in \smallset{\lambda}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}} \\
+    \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} & = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.
 \end{align*}
 And if $B = \emptyset$, then
 $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
 results in the computation of a scalar $T$ with
 \begin{align*}
-    \forall \bm{f} \in \smallset{\lambda}: T_{\bm{f}: \epsilon} &= \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}\\
-    \iff T &= \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.
+    \forall \bm{f} \in \smallset{\lambda}: T_{\bm{f}: \epsilon} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}} \\
+    \iff T                                                      & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.
 \end{align*}

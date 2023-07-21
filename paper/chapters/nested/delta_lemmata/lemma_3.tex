@@ -1,0 +1,22 @@
+\begin{lemma}
+    For $i \in [n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$,
+    where $T^{(n)} = \1_m$ for some $m \in \N$.
+    Let $\bm{s_t}$ be the index string for $T$ with
+    $$T = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)}).$$
+
+    Let $F$ and $B$ be the free and bound symbols of this expression.
+    Then we can introduce a symbol map $\mu: S \rightarrow S$, which maps both symbols in $\bm{s_n}$ to the same symbol $s_{\text{new}} \in S \setminus (F \cup B)$:
+    $$\mu(s) := \begin{cases}
+            s_{\text{new}} & \text{if $s \in \smallset{s_{n1}, s_{n2}}$} \\
+            s              & \text{else}
+        \end{cases}$$
+    The symbol map $\mu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\mu(\bm{s_i}) \in S^{n_i}, \mu(\bm{s_i})_j := \mu(s_{ij})$.
+    Then we can write the substituted index strings by setting $\bm{s'_i} := \mu(\bm{s_i})$ for $i \in [n]$ and $\bm{s'_t} = \mu(\bm{s_t})$.
+    With these index strings, the following holds:
+    $$T = (\bm{s'_1}, \dots, \bm{s'_{n - 1}} \rightarrow \bm{s'_t}, T^{(1)}, \dots, T^{(n - 1)}).$$
+\end{lemma}
+
+\begin{proof}
+    \small
+    bla bla
+\end{proof}

@@ -1,0 +1,52 @@
+\begin{lemma}
+    For $i \in [n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_t}$ be the index string for $T$ with
+    $$T = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)}).$$
+    Let $F$ and $B$ be the free and bound symbols of this expression.
+    Let $n_t := \abs{\bm{s_t}}$, $j \in [n_t]$, and $d_{tj} := d_{s_{tj}}$, then we can replace the $j$-th symbol of the output string with a new symbol $s_{\text{new}} \in S \setminus (F \cup B)$ by adding the unity matrix $\1_{d_{tj}}$ as an input tensor in the following way:
+
+    Let $\bm{s'_t}$ be a new index string such that
+    $$s'_{ti} := \begin{cases}
+            % TODO: make every "if" in cases this way
+            s_{\text{new}} & \text{if $i = j$} \\
+            s_{ti}         & \text{else}
+        \end{cases}$$
+    for $i \in [n_t]$.
+    Let $\bm{s_\1} = (s_{tj}, s_{\text{new}})$.
+    Then
+    $$T = (\bm{s_1}, \dots, \bm{s_n}, \bm{s_\1} \rightarrow \bm{s'_t}, T^{(1)}, \dots, T^{(n)}, \1_{d_{kj}}).$$
+\end{lemma}
+
+\begin{proof}
+    \small
+    Let $\mathcal{F}$ and $\mathcal{B}$ be the induces multi-index spaces for the free and bound symbols of the Einsum expression.
+    % TODO: Fallunterscheidung s_{tj} wird bound symbol / wird kein bound symbol
+    If $s_{tj}$ occurs in $\bm{s_t}$ even after replacing it with $s_{\text{new}}$, then
+    \begin{align*}
+        T                                                                         & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                             \\
+        \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}}                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                             \\
+        \iff \forall \bm{f} \in \mathcal{F} \times [d_{tj}]: T_{\bm{f}:\bm{s'_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \begin{cases}
+            \1 & \text{if $\bm{f}: s_{tj} = \bm{f}: s_{\text{new}}$} \\
+            \0 & \text{else}
+        \end{cases}                             \\
+                                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \left(\1_{d_{tj}}\right)_{(\bm{f}, \bm{b}):\bm{s_\1}} \\
+        \iff T                                                                    & = (\bm{s_1}, \dots, \bm{s_n}, \bm{s_\1} \rightarrow \bm{s'_t}, T^{(1)}, \dots, T^{(n)}, \1_{d_{tj}})
+    \end{align*}
+    where the third equality holds because exactly those indices get selected by the condition, where $T$ was originally defined.
+    If $s_{tj}$ no longer occurs in $\bm{s_t}$ after replacing it with $s_{\text{new}}$, then $s_{tj}$ turns into a bound symbol.
+    Therefore we have to define $\mathcal{F}' = \prod_{s \in \bm{s'_t}} [d_s]$.
+    Then
+    \begin{align*}
+        T                                                          & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                                             \\
+        \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}}   & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                             \\
+        \iff \forall \bm{f} \in \mathcal{F}': T_{\bm{f}:\bm{s'_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{tj}]} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \begin{cases}
+            \1 & \text{if $(\bm{f}, \bm{b}): s_{tj} = (\bm{f}, \bm{b}): s_{\text{new}}$} \\
+            \0 & \text{else}
+        \end{cases}                             \\
+                                                                   & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{tj}]} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \left(\1_{d_{tj}}\right)_{(\bm{f}, \bm{b}):\bm{s_\1}} \\
+        \iff T                                                     & = (\bm{s_1}, \dots, \bm{s_n}, \bm{s_\1} \rightarrow \bm{s'_t}, T^{(1)}, \dots, T^{(n)}, \1_{d_{tj}})
+    \end{align*}
+    where the third equality holds because exactly those summands get selected by the condition, where $(\bm{f}, \bm{b}):\bm{s_t}$ could also get used as an index for $T$.
+    All others are annihilated.
+\end{proof}
+\bigskip

@@ -29,7 +29,7 @@ and
 This leaves the path of contraction up to the implementation, and lets us benefit from all the computational advantages mentioned in \autoref{chap:einsum}.
 In the following theorems, we assume that the computations are all over the same semiring $R = (M, \oplus, \odot)$.
 
-\input{chapters/nested/thm_1.tex}
+\input{chapters/nested/simple.tex}
 
 This means that we can compress all nested Einsum expressions, where the output string of the inner expression, which is used to compute $U$, is exactly the same as the respective input string in the outer expression, where $U$ is used as an input tensor.
 This is already helpful for some naturally occuring expressions in linear algebra, e.g.
@@ -50,76 +50,82 @@ $$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$
 for $A \in \R^{m \times n}, B \in \R^{n \times m}, v \in \R^{n}$.
 For this, we need more general ways of compressing nested Einsum expressions.
 
-\input{chapters/nested/thm_2.tex}
+\input{chapters/nested/general.tex}
 
-With this theorem, we can prove a property of the trace in a relatively simple manner, namely that for $A \in \R^{m \times n}, B \in \R^{n \times m}$,
-it holds that
-$$\text{trace}(A \cdot B) = \text{trace}(B \cdot A).$$
 
-\begin{proof}
-    \small
-    % \begin{align*}
-    %     \text{trace}(A \cdot B) & = (ii \rightarrow , (ik,kj \rightarrow ij, A, B)) \\
-    %                             & = (ik, ki \rightarrow ,A, B)                      \\
-    %                             & = (ki, ik \rightarrow ,A, B)                      \\
-    %                             & = (ik, ki \rightarrow ,B, A)                      \\
-    %                             & = (ii \rightarrow , (ik,kj \rightarrow ij, B, A)) \\
-    %                             & = \text{trace}(B \cdot A)
-    % \end{align*}
-    % where the second equality holds because of \autoref{thm:nested_einsum:2},
-    % the third equality is just a renaming of the indices,
-    % and the fourth equality holds because of the commutivity in the used semiring.
-    \begin{align*}
-        \text{trace}(A \cdot B) & = (ll \rightarrow , (ik,kj \rightarrow ij, A, B))  \\
-                                & = (lk, kl \rightarrow ,A, B)                       \\
-                                & = (kl, lk \rightarrow ,B, A)                       \\
-                                & = (kk \rightarrow , (il, lj \rightarrow ij, B, A)) \\
-                                & = \text{trace}(B \cdot A)
-    \end{align*}
-    where the second and fourth equality hold because of \autoref{thm:nested_einsum:2},
-    and the third equality holds because of the commutativity of multiplication in the standard semiring.
-\end{proof}
-\bigskip
 
-This is already a useful tool for compressing nested expressions, but there are still some naturally occuring expressions we cannot compress with this,
-e.g.:
-$$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$
-for $A \in \R^{m \times n}, v \in \R^{n}$.
-This is because the symbol duplication $ii$ is broken by the index string $kj$, and therefore we access more entries than the ones we computed.
+% \input{chapters/nested/thm_2.tex}
 
-\input{chapters/nested/thm_3.tex}
+% With this theorem, we can prove a property of the trace in a relatively simple manner, namely that for $A \in \R^{m \times n}, B \in \R^{n \times m}$,
+% it holds that
+% $$\text{trace}(A \cdot B) = \text{trace}(B \cdot A).$$
 
-% TODO: can i really write "every"?
-With these theorems, we can write every naturally occuring complex expression from linear algebra as a single Einsum expression.
-The reason for this is, that in linear algebra, only up to two indices are used for a single tensor,
-which means that with two index strings, it cannot happen that a duplication is removed and anonther duplication is introduced simultaniously.
-Here are some more complex expressions as examples:
-\begin{itemize}
-    \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
-          \begin{align*}
-              \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
-                                  & = (ij,j,ij,j\rightarrow,A,v,A,v)
-          \end{align*}
-    \item trace of matrix-matrix multiplication: Let $A \in \R^{m \times n}, B \in \R^{n \times m}$. Then
-          \begin{align*}
-              \text{trace}(A \cdot B) & = (ii \rightarrow, (ik, kj \rightarrow ij, A, B)) \\
-                                      & = (ik, ki \rightarrow, A, B)
-          \end{align*}
-    \item matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
-          \begin{align*}
-              A \cdot \text{diag}(v) & = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v)) \\
-                                     & = (ij, j \rightarrow ij, A, v)                      \\
-          \end{align*}
-\end{itemize}
+% \begin{proof}
+%     \small
+%     % \begin{align*}
+%     %     \text{trace}(A \cdot B) & = (ii \rightarrow , (ik,kj \rightarrow ij, A, B)) \\
+%     %                             & = (ik, ki \rightarrow ,A, B)                      \\
+%     %                             & = (ki, ik \rightarrow ,A, B)                      \\
+%     %                             & = (ik, ki \rightarrow ,B, A)                      \\
+%     %                             & = (ii \rightarrow , (ik,kj \rightarrow ij, B, A)) \\
+%     %                             & = \text{trace}(B \cdot A)
+%     % \end{align*}
+%     % where the second equality holds because of \autoref{thm:nested_einsum:2},
+%     % the third equality is just a renaming of the indices,
+%     % and the fourth equality holds because of the commutivity in the used semiring.
+%     \begin{align*}
+%         \text{trace}(A \cdot B) & = (ll \rightarrow , (ik,kj \rightarrow ij, A, B))  \\
+%                                 & = (lk, kl \rightarrow ,A, B)                       \\
+%                                 & = (kl, lk \rightarrow ,B, A)                       \\
+%                                 & = (kk \rightarrow , (il, lj \rightarrow ij, B, A)) \\
+%                                 & = \text{trace}(B \cdot A)
+%     \end{align*}
+%     where the second and fourth equality hold because of \autoref{thm:nested_einsum:2},
+%     and the third equality holds because of the commutativity of multiplication in the standard semiring.
+% \end{proof}
+% \bigskip
 
-But to write every expression from linear algebra as a single Einsum expression respectively was already possible before, with (TODO: cite Julien).
-% There, (beschreib, was Julien gemacht hat).
-With these theorems, we just derived a different way of achieving that.
-For this, we can state a very simple procedure.
-First, every function is translated to their respective Einsum expression, which results in a nested Einsum expression.
-Then, the nested expressions are compressed from the bottom up.
+% This is already a useful tool for compressing nested expressions, but there are still some naturally occuring expressions we cannot compress with this,
+% e.g.:
+% $$A \cdot \text{diag}(v) = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v))$$
+% for $A \in \R^{m \times n}, v \in \R^{n}$.
+% This is because the symbol duplication $ii$ is broken by the index string $kj$, and therefore we access more entries than the ones we computed.
 
-But we still do not have a way of compressing general nested Einsum expressions, where duplications might be removed and introduced simultaniously.
-If we could do that, then we could build a compiler that is able to compress every possible nested Einsum expression, regardless of duplications.
+% \input{chapters/nested/thm_3.tex}
 
-\input{chapters/nested/thm_4.tex}
+% % TODO: can i really write "every"?
+% With these theorems, we can write every naturally occuring complex expression from linear algebra as a single Einsum expression.
+% The reason for this is, that in linear algebra, only up to two indices are used for a single tensor,
+% which means that with two index strings, it cannot happen that a duplication is removed and anonther duplication is introduced simultaniously.
+% Here are some more complex expressions as examples:
+% \begin{itemize}
+%     \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+%           \begin{align*}
+%               \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
+%                                   & = (ij,j,ij,j\rightarrow,A,v,A,v)
+%           \end{align*}
+%     \item trace of matrix-matrix multiplication: Let $A \in \R^{m \times n}, B \in \R^{n \times m}$. Then
+%           \begin{align*}
+%               \text{trace}(A \cdot B) & = (ii \rightarrow, (ik, kj \rightarrow ij, A, B)) \\
+%                                       & = (ik, ki \rightarrow, A, B)
+%           \end{align*}
+%     \item matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+%           \begin{align*}
+%               A \cdot \text{diag}(v) & = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v)) \\
+%                                      & = (ij, j \rightarrow ij, A, v)                      \\
+%           \end{align*}
+% \end{itemize}
+
+% But to write every expression from linear algebra as a single Einsum expression respectively was already possible before, with (TODO: cite Julien).
+% % There, (beschreib, was Julien gemacht hat).
+% With these theorems, we just derived a different way of achieving that.
+% For this, we can state a very simple procedure.
+% First, every function is translated to their respective Einsum expression, which results in a nested Einsum expression.
+% Then, the nested expressions are compressed from the bottom up.
+
+% But we still do not have a way of compressing general nested Einsum expressions, where duplications might be removed and introduced simultaniously.
+% If we could do that, then we could build a compiler that is able to compress every possible nested Einsum expression, regardless of duplications.
+
+% \input{chapters/nested/thm_4.tex}
+
+% TODO: talk about how the theorems with duplications etc are enough to map all of linear algebra

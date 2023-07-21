@@ -1,0 +1,129 @@
+\section{General Nested Expressions}
+
+The following example is an expression, which we cannot compress with the previous theorem:
+$$(a,b,c,d,e,abbcde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
+    i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
+    ))$$
+for $v^{(i)} \in \R^{d_{vi}}$ with $i \in [9]$, where $d_{vi} \in \N$ are appropriate dimensions.
+This is because the output string $\bm{s_u} = iijkkl$ and the input string $\bm{\hat{s}_u} = abbde$ are not the same.
+In the following, we will explore how to compress such expressions.
+Note that, for the theorem, we use disjoint sets of symbols for the inner and outer expression.
+This helps in the proof, and is not a real constraint in practice,
+because we can just rename the symbols in different scopes.
+For example, we could also write the above expression as
+$$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C)),$$
+because the scope of each symbol does not reach into nested expressions,
+and therefore the $j$ used in the outer expression and the $j$ used in the inner expression are treated as different symbols.
+
+\begin{theorem}
+    \label{thm:nested_einsum:4}
+    For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$.
+    Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
+    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$.
+
+    Let $s_v$ be an index string and
+    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    where the first and second Einsum expression share no symbols.
+    Then these nested Einsum expressions can also be compressed into a single Einsum expression.
+
+    In contrast to \autoref{thm:nested_einsum:1}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner Einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
+    Instead, we first need to apply a symbol map $\nu: S \rightarrow S$ to each of the index strings.
+    This symbol map holds information about which symbols are effectively the used for the same index.
+
+    For the definition of the map $\nu$, we first construct an undirected graph $G = (V, E)$ that we call \textit{symbol graph}.
+    % $V = \sigma(\bm{s_v}) \cup \sigma(\bm{s_u}) \cup \sigma(\bm{\hat{s}_u}) \cup \bigcup_{i \in [m + n]} \sigma(\bm{s_i})$
+    In the symbol graph, the nodes consist of all symbols from both expressions.
+    The edges are $E = \smallset{\smallset{s_{uj}, \hat{s}_{uj}} \mid j \in [n_u]}$,
+    which connects all symbols from $\bm{s_u}$ and $\bm{\hat{s}_u}$ that share an index.
+    The symbol graph for our example is illustrated in \autoref{fig:nested_expressions:example_symbol_graph}.
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}[node distance = 3cm, semithick]
+
+            \node[state] (a)					{$a$};
+            \node[state] (b) [right of=a]		{$b$};
+            \node[state] (c) [right of=b] 		{$c$};
+            \node[state] (d) [right of=c] 		{$d$};
+            \node[state] (e) [right of=d] 		{$e$};
+            \node (middle) at ($(a)!0.5!(b)$) {};
+            \node[state] (i) [below of=middle] 		{$i$};
+            \node[state] (j) [right of=i] 		{$j$};
+            \node[state] (k) [right of=j] 		{$k$};
+            \node[state] (l) [right of=k] 		{$l$};
+
+            \node (x_center) at ($(a)!0.5!(j)$) {};
+            \node (y_center) at ($(c)!0.5!(d|-k)$) {};
+            \node (z_center) at ($(e)!0.5!(l)$) {};
+            \node (x) [below of=x_center] {$x$};
+            \node (y) [below of=y_center] {$y$};
+            \node (z) [below of=z_center] {$z$};
+
+            \path (a) edge (i);
+            \path (i) edge (b);
+            \path (b) edge (j);
+            \path (c) edge (k);
+            \path (k) edge (d);
+            \path (e) edge (l);
+
+            \begin{pgfonlayer}{background}
+                \draw[gray!15, fill=gray!15, line width=12mm, line cap=round, line join=round] (a.center) -- (b.center) -- (j.center) -- (i.center) -- cycle;
+                \draw[gray!15, fill=gray!15, line width=12mm, line cap=round, line join=round] (c.center) -- (d.center) -- (k.center) -- cycle;
+                \draw[gray!15, fill=gray!15, line width=12mm, line cap=round, line join=round] (e.center) -- (l.center) -- cycle;
+            \end{pgfonlayer}
+
+        \end{tikzpicture}
+        \caption{Symbol graph for the example}
+        \label{fig:nested_expressions:example_symbol_graph}
+    \end{figure}
+
+    In the symbol graph, if two symbols are connected, then they are effectively the same index.
+    Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
+    Then we can define $\nu$ as follows:
+    $$\nu(s) := \begin{cases}
+            s_C & \text{if } s \in C \\
+            s   & \text{else}
+        \end{cases}.$$
+    In our example, the components are $\smallset{a,b,i,j}$, $\smallset{c,d,k}$, and $\smallset{e,l}$.
+    Therefore we could use
+    $$\nu(s) := \begin{cases}
+            x & \text{if } s \in \smallset{a,b,i,j} \\
+            y & \text{if } s \in \smallset{c,d,k}   \\
+            z & \text{if } s \in \smallset{e,l}     \\
+            s & \text{else}
+        \end{cases}.$$
+
+    The symbol map $\nu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\nu(\bm{s_i}) \in S^{n_i}, \nu(\bm{s_i})_j := \nu(s_{ij})$.
+    Then we can write the substituted index strings by setting $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m + n]$ and $\bm{\hat{s}_t} = \nu(\bm{s_t})$.
+    With these index strings, the compressed Einsum expression is the following:
+    $$V = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
+    which helps us to compress the example:
+    \begin{gather*}
+        (a,b,c,d,e,abbde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
+        i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
+        ))\\
+        =(x,x,y,y,z,x,x,y,z \rightarrow xy, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}).
+    \end{gather*}
+\end{theorem}
+
+\bigskip
+For the proof of this theorem, we first need three lemmata, which essentially boil down to one intuitive thought:
+The effective equality of two symbols can be expressed by multiplication with the unity matrix $\1_d$:
+$$\left(\1_d\right)_{ij} := \begin{cases}
+        \1 & \text{if $i = j$} \\
+        \0 & \text{else}
+    \end{cases},$$
+for $i,j \in [d]$, where $\0$ and $\1$ indicate the neutral element of addition and multiplication in the given semiring respectively.
+
+\input{chapters/nested/delta_lemmata/lemma_1.tex}
+
+This lemma intuitively means that we can replace any symbol in an index string of an input tensor of our choice with a new symbol by introducing the unity matrix with an appropriate index string as a factor.
+Now the same holds for the index string of the output tensor $\bm{s_t}$, which will be the content of the next lemma.
+
+\input{chapters/nested/delta_lemmata/lemma_2.tex}
+
+Now with these two lemmata, we can replace any symbol in any index string, regardless if it is and input string or the output string by introducing the unity matrix with an appropriate index string as a factor.
+In the following lemma, we will show that any unity matrix factors can be removed again, by renaming certain symbols in all other index strings in the Einsum expression.
+
+\input{chapters/nested/delta_lemmata/lemma_3.tex}
