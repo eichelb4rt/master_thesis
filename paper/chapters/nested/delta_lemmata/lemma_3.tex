@@ -18,5 +18,66 @@
 
 \begin{proof}
     \small
-    bla bla
+    For this proof, we provide the following example of an Einsum expression on which we demonstrate the given arguments for better understanding:
+    $$(ij, kl, mn, ij, kl, mn \rightarrow imn, A, B, C, \1_a, \1_b, \1_c)$$
+    for $A \in \R^{a \times a}, B \in \R^{b \times b}, C \in \R^{c \times c}$ and some $a,b,c \in \N$.
+
+    We need to consider three cases for the symbols used in the index string $\bm{s_n} = (s_{n1}, s_{n2})$:
+    \begin{itemize}
+        \item $s_{n1}$ and $s_{n2}$ are both free symbols,
+        \item $s_{n1}$ and $s_{n2}$ are both bound symbols,
+        \item one symbol of $s_{n1}$ and $s_{n2}$ is a free symbol, the other is a bound symbol.
+    \end{itemize}
+    Every one of these cases leads to the same result, but in a slightly different way.
+
+    First let us consider the case where both symbols are free.
+    In this case, both symbols can be replaced by a single symbol,
+    because $T$ is $\0$ for all entries with a multi-index,
+    where the indices projected by the symbols are not equal.
+
+    In our example, this is equivalent to the following:
+    \begin{align*}
+        \forall i,m,n: T_{imn}    & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{mn} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl} \left(\1_c\right)_{mn} \\
+                                  & = \begin{cases}
+            \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{mn} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl} & \text{if $m = n$} \\
+            \0                                                                                          & \text{else}
+        \end{cases}                                                                                          \\
+        \iff \forall i,z: T_{izz} & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{zz} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl}.
+    \end{align*}
+
+    Next let us consider the case where both symbols are bound.
+    In this case, those summands are multiplied with $\0$,
+    which have a multi-index where the projected indices are not equal.
+    Therefore, those summands are annihilated and left out from the summation.
+    This means that both symbols can be replaced by a single symbol.
+
+    In our example, this is equivalent to the following:
+    \begin{align*}
+        \forall i,z: T_{izz} & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{zz} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl}          \\
+                             & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{zz} \left(\1_a\right)_{ij} \odot \begin{cases}
+            \1 & \text{if $k = l$} \\
+            \0 & \text{else}
+        \end{cases} \\
+                             & = \bigoplus\limits_{j,y} A_{ij} B_{yy} C_{zz} \left(\1_a\right)_{ij}.
+    \end{align*}
+
+    Next let us consider the case where one symbol is free and one symbol is bound.
+    W.l.o.g. we consider the case where $s_{n1}$ is free and $s_{n2}$ is bound.
+    In this case, those summands are multiplied with $\0$,
+    which have a multi-index where the index projected by the bound symbol $s_{n2}$ is not the same as the index projected by the free symbol $s_{n1}$.
+    Therefore those summands are annihilated and left out from the summation, and the symbol $s_{n2}$ can be replaced by the symbol $s_{n1}$.
+    Additionally, we can rename the $s_{n1}$ to some new symbol.
+
+    In our example, this is equivalent to the following:
+    \begin{align*}
+        \forall i,z: T_{izz}      & = \bigoplus\limits_{j,y} A_{ij} B_{yy} C_{zz} \left(\1_a\right)_{ij}          \\
+                                  & = \bigoplus\limits_{j,y} A_{ij} B_{yy} C_{zz} \odot \begin{cases}
+            \1 & \text{if $i = j$} \\
+            \0 & \text{else}
+        \end{cases} \\
+                                  & = \bigoplus\limits_{y} A_{ii} B_{yy} C_{zz}                                   \\
+        \iff \forall x,z: T_{xzz} & = \bigoplus\limits_{y} A_{xx} B_{yy} C_{zz}.
+    \end{align*}
+
+    Therefore, in all three cases, the symbols, that are used in an index string for a unity matrix, can simply be replaced by a single symbol.
 \end{proof}
