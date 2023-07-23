@@ -19,6 +19,154 @@ $$C := (ijk, iik, j \rightarrow ij, A, B, v)$$
 Through the following definition, we hope to clear up why this Einsum expression results in the computation above,
 and what computation is the result of a general Einsum expression.
 
-\input{chapters/einsum/definition.tex}
-\input{chapters/einsum/examples.tex}
-\input{chapters/einsum/comp_advantages.tex}
+\begin{definition}
+    Einsum expressions specify how several input tensors are combined into a single output tensor.
+    Let $T^{(1)},\dots,T^{(n)}$ be our input tensors,
+    where $T^{(i)}$ is an $n_i$-th order tensor for $i \in [n]$.
+    The core of the Einsum expression are index strings. For this, we first need a collection of symbols $S$.
+    The respective index string for a tensor $T^{(i)}$ is then just a tuple $\bm{s_i} \in S^{n_i}$,
+    composed of symbols $s_{ij} \in S$ for $j \in [n_i]$.
+    The index string that is right of the arrow ($\rightarrow$) belongs to the output tensor $T$ and is referred to as output string $\bm{s_t}$.
+    % TODO: warum s_t? vorher klären / ändern?
+
+    In our example this could be $S = \smallset{i,j,k}$.
+    The tensor $T^{(1)} = A$ has the index string $\bm{s_1} = ijk$,
+    $T^{(2)} = B$ has $\bm{s_2} = iik$,
+    $T^{(3)} = v$ has $\bm{s_3} = j$,
+    and the output string is $\bm{s_t} = ij$.
+    The individual symbols are $s_{11} = i$, $s_{12} = j$, $s_{13} = k$, $s_{12} = i$, $s_{22} = i$, $s_{23} = k$, $s_{31} = j$, $s_{t1} = i$, $s_{t2} = j$.
+
+    The next step in the definition is to speak about axis sizes.
+    If we want to iterate over shared indices, it is necessary that the axes, that these indices are used for, share the same size.
+    In our example, $A_{ijk}$ and $v_j$ share the symbol $s_{12} = s_{31} = j$.
+    This means that the second axis of $A$ and the first axis of $v$ have to have the same size, which happens to be four.
+    Let us express this formally.
+
+    Let $d_{ij} \in \N$ denote the size of the $j$-th axis of $T^{(i)}$ for $i \in [n], j \in [n_i]$.
+    Then it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
+
+    Therefore we can also denote the size of all axes, that a symbol $s \in S$ corresponds to, as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
+    Note that not all same size axes have to be assigned the same symbol. For instance a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
+
+    The next step of the definition is figuring out which symbols are used for summation and which symbols are used for saving the result of the computation.
+    In order to do this, it is useful to know which symbols are in an index string, because symbols can occur more than once in just one index string (as seen in $B_{iik}$ in our example).
+    Therefore, let $\sigma(\bm{s})$ denote the set with all symbols used in an index string $\bm{s}$.
+    That is, in out example $\sigma(\bm{s_2}) = \sigma(iik) = \smallset{i, k}$.
+
+    All symbols to the right of the arrow ($\rightarrow$) are used as an index for the result of the computation.
+    These symbols are called \textit{free} symbols $F = \sigma(\bm{s_t})$.
+    All other symbols used in the expression are called \textit{bound} symbols $B = \bigcup_{i \in [n]} \sigma(\bm{s_i}) \setminus \sigma(\bm{s_t})$.
+    The reasoning behind this name is, that these symbols are bound by the summation symbol in the original computation.
+    In Einsum, we sum over all axes that belong to bound symbols.
+    It follows that the multi-index space that we iterate over is $\mathcal{F} = \prod_{s \in F} [d_s]$ and the multi-index space we sum over is $\mathcal{B} = \prod_{s \in B} [d_s]$.
+    In our example, the free symbols are $F = \smallset{ij}$ and the bound symbols are $B = \smallset{k}$.
+    The multi-index space we iterate over is $d_i \times d_j = [3] \times [4]$.
+    The multi-index space we sum over is $d_k = [5]$.
+
+    From the definition of $\mathcal{F}$, it follows that $d_s$ has to be defined for all symbols $s \in F$.
+    This means we have to add the constraint $\sigma(\bm{s_t}) \subseteq \bigcup_{i \in [n]} \sigma(\bm{s_i})$.
+
+    However, we do not use every symbol in the multi-index spaces to index every input tensor.
+    Instead, we use the index strings $\bm{s}$ to index the tensor.
+    To formally express this, we need a projection from a multi-index $(\bm{f},\bm{b}) \in \mathcal{F} \times \mathcal{B}$
+    \footnote{
+        Here, we use $(\bm{f},\bm{b})$ as the notation for concatenating the tuples $\bm{f}$ and $\bm{b}$.
+        This means, $(\bm{f},\bm{b})$ is not a tuple of multi-indices, but another multi-index.
+    }
+    to another multi-index, which includes only the indices, that are represented by the symbols used in $\bm{s}$,
+    in the same order as present in $\bm{s}$.
+    We denote this as $(\bm{f},\bm{b}):\bm{s}$.
+    Notice how this still allows duplication of indices given in $(\bm{f},\bm{b})$.
+    This is needed, as can be seen in our example for $B_{iik}$,
+    where a multi-index, e.g. $(i=1,j=4,k=2) \in \mathcal{F} \times \mathcal{B}$, is projected onto a different multi-index, by the index string $iik$.
+    With this index string, the index that is represented by the symbol $i$ is projected onto the first and second position,
+    and the index that is represented by the symbol $k$ is projected onto the third position.
+    Therefore, the resulting multi-index is $(i=1,j=4,k=2):iik = (1,1,2)$.
+
+    In our example, we used the standard sum and multiplication as operators for computing our result.
+    But with Einsum, we allow the more general use of any semiring $R = (M, \oplus, \odot)$.
+    With this, we can finally define a general Einsum expression
+    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    in terms of semiring operations. Namely, $T$ is the $\abs{\bm{s_t}}$-th order tensor
+    $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}.$$
+
+    Because we also project the indices $\bm{f}$ with the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
+    e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
+    This leaves some entries of the result undefined.
+    We define these entries to be the additive neutral element in the given semiring $R$.
+    This may sound arbitrary at first, but will be useful later.
+
+    In case the semiring can be derived from the context, or if it is irrelevant, it can be left out from the expression.
+
+    % There are still some special cases which need to be considered.
+    % If there are no bound symbols in the expression, then the sum in the original definition would be empty.
+    % But the definition is still meaningful.
+    % It boils down to computing the product of the tensor entries, without summing over them.
+    % Therefore, if $F = \emptyset$, then
+    % $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    % results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
+    % $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.$$
+    % If there are no free symbols, we will sum over all axes given by the symbols in the expression.
+    % Therefore, if $B = \emptyset$, then
+    % $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+    % results in the computation of a scalar $T$ with
+    % $$T = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.$$
+
+\end{definition}
+\bigskip
+
+The careful reader might have noticed two potential problems that could arise in the above definition.
+The first potential problem could arise when one of the input tensors is a scalar, which is a 0-th order tensor.
+This would mean that the index string $\bm{s}$ for that input tensor has to be the empty string $\epsilon$.
+Now when the multi-index $(\bm{f}, \bm{b})$ is projected by this empty index string, then the resulting multi-index can only be the empty multi-index $\lambda := ()$.
+One might expect that this leads to a problem, because we can not access any entries of a tensor with an empty multi-index.
+But for scalars, it makes sense to define the empty multi-index in such a way, that it accesses precisely the only entry that is stored in the scalar, i.e. $T_\lambda := T$ for a scalar $T$.
+This way, we can easily support scalars with empty index strings in Einsum.
+
+The second potential problem could arise when either the free symbols $F$ or the bound symbols $B$ are empty,
+because the universal quantor over an empty multi-index space $\mathcal{F}$ is always trivially true, and the sum over an empty multi-index space $\mathcal{B}$ is always trivially zero.
+But in fact, this leads to no problem, because the induced multi-index spaces of empty $F$ or $B$ are not empty themselves.
+They contain one element, namely the set including only the empty multi-index $\smallset{\lambda}$.
+In the following, we will explain why this is the case, and how this solves any problems with empty $F$ or $B$.
+
+Notice the definition of the product we use for to sets $M, N$:
+$$M \times N = \set{(m, n) \mid m \in M, n \in N}.$$
+This looks like an ordinary cartesian product, but the hidden difference lies in the meaning of $(m,n)$.
+Namely, if $m$ and $n$ are multi-indices $\bm{m} = (m_1, \dots, m_{k_1})$ and $\bm{n} = (n_1, \dots, n_{k_2})$ for $k_1, k_2 \in \N$, then we defined $(\bm{m}, \bm{n})$ to be the concatenation of the multi-indices:
+$$(\bm{m}, \bm{n}) = (m_1, \dots, m_{k_1}, n_1, \dots, n_{k_2}),$$
+which is one tuple with the entries of $\bm{m}$ and $\bm{n}$, instead of the tuple of tuples
+$$((m_1, \dots, m_{k_1}), (n_1, \dots, n_{k_2})).$$
+
+Therefore we can name a neutral element for concatenation, which is the empty multi-index $\lambda$ with $(\bm{i}, \lambda) = \bm{i}$ for any multi-index $\bm{i}$.
+From this, we can derive a neutral element for our product of multi-index spaces, which is the set including only the empty multi-index $\smallset{\lambda}$ with $\mathcal{I} \times \smallset{\lambda} = \mathcal{I}$ for any multi-index space $\mathcal{I}$.
+
+Now, because it makes sense to define an operation over an empty set of operands as the neutral element of said operation, we can safely define
+$$\prod\limits_{s \in \emptyset} [d_s] := \set{\lambda}.$$
+Therefore, if $F = \emptyset$, then
+$$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
+\begin{align*}
+    \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}}      & = \sum\limits_{\bm{b} \in \smallset{\lambda}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}} \\
+    \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} & = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.
+\end{align*}
+And if $B = \emptyset$, then
+$$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+results in the computation of a scalar $T$ with
+\begin{align*}
+    \forall \bm{f} \in \smallset{\lambda}: T_{\bm{f}: \epsilon} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}} \\
+    \iff T                                                      & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.
+\end{align*}
+
+All following examples use the standard semiring $R = (\R, +, \cdot)$.
+\begin{itemize}
+    \item matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+          $$A \cdot v = (ij, j \rightarrow i, A, v)$$
+    \item matrix-matrix multiplication: Let $A \in \R^{m \times r}, B \in \R^{r \times n}$. Then
+          $$A \cdot B = (ik, kj \rightarrow ij, A, B)$$
+    \item trace: Let $A \in \R^{n \times n}$. Then
+          $$\text{trace}(A) = (ii \rightarrow, A)$$
+    \item squared Frobenius norm: Let $A \in \R^{n \times n}$. Then
+          $$\abs{A}_2^2 = (ij, ij \rightarrow,A,A)$$
+    \item diagonal matrix: Let $v \in \R^{n}$. Then
+          $$\text{diag}(v) = (i \rightarrow ii, v)$$
+\end{itemize}

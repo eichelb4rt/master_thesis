@@ -13,7 +13,7 @@ $$(A \cdot B) \cdot v = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v)$
 which is clearly worse than the optimal contraction order
 $$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v))$$
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
-Another limitation of nested Einsum strings is that we can not fully benefit from the computational advantages of a single Einsum string, that were stated in \cref{sec:einsum:comp_benefits}.
+Another limitation of nested Einsum strings is that we can not fully benefit from the computational advantages that come with the optimization of single Einsum expressions.
 
 But fortunately, all nested Einsum expressions can be compressed into a single Einsum expression, if they are computed over the same semiring.
 For instance,
