@@ -1,0 +1,66 @@
+\section{Duplications}
+
+The following two theorems revolve around duplicated symbols in index strings and the way these duplications are \textit{broken}.
+We speak of a broken duplication in $\bm{s_u}$, if the symbols $s_{ui}$ and $s_{uj}$ at two positions $i,j \in [n_u]$ are the same, meaning $s_{ui} = s_{uj}$,
+but symbols at the same positions in $\bm{\hat{s_u}}$, $\hat{s}_{ui}$ and $\hat{s}_{uj}$ are different, meaning $\hat{s}_{ui} \neq \hat{s}_{uj}$.
+In the same way, duplications in $\bm{\hat{s}_u}$ can be broken by $\bm{s_u}$.
+
+Because $\bm{s_u}$ and $\bm{\hat{s}_u}$ are easily confused, we can also use a different terminology that does not include these similar variable names.
+If $\bm{s_u}$ breaks duplications in $\bm{\hat{s}_u}$, we say that the outer expression \textit{introduces} duplications to the inner expression,
+because the outer expression uses duplications in the input string for the inner expression, that were not used in the output string of the inner expression.
+If $\bm{\hat{s}_u}$ breaks duplications in $\bm{s_u}$, we say that the outer expression \textit{removes} duplications from the inner expression,
+because the outer expression uses different symbols in the input string for the inner expression, where there was orignally a duplication in the output string of the inner expression.
+
+\input{chapters/nested/introduce_duplications.tex}
+
+This theorem suffices to prove a property of the trace in a relatively simple manner, namely that for $A \in \R^{m \times n}, B \in \R^{n \times m}$,
+it holds that
+$$\text{trace}(A \cdot B) = \text{trace}(B \cdot A).$$
+
+\begin{proof}
+    \small
+    \begin{align*}
+        \text{trace}(A \cdot B) & = (ll \rightarrow , (ik,kj \rightarrow ij, A, B))  \\
+                                & = (lk, kl \rightarrow ,A, B)                       \\
+                                & = (kl, lk \rightarrow ,B, A)                       \\
+                                & = (kk \rightarrow , (il, lj \rightarrow ij, B, A)) \\
+                                & = \text{trace}(B \cdot A)
+    \end{align*}
+    where the second and fourth equality hold because of \cref{thm:nested_einsum:introduce_duplications},
+    and the third equality holds because of the commutativity of multiplication in the standard semiring.
+\end{proof}
+\bigskip
+
+\input{chapters/nested/remove_duplications.tex}
+
+% TODO: can i really write "every"?
+With these two more specific theorems, we can write every naturally occuring complex expression from linear algebra as a single Einsum expression.
+The reason for this is, that in linear algebra, only up to two indices are used for a single tensor,
+which means that with two index strings, it cannot happen that a duplication is removed and anonther duplication is introduced simultaniously.
+Here are some more complex expressions as examples:
+\begin{itemize}
+    \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+          \begin{align*}
+              \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
+                                  & = (ij,j,ij,j\rightarrow,A,v,A,v)
+          \end{align*}
+    \item trace of matrix-matrix multiplication: Let $A \in \R^{m \times n}, B \in \R^{n \times m}$. Then
+          \begin{align*}
+              \text{trace}(A \cdot B) & = (ii \rightarrow, (ik, kj \rightarrow ij, A, B)) \\
+                                      & = (ik, ki \rightarrow, A, B)
+          \end{align*}
+    \item matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+          \begin{align*}
+              A \cdot \text{diag}(v) & = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v)) \\
+                                     & = (ij, j \rightarrow ij, A, v)                      \\
+          \end{align*}
+\end{itemize}
+
+But to write every expression from linear algebra as a single Einsum expression respectively was already possible before (TODO: cite Julien).
+% There, (beschreib, was Julien gemacht hat).
+With these theorems, we just derived a different way of achieving that.
+For this, we can state a simple procedure.
+First, every function is translated to their respective Einsum expression, which results in a nested Einsum expression.
+Then, the nested expressions are compressed from the bottom up.
+
+Now, with \cref{thm:nested_einsum:general}, this procedure allows us to write every computation, where the single steps can be translated to Einsum, as one big Einsum expression that does not blow up in size with levels of nesting.

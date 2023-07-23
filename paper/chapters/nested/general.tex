@@ -27,6 +27,13 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     where the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
+    Let us clarify that the index string $\bm{s_u}$ corresponds to the output string of the inner expression,
+    and the index string $\bm{\hat{s}_u}$ corresponds to the input string that is used for the input tensor $U$ in the outer expression.
+    In our example, these are $\bm{s_u}$ and $\bm{\hat{s}_u}$:
+    $$(a,b,c,d,e,\overbrace{abbcde}^{\bm{\hat{s}_u}} \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
+        i,j,k,l \rightarrow \overbrace{iijkkl}^{\bm{s_u}}, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
+        )).$$
+
     In contrast to \cref{thm:nested_einsum:simple}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner Einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
     Instead, we first need to apply a symbol map $\nu: S \rightarrow S$ to each of the index strings.
     This symbol map holds information about which symbols are effectively the used for the same index.
@@ -132,8 +139,9 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
 \begin{enumerate}[label={\arabic*.}]
     \item Apply \cref{lemma:nested_einsum:1} to all of the symbols in the input string $\bm{\hat{s}_u}$ and therefore replace it with a new index string $\bm{s'_u} \in S^{n_u}$ where $\bm{s'_u}$ contains no duplicate symbols.
     \item Apply \cref{lemma:nested_einsum:2} to all of the symbols in the output string $\bm{s_u}$ and therefore replace it with the same new index string $\bm{s'_u}$.
-    \item Apply \cref{thm:nested_einsum:simple} to the nested expression, which is possible because the input string and output string for $U$ are both $\bm{s'_u}$.
-    \item Apply \cref{lemma:nested_einsum:3} to the compressed expression until there are no more unity matrices left, which were introduced in step one and two.
+    \item Apply \cref{thm:nested_einsum:simple} to the nested expression and therefore compress the nested expression into a single expression with lots of unity matrices.
+          This is possible because the input string and output string for $U$ are both $\bm{s'_u}$ now.
+    \item Apply \cref{lemma:nested_einsum:3} to remove unity matrices from the compressed expression until there are no more of those unity matrices left, which were introduced in step one and two.
 \end{enumerate}
 
 \begin{proof}
@@ -215,43 +223,43 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
 
                 \node[state] (a) at (0, 0)		{$a$};
                 \node[state] (b) at (3, 0)		{$b$};
-    
+
                 \node[state] (s1) at (-0.25, -2)        {$s_1$};
                 \node[state] (s2) at (2.25, -2)         {$s_2$};
                 \node[state] (s3) at (4.75, -2)         {$s_3$};
-    
+
                 \node[state] (i) at (1.5, -4) 		{$i$};
                 \node[state] (j) at (4.5, -4) 		{$j$};
-    
+
                 \path (a) edge (s1);
                 \path[red] (b) edge (s2);
                 \path (b) edge (s3);
-    
+
                 \path (i) edge (s1);
                 \path (i) edge (s2);
                 \path (j) edge (s3);
-    
+
             \end{tikzpicture}
         \end{subfigure}%
         \begin{subfigure}{0.49\textwidth}
             \begin{tikzpicture}[node distance = 3cm, semithick]
 
                 \node[state] (a) at (0, 0)		{$a$};
-    
+
                 \node[state] (s1) at (-0.25, -2)    {$s_1$};
                 \node[state, red] (x) at (2.25, -2)         {$x$};
                 \node[state] (s3) at (4.75, -2)         {$s_3$};
-    
+
                 \node[state] (i) at (1.5, -4) 		{$i$};
                 \node[state] (j) at (4.5, -4) 		{$j$};
-    
+
                 \path (a) edge (s1);
                 \path (x) edge (s3);
-    
+
                 \path (i) edge (s1);
                 \path (i) edge (x);
                 \path (j) edge (s3);
-    
+
             \end{tikzpicture}
         \end{subfigure}
         \caption{First component of the extended symbol graph after removing the unity matrix represented by the edge $\smallset{b, s_2}$}
@@ -266,7 +274,8 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
     In $G'$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share a neighbour $s'_{uk}$ if both were replaced by $s'_{uk}$ in step one and step two,
     which happens exactly if they share a position $i = j = k$.
     Therefore every edge in $G$ is represented by a shared neighbour in $G'$.
-    And because every $s'_{uk}$ has exactly two neighbours, there are no more of these connections where $s'_{uk}$ is a shared neighbour.
-    Therefore two symbols are in the same component of $G$ precisely when they are also in the same component of $G'$.
+    Now, because every $s'_{uk}$ has exactly two neighbours, and because there are no direct edges between any symbols of $\bm{s_u}$ and $\bm{\hat{s}_u}$, there are no more edges in $G'$ other than the ones that contribute to a shared neighbour $s'_{uk}$.
+    Then, because sharing an edge in $G$ is the same as sharing a neighbour in $G'$, two symbols are in the same component in $G$ precisely when they are also in the same component in $G'$.
+
     Therefore collapsing every edge in the extended symbol graph leads to the symbol map defined in \cref{thm:nested_einsum:general}.
 \end{proof}

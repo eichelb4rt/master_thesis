@@ -1,10 +1,13 @@
 \section{Removing Duplications}
 
-The following example is an expression, which we cannot compress with the previous theorems:
+The second duplication theorem handles all nested expressions, where the outer expression can only remove duplications and cannot remove any.
+This means that if two positions hold the same symbol in $\bm{\hat{s}_u}$, these positions also have to hold the same symbol in $\bm{s_u}$.
+This brings the advantage, that the symbol map is much simpler and only has to be applied to the outer expression.
+
+The following example is an expression, which respects this condition:
 $$(ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))$$
 for $A \in \R^{x \times x}, B \in \R^{y \times y}, C \in \R^{z \times z}, D \in \R^{x \times y \times z}$.
-This is because duplications in $\bm{s_u} = aabbcc$ are removed by the input string $\bm{\hat{s}_u} = ijklmn$.
-In the following theorem, we will explore how to compress expressions such as this one.
+This is because duplications $aa$, $bb$, and $cc$ in the output string $\bm{s_u}$ are broken by $ij$, $kl$, $mn$ indicate the input string $\bm{\hat{s}_u} = ijklmn$, and no new duplications are introduced by the output string.
 Again, we use disjoint sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
 \begin{theorem}
@@ -15,27 +18,20 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
     Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$ with $s_{uj} \neq s_{uj'} \implies \hat{s}_{uj} \neq \hat{s}_{uj'}$ for all $j, j' \in [n_u]$,
     which means that $\bm{\hat{s}_u}$ can only remove symbol duplications, and cannot introduce any.
-    Note that this is the converse of the constraint in \cref{thm:nested_einsum:2}.
-
-    In our example, $\bm{s_u} = oopp$ and $\bm{\hat{s}_u} = jklm$.
-    This removes the symbol duplication of the first and second index, as well as the symbol duplication of the third and fourth index.
+    Note that this is the converse of the constraint in \cref{thm:nested_einsum:introduce_duplications}.
 
     Let $s_v$ be an index string and
     $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
     where the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
-    As in \cref{thm:nested_einsum:2}, we need to apply a symbol map before substituting $\bm{\hat{s}_u}$.
-    Interestingly, the symbol map is not applied to the index strings of the inner expression ($\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$),
-    but to the index strings of the outer expression ($\bm{s_1},\dots,\bm{s_m}$ and $\bm{s_v}$).
-    Similarly, it does not map $\bm{s_u}$ to $\bm{\hat{s}_u}$, but $\bm{\hat{s}_u}$ to $\bm{s_u}$.
-
+    As in \cref{thm:nested_einsum:general}, we need to apply a symbol map in order to compress the nested expression.
     Let $\nu: S \rightarrow S$ such that
     $$\nu(s) := \begin{cases}
             s_{uj} & \text{if }\exists j \in [n_u]: \hat{s}_{uj} = s \\
             s      & \text{else}
         \end{cases},$$
-    which can be extended to map entire index strings as in \cref{thm:nested_einsum:2}.
+    which can be extended to map entire index strings as in \cref{thm:nested_einsum:general}.
     In our example, these are the important mappings:
     \begin{align*}
         i & \rightarrow a, & k & \rightarrow b, & m & \rightarrow c, \\
@@ -43,110 +39,53 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     \end{align*}
     This means that $i$ and $j$ will be iterated over at the same time, $k$ and $l$ will be iterated over at the same time, and $m$ and $l$ will be iterated over at the same time.
 
-    Let $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \nu(\bm{s_v})$, then the compressed Einsum expression is the following:
+    We can write the substituted index strings by setting $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m]$, $\bm{\hat{s}_v} := \nu(\bm{s_v})$
+    With these index strings, the compressed Einsum expression is the following:
     $$V = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m + n)})$$
     which helps us to compress the example:
     \begin{gather*}
         (ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))\\
         = (aa, bb, cc, abc \rightarrow aab, A, B, C, D).
     \end{gather*}
-    Note how the index string for the output $\bm{s_v}$ was changed into $\bm{\hat{s}_v}$.
-    This will become apparent in the proof.
 \end{theorem}
 
-\bigskip
 \begin{proof}
     \small
-    The key idea behind this proof, is that the entries of $U$, which were not defined in the computation, are set to the additive neutral element $\0$.
-    This is useful, because in a semiring over some set $M$, the additive neutral element \textit{annihilates} $M$.
-    This means, that for any $a \in M$, $a \cdot \0 = \0 \cdot a = \0$.
-    Therefore, for any multi-index where $U$ is set to $\0$, $V$ is also set to $\0$.
-    This means, that in the computation of $V$, only the indices which respect the duplications in $\bm{s_u}$ are defined.
-    % Let us prove this formally.
+    Because $\hat{s}_{uj} = \hat{s}_{uj'} \implies s_{uj} = s_{uj'}$ for all $j, j' \in [n_u]$,
+    each symbol in $\bm{\hat{s}_u}$ only has one neighbour in the symbol graph.
+    This is illustrated for our example in \cref{fig:nested_expressions:example_symbol_graph_remove}
+    Therefore each symbol in $\bm{s_u}$ defines its own component,
+    and can be used as the symbol in the symbol map, that replaces all symbols in their component.
+    Therefore the symbols in $\bm{s_u}$ are not changed by applying the symbol map, which are the only symbols in the inner expression that could have been changed by the map.
+    Therefore the symbol map only has to be applied to the outer expression.
 
-    Let $F, F', B, B'$ be the free and bound symbols of the outer and inner Einsum expression respectively.
-    W.l.o.g. they are all non-empty.
-    From them we can derive the multi-index spaces $\mathcal{F}, \mathcal{F}', \mathcal{B}, \mathcal{B}'$ as in the definition.
-    Then $U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$ is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ with $(\bm{f}, \bm{b}):\hat{s}_{uj} = (\bm{f}, \bm{b}):\hat{s}_{uj'}$, where $j,j' \in [n_u]$ are indices of $\bm{s_u}$ where the symbols are duplicated, i.e. $s_{uj} = s_{uj'}$.
-    In our example, this means that $(op \rightarrow oopp, B)$ is only non-zero for $(j,k,l,m) \in [d_j] \times [d_k] \times [d_l] \times [d_m]$ with $j = k$ and $l = m$, because $s_{u1} = s_{u2} = o$ and $s_{u3} = s_{u4} = p$.
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}[node distance = 2cm, semithick]
 
-    Therefore, when $U$ is multiplied with the other tensors, the resulting entry
-    $$\bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}): \bm{s_i}} \odot U_{(\bm{f}, \bm{b}): \bm{\hat{s}_u}}$$
-    is only non-zero for multi-indices $(\bm{f}, \bm{b}) \in \mathcal{F} \times \mathcal{B}$ that respect the same conditions.
-    In our example, this is equivalent to
-    $$A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} = \begin{cases}
-            A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} & \text{if } i = j, k = l, m = n \\
-            \0                                    & \text{else}
-        \end{cases}.$$
+            \node[state] (i)					{$i$};
+            \node[state] (j) [right of=i]		{$j$};
+            \node[state] (k) [right of=j]		{$k$};
+            \node[state] (l) [right of=k]		{$l$};
+            \node[state] (m) [right of=l]		{$m$};
+            \node[state] (n) [right of=m]		{$n$};
+            \node (ij) at ($(i)!0.5!(j)$) {};
+            \node (kl) at ($(k)!0.5!(l)$) {};
+            \node (mn) at ($(m)!0.5!(n)$) {};
+            \node[state] (a) [below of=ij] 		{$a$};
+            \node[state] (b) [below of=kl] 		{$b$};
+            \node[state] (c) [below of=mn] 		{$c$};
 
-    Now, this already looks like not all symbols are needed for this computation.
-    But to see, in which way we can replace symbols, we need to consider the three ways in which duplications can be broken.
-    Either a duplication is broken only by free symbols, only by bound symbols, or by a combination of both.
-    In our example, we have all of these cases.
-    The duplication $aa$ is broken by $i$ and $j$, which are both free symbols.
-    The duplication $cc$ is broken by $m$ and $n$, which are both bound symbols.
-    The duplication $bb$ is broken by $k$ and $l$, where $k$ is a free symbol and $l$ is a bound symbol.
-    Every one of these cases leads to the same result, but in a slightly different way.
+            \path (a) edge (i);
+            \path (a) edge (j);
+            \path (b) edge (k);
+            \path (b) edge (l);
+            \path (c) edge (m);
+            \path (c) edge (n);
 
-    First let us consider the case where a duplication is broken only by free symbols.
-    In this case, the free symbols that break the duplication can be replaced by a single symbol,
-    because all entries of $V$, with a multi-index that does not respect the duplication, is $\0$.
-    In our example, this is equivalent to replacing $i$ and $j$ by a single symbol $a$:
-    \begin{align*}
-        \forall i,j,k: V_{ijk}    & = \bigoplus\limits_{l,m,n} A_{ij} B_{kl} C_{mn} \odot U_{ijklmn} \\
-        \iff \forall a,k: V_{aak} & = \bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn}
-    \end{align*}
-
-    For the next two cases, we need to use that $a \oplus \0 = a$ for any $a \in M$.
-    % This helps us to reduce the number of symbols that are used in the summation.
-    This means, that only those summands that respect the duplications will be summed over,
-    because all summands which do not respect the summation are $\0$.
-    This affects the remaining two cases in different ways.
-    If a duplication is broken only by bound symbols, then we need a single symbol to sum over all the multi-indices that respect the duplication.
-    In our example, this is equivalent to replacing $m$ and $n$ by a single symbol $c$:
-    $$\bigoplus\limits_{l,m,n} A_{aa} B_{kl} C_{mn} \odot U_{aaklmn} = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc}$$
-
-    Now, if a duplication is broken by free symbols and by bound symbols,
-    then the free symbols can again be replaced by a single symbol, as in the first case.
-    In our example, this is useless, because there is already only one symbol $k$ where this can be applied.
-    Let us do it anyway, because it might clear up what needs to be done in this step.
-    \begin{align*}
-        \forall a,k: V_{aak}      & = \bigoplus\limits_{l,c} A_{aa} B_{kl} C_{cc} \odot U_{aaklcc} \\
-        \iff \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc}
-    \end{align*}
-    Then, the values held by the breaking bound symbols are already defined by the value held by the now only breaking free symbol.
-    Therefore, the summation over the values of this symbol is useless, because there is only one combination of indices, which respects the duplication.
-    Therefore, the breaking bound symbols need to hold the same exact value as the breaking free symbol,
-    and these symbols can be replaced by the same symbol, that was used to replace the free symbols.
-    Because of this, the occurence of the symbol also needs to be removed from the sum.
-    In our example, this is equivalent to replacing $l$ by $b$ and removing it from the sum:
-    \begin{align*}
-        \forall a,b: V_{aab} & = \bigoplus\limits_{l,c} A_{aa} B_{bl} C_{cc} \odot U_{aablcc} \\
-                             & = \bigoplus\limits_{c} A_{aa} B_{bb} C_{cc} \odot U_{aabbcc}
-    \end{align*}
-
-    Therefore, in all three cases, the symbols, that break a duplication, can simply be replaced by a single symbol.
-    Conveniently, as a replacing symbol, we can just use the symbol that defined the duplication in the first place,
-    because the inner expression shares no symbols with the outer expression.
-    This yields exactly the symbol map $\nu$.
-    Therefore $\bm{\hat{s}_u}$, which is the index string of $U$ that was used in the outer expression, will be replaced by $\bm{s_u}$, which is the index string of $U$ that was used in the inner expression.
-    Just as convenient is, that replacing the breaking symbols that include a combination of free and bound symbols, already removes the breaking bound symbols from the sum,
-    because the bound symbols are by definition only those symbols, which are not free.
-    In our example, this means that replacing $k$ and $l$ by $b$ already removes $l$ from the sum, because $b$ is now a free symbol as well.
-
-    For the final steps, we need to define new multi-index sets to iterate and sum over.
-    For this, let $\hat{F} := \sigma(\bm{\hat{s}_v})$ and $\hat{B} := \left(\bigcup_{i \in [m]} \sigma(\bm{\hat{s}_i}) \cup \bm{s_u}\right) \setminus \sigma(\bm{\hat{s}_v})$.
-    Let $\mathcal{\hat{F}} = \prod_{s \in \hat{F}} [d_s]$ and $\mathcal{\hat{B}} = \prod_{s \in \hat{B}} [d_s]$.
-    Then
-    \begin{align*}
-        V                                                                                 & = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                \\
-        \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}}                         & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{\hat{s}_u}}                                     \\
-        \iff \forall \bm{\hat{f}} \in \mathcal{\hat{F}}: V_{\bm{\hat{f}}: \bm{\hat{s}_v}} & = \bigoplus\limits_{\bm{\hat{b}} \in \mathcal{\hat{B}}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{\hat{s}_i}} \odot U_{(\bm{\hat{f}}, \bm{\hat{b}}):\bm{s_u}} \\
-        \iff V                                                                            & = (\bm{\hat{s}_1},\dots,\bm{\hat{s}_m}, \bm{s_u} \rightarrow \bm{\hat{s}_v}, T^{(1)},\dots,T^{(m)}, U)
-    \end{align*}
-    where the second equivalence holds because of the previously discussed symbol replacements.
-    Then we can use \cref{thm:nested_einsum:1} for
-    $$V = (\bm{\hat{s}_1}, \dots, \bm{\hat{s}_m}, \bm{s_{m + 1}}, \dots, \bm{s_{m + n}} \rightarrow \bm{\hat{s}_v}, T^{(1)}, \dots, T^{(m + n)})$$
-    because the symbols of the outer expression have not been mapped to any of the bound symbols of the inner expression.
+        \end{tikzpicture}
+        \caption{Symbol graph for the example}
+        \label{fig:nested_expressions:example_symbol_graph_remove}
+    \end{figure}
 \end{proof}
 \bigskip
