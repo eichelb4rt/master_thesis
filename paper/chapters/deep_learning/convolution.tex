@@ -64,7 +64,7 @@ Sadly, this is not possible.
             0 & \text{else}
         \end{cases}$$
     for $x \in [2], y \in [2], z \in [3]$.
-    This is illustrated in \autoref{fig:translating_inference:convolution:example_p}.
+    This is illustrated in \cref{fig:translating_inference:convolution:example_p}.
     \begin{figure}
         \centering
         \begin{tikzpicture}
@@ -115,7 +115,7 @@ Sadly, this is not possible.
     all the entries, where missing index exists such that $P_{xyz} = 1$, have to hold one as well.
     And unless $V$ is full of zeros (which it cannot be), the converse is true as well,
     meaning if all entries of the missing index hold $P_{xyz} = 0$, then the entry in $U$ also has to hold zero.
-    Therefore there is only possibility for $U$ for each of the cases, which are illustrated in \autoref{fig:translating_inference:convolution:example_us}:
+    Therefore there is only possibility for $U$ for each of the cases, which are illustrated in \cref{fig:translating_inference:convolution:example_us}:
     \begin{align*}
         P_{xyz} & = U_{xy} V_z & U & = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} \\
         P_{xyz} & = U_{xz} V_y & U & = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix} \\

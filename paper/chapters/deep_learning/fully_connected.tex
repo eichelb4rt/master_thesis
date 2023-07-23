@@ -14,8 +14,8 @@ Then
 \end{align*}
 A multi-layer network can the be achieved by nesting the respective Einsum expressions of each layer.
 
-Because each level of nesting needs a different semiring, we can not use the theorems from \autoref{chap:nested} to compress the expression.
-But if we could find a way of compressing the massively nested expressions of deeper neural networks despite of that, then we could benefit from the advantages mentioned in \autoref{chap:einsum} such as the optimisation of contraction paths.
+Because each level of nesting needs a different semiring, we can not use the theorems from \cref{chap:nested} to compress the expression.
+But if we could find a way of compressing the massively nested expressions of deeper neural networks despite of that, then we could benefit from the advantages mentioned in \cref{chap:einsum} such as the optimisation of contraction paths.
 Unfortunately, it is unlikely that this is possible, because we found that expanding the matrix multiplication, that transforms the outputs of another layer, results in an exponentially big term.
 
 To see this, we use the tropical semiring $(\R, \oplus, \odot)$, where $a \oplus b = \max(a,b)$ and $a \odot b = a + b$.

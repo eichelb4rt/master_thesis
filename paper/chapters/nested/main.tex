@@ -13,7 +13,7 @@ $$(A \cdot B) \cdot v = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v)$
 which is clearly worse than the optimal contraction order
 $$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v))$$
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
-Another limitation of nested Einsum strings is that we can not fully benefit from the computational advantages of a single Einsum string, that were stated in \autoref{sec:einsum:comp_benefits}.
+Another limitation of nested Einsum strings is that we can not fully benefit from the computational advantages of a single Einsum string, that were stated in \cref{sec:einsum:comp_benefits}.
 
 But fortunately, all nested Einsum expressions can be compressed into a single Einsum expression, if they are computed over the same semiring.
 For instance,
@@ -26,7 +26,7 @@ and
     (A \cdot B) \cdot v & = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v) \\
                         & = (ik, kj, j \rightarrow i, A, B, v).
 \end{align*}
-This leaves the path of contraction up to the implementation, and lets us benefit from all the computational advantages mentioned in \autoref{chap:einsum}.
+This leaves the path of contraction up to the implementation, and lets us benefit from all the computational advantages mentioned in \cref{chap:einsum}.
 In the following theorems, we assume that the computations are all over the same semiring $R = (M, \oplus, \odot)$.
 
 \input{chapters/nested/simple.tex}
@@ -70,7 +70,7 @@ For this, we need more general ways of compressing nested Einsum expressions.
 %     %                             & = (ii \rightarrow , (ik,kj \rightarrow ij, B, A)) \\
 %     %                             & = \text{trace}(B \cdot A)
 %     % \end{align*}
-%     % where the second equality holds because of \autoref{thm:nested_einsum:2},
+%     % where the second equality holds because of \cref{thm:nested_einsum:2},
 %     % the third equality is just a renaming of the indices,
 %     % and the fourth equality holds because of the commutivity in the used semiring.
 %     \begin{align*}
@@ -80,7 +80,7 @@ For this, we need more general ways of compressing nested Einsum expressions.
 %                                 & = (kk \rightarrow , (il, lj \rightarrow ij, B, A)) \\
 %                                 & = \text{trace}(B \cdot A)
 %     \end{align*}
-%     where the second and fourth equality hold because of \autoref{thm:nested_einsum:2},
+%     where the second and fourth equality hold because of \cref{thm:nested_einsum:2},
 %     and the third equality holds because of the commutativity of multiplication in the standard semiring.
 % \end{proof}
 % \bigskip

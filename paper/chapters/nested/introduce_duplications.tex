@@ -32,7 +32,7 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     such that the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
-    In contrast to \autoref{thm:nested_einsum:1}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner Einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
+    In contrast to \cref{thm:nested_einsum:1}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner Einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
     Instead, we first need to apply a symbol map to the input strings of the inner expression.
     Let $\nu: S \rightarrow S$ such that
     $$\nu(s) := \begin{cases}
@@ -91,7 +91,7 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     and because the bound symbols of the expression, which are used in $\bm{b'}$, do not occur in $\bm{s_u}$, and are therefore not changed by the symbol map $\nu$.
     Therefore
     $$U = (\bm{\hat{s}_{m + 1}},\dots,\bm{\hat{s}_{m + n}} \rightarrow \bm{\hat{s}_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
-    and we can use \autoref{thm:nested_einsum:1} for
+    and we can use \cref{thm:nested_einsum:1} for
     $$V = (\bm{s_1}, \dots, \bm{s_m}, \bm{\hat{s}_{m + 1}}, \dots, \bm{\hat{s}_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})$$
     because the bound symbols of the inner expression have not been mapped to any of the symbols used in the outer expression.
 \end{proof}

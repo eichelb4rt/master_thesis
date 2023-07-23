@@ -23,12 +23,12 @@ Therefore, Max-Pooling can be expressed as an Einsum expression:
 $$M(T) = ((\bm{s_x},\bm{s_y},\bm{s_z}), \bm{s_z}  \rightarrow \bm{s_x}, P, T)_{R_{(\max, +)}}$$
 where $\bm{s_x},\bm{s_y},\bm{s_z} \in S^n$ use distinct symbols and $R_{(\max, +)}$ denotes the tropical semiring $(\R \cup \smallset{-\infty}, \max, +)$.
 
-As in \autoref{sec:translating_inference:convolution}, the efficiency of the computation could benefit from decomposition of the design tensor $P$ into an outer product of lower-order design tensors.
+As in \cref{sec:translating_inference:convolution}, the efficiency of the computation could benefit from decomposition of the design tensor $P$ into an outer product of lower-order design tensors.
 But yet again, this is not possible.
 
 \begin{proof}
     Because $-\infty$ and $0$ are the additive neutral and multiplicative neutral element of the used semiring respectively,
-    the argument in \autoref{sec:translating_inference:convolution}, that the factors have to be scaled design tensors, holds here as well.
+    the argument in \cref{sec:translating_inference:convolution}, that the factors have to be scaled design tensors, holds here as well.
 
     Therefore, w.l.o.g. we assume that $U$ and $V$ are design tensors of order one or higher.
     Consider max-pooling where $n = 1$, $m = 4$, $p = 2$, and $k = 2$.
@@ -38,7 +38,7 @@ But yet again, this is not possible.
         -\infty & \text{else}
     \end{cases}$$
     for $x \in [2], y \in [2], z \in [4]$.
-    This is illustrated in \autoref{fig:translating_inference:max_pooling:example_p}, where $\0$ and $\1$ were used to indicate the additive and multiplicative neutral element of the tropical semiring, $-\infty$ and $0$.
+    This is illustrated in \cref{fig:translating_inference:max_pooling:example_p}, where $\0$ and $\1$ were used to indicate the additive and multiplicative neutral element of the tropical semiring, $-\infty$ and $0$.
     \begin{figure}
         \centering
         \begin{tikzpicture}
@@ -78,7 +78,7 @@ But yet again, this is not possible.
         \label{fig:translating_inference:max_pooling:example_p}
     \end{figure}
 
-    The rest of the proof is analogous to the proof in \autoref{sec:translating_inference:convolution},
+    The rest of the proof is analogous to the proof in \cref{sec:translating_inference:convolution},
     where the key argument is, that the multiplicative neutral element cannot be distributed with an outer product in such a way,
     that there are no copied slices in $P$.
 \end{proof}

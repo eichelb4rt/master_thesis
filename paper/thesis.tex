@@ -16,9 +16,6 @@
 \usepackage[table, dvipsnames]{xcolor}
 \usepackage{pdfpages}
 
-\usepackage{hyperref}
-\usepackage[labelfont=bf]{caption}
-
 \usepackage[numbers]{natbib}
 
 \usepackage{tabularx}
@@ -31,6 +28,10 @@
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{bm}
 \usepackage{enumitem}
+
+\usepackage{hyperref}
+\usepackage[noabbrev, capitalise, nameinlink]{cleveref}
+\usepackage[labelfont=bf]{caption}
 
 \usepackage{tikz}
 % combat weird space between paragraphs and stuff
@@ -85,10 +86,11 @@
 \raggedbottom
 
 % fixes autoref not capitalizing chapters and sections
-\AtBeginDocument{\def\chapterautorefname{Chapter}}
-\AtBeginDocument{\def\sectionautorefname{Section}}
-\AtBeginDocument{\def\subsectionautorefname{Subsection}}
-\AtBeginDocument{\def\subsubsectionautorefname{Subsubsection}}
+% \AtBeginDocument{\def\chapterautorefname{Chapter}}
+% \AtBeginDocument{\def\sectionautorefname{Section}}
+% \AtBeginDocument{\def\subsectionautorefname{Subsection}}
+% \AtBeginDocument{\def\subsubsectionautorefname{Subsubsection}}
+% \AtBeginDocument{\def\lemmaautorefname{Lemma}}
 
 
 % TODO: remove for digital version

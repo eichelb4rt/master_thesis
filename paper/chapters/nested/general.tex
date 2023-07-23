@@ -16,7 +16,7 @@ because the scope of each symbol does not reach into nested expressions,
 and therefore the $j$ used in the outer expression and the $j$ used in the inner expression are treated as different symbols.
 
 \begin{theorem}
-    \label{thm:nested_einsum:4}
+    \label{thm:nested_einsum:general}
     For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
     $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
@@ -27,16 +27,16 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     where the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
-    In contrast to \autoref{thm:nested_einsum:1}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner Einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
+    In contrast to \cref{thm:nested_einsum:simple}, we cannot just replace the input index string $\bm{\hat{s}_u}$ by all the input index strings in the inner Einsum expression $\bm{s_{m + 1}},\dots,\bm{s_{m + n}}$.
     Instead, we first need to apply a symbol map $\nu: S \rightarrow S$ to each of the index strings.
     This symbol map holds information about which symbols are effectively the used for the same index.
 
     For the definition of the map $\nu$, we first construct an undirected graph $G = (V, E)$ that we call \textit{symbol graph}.
     % $V = \sigma(\bm{s_v}) \cup \sigma(\bm{s_u}) \cup \sigma(\bm{\hat{s}_u}) \cup \bigcup_{i \in [m + n]} \sigma(\bm{s_i})$
-    In the symbol graph, the nodes consist of all symbols from both expressions.
+    In the symbol graph, the nodes consist of all symbols from $\bm{s_u}$ and $\bm{\hat{s}_u}$.
     The edges are $E = \smallset{\smallset{s_{uj}, \hat{s}_{uj}} \mid j \in [n_u]}$,
     which connects all symbols from $\bm{s_u}$ and $\bm{\hat{s}_u}$ that share an index.
-    The symbol graph for our example is illustrated in \autoref{fig:nested_expressions:example_symbol_graph}.
+    The symbol graph for our example is illustrated in \cref{fig:nested_expressions:example_symbol_graph}.
 
     \begin{figure}[h]
         \centering
@@ -82,7 +82,7 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
     Then we can define $\nu$ as follows:
     $$\nu(s) := \begin{cases}
-            s_C & \text{if } s \in C \\
+            s_C & \text{if $\exists C: \text{$C$ is a component of $G$ and $s \in C$}$} \\
             s   & \text{else}
         \end{cases}.$$
     In our example, the components are $\smallset{a,b,i,j}$, $\smallset{c,d,k}$, and $\smallset{e,l}$.
@@ -116,14 +116,157 @@ $$\left(\1_d\right)_{ij} := \begin{cases}
     \end{cases},$$
 for $i,j \in [d]$, where $\0$ and $\1$ indicate the neutral element of addition and multiplication in the given semiring respectively.
 
-\input{chapters/nested/delta_lemmata/lemma_1.tex}
+\input{chapters/nested/lemmata/lemma_1.tex}
 
 This lemma intuitively means that we can replace any symbol in an index string of an input tensor of our choice with a new symbol by introducing the unity matrix with an appropriate index string as a factor.
 Now the same holds for the index string of the output tensor $\bm{s_t}$, which will be the content of the next lemma.
 
-\input{chapters/nested/delta_lemmata/lemma_2.tex}
+\input{chapters/nested/lemmata/lemma_2.tex}
 
 Now with these two lemmata, we can replace any symbol in any index string, regardless if it is and input string or the output string by introducing the unity matrix with an appropriate index string as a factor.
 In the following lemma, we will show that any unity matrix factors can be removed again, by renaming certain symbols in all other index strings in the Einsum expression.
 
-\input{chapters/nested/delta_lemmata/lemma_3.tex}
+\input{chapters/nested/lemmata/lemma_3.tex}
+
+From these three lemmata, \cref{thm:nested_einsum:general} follows with the following procedure:
+\begin{enumerate}[label={\arabic*.}]
+    \item Apply \cref{lemma:nested_einsum:1} to all of the symbols in the input string $\bm{\hat{s}_u}$ and therefore replace it with a new index string $\bm{s'_u} \in S^{n_u}$ where $\bm{s'_u}$ contains no duplicate symbols.
+    \item Apply \cref{lemma:nested_einsum:2} to all of the symbols in the output string $\bm{s_u}$ and therefore replace it with the same new index string $\bm{s'_u}$.
+    \item Apply \cref{thm:nested_einsum:simple} to the nested expression, which is possible because the input string and output string for $U$ are both $\bm{s'_u}$.
+    \item Apply \cref{lemma:nested_einsum:3} to the compressed expression until there are no more unity matrices left, which were introduced in step one and two.
+\end{enumerate}
+
+\begin{proof}
+    \small
+    For the proof, we again demonstrate the arguments on the example used in \cref{thm:nested_einsum:general} for better understanding:
+    $$(a,b,c,d,e,abbcde \rightarrow bc,v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
+        i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
+        ))$$
+    Applying step one and two to this example results in the following Einsum expression if $\bm{s'_u} = s_1 s_2 s_3 s_4 s_5 s_6$:
+    \begin{gather*}
+        (a,b,c,d,e,s_1 s_2 s_3 s_4 s_5 s_6, a s_1, b s_2, b s_3, c s_4, d s_5, e s_6 \rightarrow bc,\\
+        v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, \1, \1, \1, \1, \1, \1,\\
+        (i,j,k,l, i s_1, i s_2, j s_3, k s_4, k s_5, l s_6 \rightarrow s_1 s_2 s_3 s_4 s_5 s_6,\\
+        v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}, \1, \1, \1, \1, \1, \1)),
+    \end{gather*}
+    where we used $\1$ to indicate unity matrices of different sizes, because the sizes can be derived from the context and are not important for better understanding.
+    Applying step three results in the following compressed expression:
+    \begin{gather*}
+        (a,b,c,d,e,i,j,k,l, i s_1, i s_2, j s_3, k s_4, k s_5, l s_6, a s_1, b s_2, b s_3, c s_4, d s_5, e s_6 \rightarrow bc,\\
+        v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}, \1, \1, \1, \1, \1, \1, \1, \1, \1, \1, \1, \1)
+    \end{gather*}
+
+    The only fact that remains to be understood is why the removal the unity matrices in step four leads to the transformation described in \cref{thm:nested_einsum:general}.
+    For this, we construct another undirected graph $G' = (V', E')$ that we call \textit{extended symbol graph}.
+    In the symbol graph, the nodes consist of all symbols from $\bm{s_u}$, $\bm{s'_u}$, and $\bm{\hat{s}_u}$.
+    An edge $\smallset{u,v}$ exists precisely when the compressed expression contains a unity matrix with index string $uv$, that was introduced in step one or step two.
+    The extended symbol graph for our example is illustrated in \cref{fig:nested_expressions:example_extended_symbol_graph}.
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}[node distance = 3cm, semithick]
+
+            \node[state] (a) at (0, 0)		{$a$};
+            \node[state] (b) at (3, 0)		{$b$};
+            \node[state] (c) at (6, 0) 		{$c$};
+            \node[state] (d) at (9, 0) 		{$d$};
+            \node[state] (e) at (12, 0) 	{$e$};
+
+            \node[state] (s1) at (-0.25, -2)        {$s_1$};
+            \node[state] (s2) at (2.25, -2)         {$s_2$};
+            \node[state] (s3) at (4.75, -2)         {$s_3$};
+            \node[state] (s4) at (7.25, -2)         {$s_4$};
+            \node[state] (s5) at (9.75, -2)         {$s_5$};
+            \node[state] (s6) at (12.25, -2)        {$s_6$};
+
+            \node[state] (i) at (1.5, -4) 		{$i$};
+            \node[state] (j) at (4.5, -4) 		{$j$};
+            \node[state] (k) at (7.5, -4) 		{$k$};
+            \node[state] (l) at (10.5, -4) 		{$l$};
+
+            \path (a) edge (s1);
+            \path (b) edge (s2);
+            \path (b) edge (s3);
+            \path (c) edge (s4);
+            \path (d) edge (s5);
+            \path (e) edge (s6);
+
+            \path (i) edge (s1);
+            \path (i) edge (s2);
+            \path (j) edge (s3);
+            \path (k) edge (s4);
+            \path (k) edge (s5);
+            \path (l) edge (s6);
+
+        \end{tikzpicture}
+        \caption{Extended symbol graph for the example}
+        \label{fig:nested_expressions:example_extended_symbol_graph}
+    \end{figure}
+
+    Now, every newly introduced unity matrix is represented by an edge in the extended symbol graph.
+    If a unity matrix is removed with \cref{lemma:nested_einsum:3}, the symbols connected by the representing edge collapse into one symbol,
+    and the rest of the extended symbol graph stays the same.
+    An example of this collapse is illustrated in \cref{fig:nested_expressions:collapsed_extended_symbol_graph}.
+
+    \begin{figure}[h]
+        \centering
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}[node distance = 3cm, semithick]
+
+                \node[state] (a) at (0, 0)		{$a$};
+                \node[state] (b) at (3, 0)		{$b$};
+    
+                \node[state] (s1) at (-0.25, -2)        {$s_1$};
+                \node[state] (s2) at (2.25, -2)         {$s_2$};
+                \node[state] (s3) at (4.75, -2)         {$s_3$};
+    
+                \node[state] (i) at (1.5, -4) 		{$i$};
+                \node[state] (j) at (4.5, -4) 		{$j$};
+    
+                \path (a) edge (s1);
+                \path[red] (b) edge (s2);
+                \path (b) edge (s3);
+    
+                \path (i) edge (s1);
+                \path (i) edge (s2);
+                \path (j) edge (s3);
+    
+            \end{tikzpicture}
+        \end{subfigure}%
+        \begin{subfigure}{0.49\textwidth}
+            \begin{tikzpicture}[node distance = 3cm, semithick]
+
+                \node[state] (a) at (0, 0)		{$a$};
+    
+                \node[state] (s1) at (-0.25, -2)    {$s_1$};
+                \node[state, red] (x) at (2.25, -2)         {$x$};
+                \node[state] (s3) at (4.75, -2)         {$s_3$};
+    
+                \node[state] (i) at (1.5, -4) 		{$i$};
+                \node[state] (j) at (4.5, -4) 		{$j$};
+    
+                \path (a) edge (s1);
+                \path (x) edge (s3);
+    
+                \path (i) edge (s1);
+                \path (i) edge (x);
+                \path (j) edge (s3);
+    
+            \end{tikzpicture}
+        \end{subfigure}
+        \caption{First component of the extended symbol graph after removing the unity matrix represented by the edge $\smallset{b, s_2}$}
+        \label{fig:nested_expressions:collapsed_extended_symbol_graph}
+    \end{figure}
+
+    Therefore, after repeatedly applying \cref{lemma:nested_einsum:3},
+    all nodes that are part of the same component in the extended symbol graph will collapse into one symbol.
+    Now the only thing left to show is that two nodes are connected in $G$ exactly if they are also connected in $G'$.
+    This can be seen by understanding the edges of $G$ and $G'$.
+    In $G$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share an edge if they share a position $i = j$.
+    In $G'$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share a neighbour $s'_{uk}$ if both were replaced by $s'_{uk}$ in step one and step two,
+    which happens exactly if they share a position $i = j = k$.
+    Therefore every edge in $G$ is represented by a shared neighbour in $G'$.
+    And because every $s'_{uk}$ has exactly two neighbours, there are no more of these connections where $s'_{uk}$ is a shared neighbour.
+    Therefore two symbols are in the same component of $G$ precisely when they are also in the same component of $G'$.
+    Therefore collapsing every edge in the extended symbol graph leads to the symbol map defined in \cref{thm:nested_einsum:general}.
+\end{proof}
