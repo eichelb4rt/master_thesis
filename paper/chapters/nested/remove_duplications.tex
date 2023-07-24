@@ -28,7 +28,7 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
     As in \cref{thm:nested_einsum:general}, we need to apply a symbol map in order to compress the nested expression.
     Let $\nu: S \rightarrow S$ such that
     $$\nu(s) := \begin{cases}
-            s_{uj} & \text{if }\exists j \in [n_u]: \hat{s}_{uj} = s \\
+            s_{uj} & \text{if $\exists j \in [n_u]: \hat{s}_{uj} = s$} \\
             s      & \text{else}
         \end{cases},$$
     which can be extended to map entire index strings as in \cref{thm:nested_einsum:general}.

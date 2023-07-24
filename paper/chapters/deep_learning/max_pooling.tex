@@ -12,9 +12,9 @@ Then
 $$M(T)_{x} = \max\limits_{y \in [p]^n} T'_{(x,y)}$$
 for $x \in [k]^n$. Let
 $$P_{(x,y,z)} := \begin{cases}
-    0 & \text{if } z = p (x - 1) + y\\
-    -\infty & \text{else}
-\end{cases}$$
+        0       & \text{if $z = p (x - 1) + y$} \\
+        -\infty & \text{else}
+    \end{cases}$$
 for $x \in [k]^n, y \in [p]^n, z \in [m]^n$.
 Then
 $$T'_{(x,y)} = \max\limits_{z \in [m]^n} P_{(x,y,z)} + T_{z}$$
@@ -34,9 +34,9 @@ But yet again, this is not possible.
     Consider max-pooling where $n = 1$, $m = 4$, $p = 2$, and $k = 2$.
     Then
     $$P_{(x,y,z)} := \begin{cases}
-        0 & \text{if } z = 2 (x - 1) + y\\
-        -\infty & \text{else}
-    \end{cases}$$
+            0       & \text{if $z = 2 (x - 1) + y$} \\
+            -\infty & \text{else}
+        \end{cases}$$
     for $x \in [2], y \in [2], z \in [4]$.
     This is illustrated in \cref{fig:translating_inference:max_pooling:example_p}, where $\0$ and $\1$ were used to indicate the additive and multiplicative neutral element of the tropical semiring, $-\infty$ and $0$.
     \begin{figure}
@@ -47,7 +47,7 @@ But yet again, this is not possible.
             \def\dy{0.5}
             % P
             \matrix[draw, fill=white] (layer_4) at (3 * \dx, 3 * \dy) {
-                \node (114) {$\0$}; & \node (124) {$\0$}; \\
+                \node (114) {$\0$}; & \node (124) {$\0$};  \\
                 \node (214) {$\0$}; & \node (224) {$\1$}; \\
             };
             \matrix[draw, fill=white] (layer_3) at (2 * \dx, 2 * \dy) {

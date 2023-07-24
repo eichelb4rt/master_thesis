@@ -8,7 +8,6 @@
 
     Let $\bm{s'_k}$ be a new index string such that
     $$s'_{ki} := \begin{cases}
-            % TODO: make every "if" in cases this way
             s_{\text{new}} & \text{if $i = j$} \\
             s_{ki}         & \text{else}
         \end{cases}$$
@@ -23,8 +22,8 @@
     Let $\mathcal{F}$ and $\mathcal{B}$ be the induces multi-index spaces for the free and bound symbols of the Einsum expression.
     Then
     \begin{align*}
-        T                                                        & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                                                                                                             \\
-        \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                                                                                         \\
+        T                                                        & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                                                                                                        \\
+        \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                                                                                        \\
                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]} \bigodot\limits_{1 \leq i < k} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot T^{(k)}_{(\bm{f}, \bm{b}):\bm{s'_k}} \odot \bigodot\limits_{k < i \leq n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
                                                                  & \phantom{{}=\bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]}} \odot \begin{cases}
             \1 & \text{if $(\bm{f}, \bm{b}): s_{kj} = (\bm{f}, \bm{b}): s_{\text{new}}$} \\
