@@ -10,12 +10,12 @@ In the following, we will explore how to compress such expressions.
 Note that, for the theorem, we use disjoint sets of symbols for the inner and outer expression.
 This helps in the proof, and is not a real constraint in practice,
 because we can just rename the symbols in different scopes.
-For example, we could also write the above expression as
-$$(a,b,c,d,e,abbcde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
-    a,b,c,d \rightarrow aabccd, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
-    )),$$
+For example, we could write the matrix-matrix-vector multiplication of $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$ as
+$$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ab, b \rightarrow a, B, v))$$
+or as
+$$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v)),$$
 because the scope of each symbol does not reach into nested expressions,
-and therefore the $a$, $b$, $c$, and $d$ used in the outer expression are treated as different symbols than the $a$, $b$, $c$, and $d$ used in the inner expression.
+and therefore the $i$ and $j$ used in the outer expression are treated as different symbols than the $i$ and $j$ used in the inner expression.
 
 \begin{theorem}
     \label{thm:nested_einsum:general}
