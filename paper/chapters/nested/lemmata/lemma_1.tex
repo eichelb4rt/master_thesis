@@ -8,7 +8,7 @@
 
     Let $\bm{s'_k}$ be a new index string such that
     $$s'_{ki} := \begin{cases}
-            s_{\text{new}} & \text{if $i = j$} \\
+            s_{\text{new}} & \text{if $i = j$}, \\
             s_{ki}         & \text{else}
         \end{cases}$$
     for $i \in [n_k]$.
@@ -26,7 +26,7 @@
         \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                                                                                        \\
                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]} \bigodot\limits_{1 \leq i < k} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot T^{(k)}_{(\bm{f}, \bm{b}):\bm{s'_k}} \odot \bigodot\limits_{k < i \leq n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\
                                                                  & \phantom{{}=\bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]}} \odot \begin{cases}
-            \1 & \text{if $(\bm{f}, \bm{b}): s_{kj} = (\bm{f}, \bm{b}): s_{\text{new}}$} \\
+            \1 & \text{if $(\bm{f}, \bm{b}): s_{kj} = (\bm{f}, \bm{b}): s_{\text{new}}$}, \\
             \0 & \text{else}
         \end{cases}                                                                                                                                             \\
                                                                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{kj}]} \bigodot\limits_{1 \leq i < k} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot T^{(k)}_{(\bm{f}, \bm{b}):\bm{s'_k}} \odot \bigodot\limits_{k < i \leq n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \\

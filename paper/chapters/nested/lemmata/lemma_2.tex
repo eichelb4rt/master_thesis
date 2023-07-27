@@ -8,7 +8,7 @@
 
     Let $\bm{s'_t}$ be a new index string such that
     $$s'_{ti} := \begin{cases}
-            s_{\text{new}} & \text{if $i = j$} \\
+            s_{\text{new}} & \text{if $i = j$}, \\
             s_{ti}         & \text{else}
         \end{cases}$$
     for $i \in [n_t]$.
@@ -26,7 +26,7 @@
         T                                                                         & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                             \\
         \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}}                  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                             \\
         \iff \forall \bm{f} \in \mathcal{F} \times [d_{tj}]: T_{\bm{f}:\bm{s'_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \begin{cases}
-            \1 & \text{if $\bm{f}: s_{tj} = \bm{f}: s_{\text{new}}$} \\
+            \1 & \text{if $\bm{f}: s_{tj} = \bm{f}: s_{\text{new}}$}, \\
             \0 & \text{else}
         \end{cases}                             \\
                                                                                   & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \left(\1_{d_{tj}}\right)_{(\bm{f}, \bm{b}):\bm{s_\1}} \\
@@ -40,7 +40,7 @@
         T                                                          & = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)})                                                                                                             \\
         \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}:\bm{s_t}}   & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                             \\
         \iff \forall \bm{f} \in \mathcal{F}': T_{\bm{f}:\bm{s'_t}} & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{tj}]} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \begin{cases}
-            \1 & \text{if $(\bm{f}, \bm{b}): s_{tj} = (\bm{f}, \bm{b}): s_{\text{new}}$} \\
+            \1 & \text{if $(\bm{f}, \bm{b}): s_{tj} = (\bm{f}, \bm{b}): s_{\text{new}}$}, \\
             \0 & \text{else}
         \end{cases}                             \\
                                                                    & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times [d_{tj}]} \bigodot\limits_{i \in [n]} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \left(\1_{d_{tj}}\right)_{(\bm{f}, \bm{b}):\bm{s_\1}} \\

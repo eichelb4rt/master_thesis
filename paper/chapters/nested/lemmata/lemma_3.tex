@@ -6,10 +6,10 @@
     $$T = (\bm{s_1}, \dots, \bm{s_n} \rightarrow \bm{s_t}, T^{(1)}, \dots, T^{(n)}).$$
 
     Let $F$ and $B$ be the free and bound symbols of this expression.
-    Then we can introduce a symbol map $\mu: S \rightarrow S$, which maps both symbols in $\bm{s_n}$ to the same symbol $s_{\text{new}} \in S \setminus (F \cup B)$:
+    Then we can introduce a symbol map $\mu: S \rightarrow S$, which maps both symbols in $\bm{s_n} = s_{n1}s_{n2}$ to the same symbol $s_{\text{new}} \in S \setminus (F \cup B)$:
     $$\mu(s) := \begin{cases}
-            s_{\text{new}} & \text{if $s \in \smallset{s_{n1}, s_{n2}}$} \\
-            s              & \text{else}
+            s_{\text{new}} & \text{if $s \in \smallset{s_{n1}, s_{n2}}$}, \\
+            s              & \text{else}.
         \end{cases}$$
     The symbol map $\mu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\mu(\bm{s_i}) \in S^{n_i}, \mu(\bm{s_i})_j := \mu(s_{ij})$.
     Then we can write the substituted index strings by setting $\bm{s'_i} := \mu(\bm{s_i})$ for $i \in [n]$ and $\bm{s'_t} = \mu(\bm{s_t})$.
@@ -40,7 +40,7 @@
     \begin{align*}
         \forall i,m,n: T_{imn}    & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{mn} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl} \left(\1_c\right)_{mn} \\
                                   & = \begin{cases}
-            \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{mn} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl} & \text{if $m = n$} \\
+            \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{mn} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl} & \text{if $m = n$}, \\
             \0                                                                                          & \text{else}
         \end{cases}                                                                                          \\
         \iff \forall i,z: T_{izz} & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{zz} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl}.
@@ -56,7 +56,7 @@
     \begin{align*}
         \forall i,z: T_{izz} & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{zz} \left(\1_a\right)_{ij} \left(\1_b\right)_{kl}          \\
                              & = \bigoplus\limits_{j,k,l} A_{ij} B_{kl} C_{zz} \left(\1_a\right)_{ij} \odot \begin{cases}
-            \1 & \text{if $k = l$} \\
+            \1 & \text{if $k = l$}, \\
             \0 & \text{else}
         \end{cases} \\
                              & = \bigoplus\limits_{j,y} A_{ij} B_{yy} C_{zz} \left(\1_a\right)_{ij}.
@@ -73,7 +73,7 @@
     \begin{align*}
         \forall i,z: T_{izz}      & = \bigoplus\limits_{j,y} A_{ij} B_{yy} C_{zz} \left(\1_a\right)_{ij}          \\
                                   & = \bigoplus\limits_{j,y} A_{ij} B_{yy} C_{zz} \odot \begin{cases}
-            \1 & \text{if $i = j$} \\
+            \1 & \text{if $i = j$}, \\
             \0 & \text{else}
         \end{cases} \\
                                   & = \bigoplus\limits_{y} A_{ii} B_{yy} C_{zz}                                   \\

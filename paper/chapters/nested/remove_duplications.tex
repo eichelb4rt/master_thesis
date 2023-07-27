@@ -7,7 +7,7 @@ This brings the advantage, that the symbol map is much simpler and only has to b
 The following example is an expression, which respects this condition:
 $$(ij, kl, mn, ijklmn \rightarrow ijk, A, B, C, (abc \rightarrow aabbcc, D))$$
 for $A \in \R^{x \times x}, B \in \R^{y \times y}, C \in \R^{z \times z}, D \in \R^{x \times y \times z}$.
-This is because duplications $aa$, $bb$, and $cc$ in the output string $\bm{s_u}$ are broken by $ij$, $kl$, $mn$ indicate the input string $\bm{\hat{s}_u} = ijklmn$, and no new duplications are introduced by the output string.
+This is because the duplications $aa$, $bb$, and $cc$ in the output string $\bm{s_u}$ are broken by $ij$, $kl$, and $mn$ respectively.
 Again, we use disjoint sets of symbols for the inner and outer expression to help us in the formulation and the proof.
 
 \begin{theorem}
@@ -15,22 +15,22 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
 
     For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
-    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    $$U = (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)}).$$
     Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$ with $s_{uj} \neq s_{uj'} \implies \hat{s}_{uj} \neq \hat{s}_{uj'}$ for all $j, j' \in [n_u]$,
     which means that $\bm{\hat{s}_u}$ can only remove symbol duplications, and cannot introduce any.
     Note that this is the converse of the constraint in \cref{thm:nested_einsum:introduce_duplications}.
 
     Let $s_v$ be an index string and
-    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
     where the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
     As in \cref{thm:nested_einsum:general}, we need to apply a symbol map in order to compress the nested expression.
     Let $\nu: S \rightarrow S$ such that
     $$\nu(s) := \begin{cases}
-            s_{uj} & \text{if $\exists j \in [n_u]: \hat{s}_{uj} = s$} \\
-            s      & \text{else}
-        \end{cases},$$
+            s_{uj} & \text{if $\exists j \in [n_u]: \hat{s}_{uj} = s$}, \\
+            s      & \text{else},
+        \end{cases}$$
     which can be extended to map entire index strings as in \cref{thm:nested_einsum:general}.
     In our example, these are the important mappings:
     \begin{align*}

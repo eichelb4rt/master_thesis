@@ -1,6 +1,6 @@
 \section{Simple Nested Expressions}
 
-In the following, we will explore how to compress such expressions as
+In the following, we will explore how to compress such expressions:
 $$\underbrace{(ij, j \rightarrow i, \overbrace{(ik, kj \rightarrow ij, A, B)}^{\text{inner expression}}, v)}_{\text{outer expression}}$$
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
 
@@ -10,12 +10,13 @@ for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
     For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}, \bm{s_v}$ be index strings.
     Let
-    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    $$U = (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
     and
-    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
-    where the bound symbols of the second Einsum expression share no symbols with the first Einsum expression.
-    Then
+    $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    where the bound symbols of the second Einsum expression share no symbols with the first Einsum expression,
+    then
     $$V = (\bm{s_1}, \dots, \bm{s_{m + n}} \rightarrow \bm{s_v}, T^{(1)}, \dots, T^{(m + n)})$$
+    is the compressed Einsum expression for $V$ that includes the computation of $U$.
 \end{theorem}
 
 \bigskip
@@ -27,7 +28,7 @@ for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
     Then
     \begin{align*}
          & V                                                         &  & = (\bm{s_1},\dots,\bm{s_m}, \bm{s_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)                                                                                                                                                                             \\
-         & \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}} &  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_k}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                                                                                  \\
+         & \iff \forall \bm{f} \in \mathcal{F}: V_{\bm{f}: \bm{s_v}} &  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot U_{(\bm{f}, \bm{b}):\bm{s_u}}                                                                                                                  \\
          &                                                           &  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \left[\bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{s_{i'}}}\right] \\
          &                                                           &  & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i = 1}^{m} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}} \odot \bigodot\limits_{i = m + 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}, \bm{b'}):\bm{s_{i}}}                 \\
          &                                                           &  & = \bigoplus\limits_{\bm{b} \in \mathcal{B} \times \mathcal{B}'} \bigodot\limits_{i = 1}^{m + n} T^{(i)}_{(\bm{f}, \bm{b}):\bm{s_i}}                                                                                                                              \\
@@ -37,6 +38,6 @@ for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
     $$\forall \bm{f'} \in \mathcal{F}': U_{\bm{f'}: \bm{s_u}} = \bigoplus\limits_{\bm{b'} \in \mathcal{B}'} \bigodot\limits_{i' = m + 1}^{m + n} T^{(i')}_{(\bm{f'}, \bm{b'}):\bm{s_{i'}}}$$
     and from the fact, that the symbols in $\bm{s_u}$ are used in the outer expression as an input string, and in the inner expression as the output string, and therefore $F' \subseteq B \cup F$.
     Additionally, because of the stated requirement $(B \cup F) \cap B' = \emptyset$, the symbols representing $\bm{b'}$ do not clash with the symbols representing $(\bm{f}, \bm{b})$, and therefore $(\bm{f}, \bm{b}, \bm{b'}):\bm{s_{i'}}$ is well-defined and projects on the same indices as $(\bm{f'}, \bm{b'}):\bm{s_{i'}}$.
-    The fourth equality follows from the distributivity in a semiring.
+    The fourth equality follows from the distributivity of a semiring.
 \end{proof}
 \bigskip

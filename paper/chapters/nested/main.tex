@@ -1,7 +1,7 @@
 \chapter{Nested Expressions}
 \label{chap:nested}
 
-In practice, concatenations of operations come naturally, e.g. computing the squared norm of a matrix-vector product $\abs{A \cdot v}_2^2$
+In practice, concatenations of operations arise naturally, e.g. computing the squared norm of a matrix-vector product $\abs{A \cdot v}_2^2$
 for $A \in \R^{m \times n}, v \in \R^n$.
 This would lead to a nested Einsum expression $\abs{A \cdot v}_2^2 = (i,i \rightarrow , (ij, j \rightarrow i, A, v), (ij, j \rightarrow i, A, v))$.
 This expression dictates the order of evaluating the expression.
@@ -13,7 +13,7 @@ $$(A \cdot B) \cdot v = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v)$
 which is clearly worse than the optimal contraction order
 $$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v))$$
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
-Another limitation of nested Einsum strings is that we can not fully benefit from the computational advantages that come with the optimization of single Einsum expressions.
+Another limitation of nested Einsum expressions is that we can not fully benefit from the computational advantages that come with the optimization of single Einsum expressions.
 
 But fortunately, all nested Einsum expressions can be compressed into a single Einsum expression, if they are computed over the same semiring.
 For instance,
@@ -27,7 +27,7 @@ and
                         & = (ik, kj, j \rightarrow i, A, B, v).
 \end{align*}
 This leaves the path of contraction up to the implementation, and lets us benefit from all the computational advantages mentioned in \cref{chap:einsum}.
-In the following theorems, we assume that the computations are all over the same semiring $R = (M, \oplus, \odot)$.
+For the following theorems, we assume that the computations are all over the same semiring $R = (M, \oplus, \odot)$.
 
 \input{chapters/nested/simple.tex}
 
@@ -61,26 +61,26 @@ which make the process of compressing simpler for a subset of nested expressions
 With these two more specific theorems, we can write every naturally occuring complex expression from linear algebra as a single Einsum expression.
 The reason for this is, that in linear algebra, only up to two indices are used for a single tensor,
 which means that with two index strings, it cannot happen that a duplication is removed and anonther duplication is introduced simultaniously.
-Here are some more complex expressions as examples:
+Here are some more complex examples of expressions, which we can compress with the two more specific theorems:
 \begin{itemize}
-    \item squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+    \item Squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
           \begin{align*}
               \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
-                                  & = (ij,j,ij,j\rightarrow,A,v,A,v)
+                                  & = (ij,j,ij,j\rightarrow,A,v,A,v).
           \end{align*}
-    \item trace of matrix-matrix multiplication: Let $A \in \R^{m \times n}, B \in \R^{n \times m}$. Then
+    \item Trace of matrix-matrix multiplication: Let $A \in \R^{m \times n}, B \in \R^{n \times m}$. Then
           \begin{align*}
               \text{trace}(A \cdot B) & = (ii \rightarrow, (ik, kj \rightarrow ij, A, B)) \\
-                                      & = (ik, ki \rightarrow, A, B)
+                                      & = (ik, ki \rightarrow, A, B).
           \end{align*}
-    \item matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
+    \item Matrix multiplication with a diagonal matrix: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
           \begin{align*}
               A \cdot \text{diag}(v) & = (ik, kj \rightarrow ij, A, (i \rightarrow ii, v)) \\
-                                     & = (ij, j \rightarrow ij, A, v)                      \\
+                                     & = (ij, j \rightarrow ij, A, v).
           \end{align*}
 \end{itemize}
 
-But to write every expression from linear algebra as a single Einsum expression respectively was already possible before \cite{Klaus2023}.
+But writing every expression from linear algebra as a single Einsum expression respectively was already possible before \cite{Klaus2023}.
 With these theorems, we just derived a different way of achieving that.
 For this, we can state a simple procedure.
 First, every function is translated to their respective Einsum expression, which results in a nested Einsum expression.

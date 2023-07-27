@@ -15,7 +15,7 @@ for which we defined the dimensions on every axis.
 This notation is essentially the inspiration for Einsum, which might be apparent given the name Einsum.
 Einsum is just an adaptation of this style, which makes it easier to use in programming.
 With it, we can write the above expression like this:
-$$C := (ijk, iik, j \rightarrow ij, A, B, v)$$
+$$C = (ijk, iik, j \rightarrow ij, A, B, v)$$
 Through the following definition, we hope to clear up why this Einsum expression results in the computation above,
 and what computation is the result of a general Einsum expression.
 
@@ -85,7 +85,7 @@ and what computation is the result of a general Einsum expression.
     In our example, we used the standard sum and multiplication as operators for computing our result.
     But with Einsum, we allow the more general use of any semiring $R = (M, \oplus, \odot)$.
     With this, we can finally define a general Einsum expression
-    $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    $$T = (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
     in terms of semiring operations. Namely, $T$ is the $\abs{\bm{s_t}}$-th order tensor
     $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}.$$
 
@@ -102,12 +102,12 @@ and what computation is the result of a general Einsum expression.
     % But the definition is still meaningful.
     % It boils down to computing the product of the tensor entries, without summing over them.
     % Therefore, if $F = \emptyset$, then
-    % $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+    % $$T = (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
     % results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
     % $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.$$
     % If there are no free symbols, we will sum over all axes given by the symbols in the expression.
     % Therefore, if $B = \emptyset$, then
-    % $$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+    % $$T = (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
     % results in the computation of a scalar $T$ with
     % $$T = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{b}:\bm{s_i}}.$$
 
@@ -142,14 +142,14 @@ From this, we can derive a neutral element for our product of multi-index spaces
 Now, because it makes sense to define an operation over an empty set of operands as the neutral element of said operation, we can safely define
 $$\prod\limits_{s \in \emptyset} [d_s] := \set{\lambda}.$$
 Therefore, if $F = \emptyset$, then
-$$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
+$$T = (\bm{s_1},\dots,\bm{s_n} \rightarrow \bm{s_t}, T^{(1)},\dots,T^{(n)})_R$$
 results in the computation of a $\abs{\bm{s_t}}$-th order tensor $T$ with
 \begin{align*}
     \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}}      & = \sum\limits_{\bm{b} \in \smallset{\lambda}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}} \\
     \iff \forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} & = \bigodot\limits_{i = 1}^{n} T^{(i)}_{\bm{f}:\bm{s_i}}.
 \end{align*}
 And if $B = \emptyset$, then
-$$T := (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
+$$T = (\bm{s_1},\dots,\bm{s_n} \rightarrow , T^{(1)},\dots,T^{(n)})_R$$
 results in the computation of a scalar $T$ with
 \begin{align*}
     \forall \bm{f} \in \smallset{\lambda}: T_{\bm{f}: \epsilon} & = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}} \\

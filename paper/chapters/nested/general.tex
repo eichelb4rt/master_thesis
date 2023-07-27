@@ -1,6 +1,6 @@
 \section{General Nested Expressions}
 
-The following example is an expression, which we cannot compress with the previous theorem:
+The following is an example of an expression, which we cannot compress with the previous theorem:
 $$(a,b,c,d,e,abbcde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
     i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
     ))$$
@@ -19,11 +19,11 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
     \label{thm:nested_einsum:general}
     For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index string $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
-    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    $$U = (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
     Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$.
 
     Let $s_v$ be an index string and
-    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
     where the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
@@ -47,7 +47,7 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
 
     \begin{figure}[h]
         \centering
-        \begin{tikzpicture}[node distance = 3cm, semithick]
+        \begin{tikzpicture}[node distance = 2cm, semithick]
 
             \node[state] (a)					{$a$};
             \node[state] (b) [right of=a]		{$b$};
@@ -85,21 +85,21 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
         \label{fig:nested_expressions:example_symbol_graph}
     \end{figure}
 
-    In the symbol graph, if two symbols are connected, then they are effectively the same index.
+    In the symbol graph, if two symbols are connected, then they will both be mapped to the same symbol.
     Therefore, it makes sense assigning a symbol $s_C \in S \setminus V$ to each of the graphs components $C$.
     Then we can define $\nu$ as follows:
     $$\nu(s) := \begin{cases}
-            s_C & \text{if $\exists C: \text{$C$ is a component of $G$ and $s \in C$}$} \\
-            s   & \text{else}
-        \end{cases}.$$
+            s_C & \text{if $\exists C: \text{$C$ is a component of $G$ and $s \in C$}$}, \\
+            s   & \text{else}.
+        \end{cases}$$
     In our example, the components are $\smallset{a,b,i,j}$, $\smallset{c,d,k}$, and $\smallset{e,l}$.
     Therefore we could use
     $$\nu(s) := \begin{cases}
-            x & \text{if $s \in \smallset{a,b,i,j}$} \\
-            y & \text{if $s \in \smallset{c,d,k}$}   \\
-            z & \text{if $s \in \smallset{e,l}$}     \\
-            s & \text{else}
-        \end{cases}.$$
+            x & \text{if $s \in \smallset{a,b,i,j}$}, \\
+            y & \text{if $s \in \smallset{c,d,k}$},   \\
+            z & \text{if $s \in \smallset{e,l}$},     \\
+            s & \text{else}.
+        \end{cases}$$
 
     The symbol map $\nu$ can be extended, such that it maps entire index strings instead of just symbols, by setting $\nu(\bm{s_i}) \in S^{n_i}, \nu(\bm{s_i})_j := \nu(s_{ij})$.
     Then we can write the substituted index strings by setting $\bm{\hat{s}_i} := \nu(\bm{s_i})$ for $i \in [m + n]$ and $\bm{\hat{s}_t} = \nu(\bm{s_t})$.
@@ -118,9 +118,9 @@ and therefore the $j$ used in the outer expression and the $j$ used in the inner
 For the proof of this theorem, we first need three lemmata, which essentially boil down to one intuitive thought:
 The effective equality of two symbols can be expressed by multiplication with the unity matrix $\1_d$:
 $$\left(\1_d\right)_{ij} := \begin{cases}
-        \1 & \text{if $i = j$} \\
+        \1 & \text{if $i = j$}, \\
         \0 & \text{else}
-    \end{cases},$$
+    \end{cases}$$
 for $i,j \in [d]$, where $\0$ and $\1$ indicate the neutral element of addition and multiplication in the given semiring respectively.
 
 \input{chapters/nested/lemmata/lemma_1.tex}
@@ -130,18 +130,18 @@ Now the same holds for the index string of the output tensor $\bm{s_t}$, which w
 
 \input{chapters/nested/lemmata/lemma_2.tex}
 
-Now with these two lemmata, we can replace any symbol in any index string, regardless if it is and input string or the output string by introducing the unity matrix with an appropriate index string as a factor.
+Now with these two lemmata, we can replace any symbol in any index string, regardless whether it is an input string or the output string, by introducing the unity matrix with an appropriate index string as a factor.
 In the following lemma, we will show that any unity matrix factors can be removed again, by renaming certain symbols in all other index strings in the Einsum expression.
 
 \input{chapters/nested/lemmata/lemma_3.tex}
 
 From these three lemmata, \cref{thm:nested_einsum:general} follows with the following procedure:
-\begin{enumerate}[label={\arabic*.}]
+\begin{enumerate}[label={Step \arabic*:}, align=left]
     \item Apply \cref{lemma:nested_einsum:1} to all of the symbols in the input string $\bm{\hat{s}_u}$ and therefore replace it with a new index string $\bm{s'_u} \in S^{n_u}$ where $\bm{s'_u}$ contains no duplicate symbols.
     \item Apply \cref{lemma:nested_einsum:2} to all of the symbols in the output string $\bm{s_u}$ and therefore replace it with the same new index string $\bm{s'_u}$.
     \item Apply \cref{thm:nested_einsum:simple} to the nested expression and therefore compress the nested expression into a single expression with lots of unity matrices.
           This is possible because the input string and output string for $U$ are both $\bm{s'_u}$ now.
-    \item Apply \cref{lemma:nested_einsum:3} to remove unity matrices from the compressed expression until there are no more of those unity matrices left, which were introduced in step one and two.
+    \item Apply \cref{lemma:nested_einsum:3} to remove unity matrices from the compressed expression until there are no more of those unity matrices left, which were introduced in Step 1 and Step 2.
 \end{enumerate}
 
 \begin{proof}
@@ -150,7 +150,7 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
     $$(a,b,c,d,e,abbcde \rightarrow bc,v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
         i,j,k,l \rightarrow iijkkl, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
         ))$$
-    Applying step one and two to this example results in the following Einsum expression if $\bm{s'_u} = s_1 s_2 s_3 s_4 s_5 s_6$:
+    Applying Step 1 and Step 2 to this example results in the following Einsum expression if $\bm{s'_u} = s_1 s_2 s_3 s_4 s_5 s_6$:
     \begin{gather*}
         (a,b,c,d,e,s_1 s_2 s_3 s_4 s_5 s_6, a s_1, b s_2, b s_3, c s_4, d s_5, e s_6 \rightarrow bc,\\
         v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, \1, \1, \1, \1, \1, \1,\\
@@ -158,21 +158,21 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
         v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}, \1, \1, \1, \1, \1, \1)),
     \end{gather*}
     where we used $\1$ to indicate unity matrices of different sizes, because the sizes can be derived from the context and are not important for better understanding.
-    Applying step three results in the following compressed expression:
+    Applying Step 3 results in the following compressed expression:
     \begin{gather*}
         (a,b,c,d,e,i,j,k,l, i s_1, i s_2, j s_3, k s_4, k s_5, l s_6, a s_1, b s_2, b s_3, c s_4, d s_5, e s_6 \rightarrow bc,\\
         v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}, \1, \1, \1, \1, \1, \1, \1, \1, \1, \1, \1, \1)
     \end{gather*}
 
-    The only fact that remains to be understood is why the removal the unity matrices in step four leads to the transformation described in \cref{thm:nested_einsum:general}.
+    The only fact that remains to be understood is why the removal of the unity matrices in Step 4 leads to the transformation described in \cref{thm:nested_einsum:general}.
     For this, we construct another undirected graph $G' = (V', E')$ that we call \textit{extended symbol graph}.
-    In the symbol graph, the nodes consist of all symbols from $\bm{s_u}$, $\bm{s'_u}$, and $\bm{\hat{s}_u}$.
-    An edge $\smallset{u,v}$ exists precisely when the compressed expression contains a unity matrix with index string $uv$, that was introduced in step one or step two.
+    In the extended symbol graph, the nodes consist of all symbols from $\bm{s_u}$, $\bm{s'_u}$, and $\bm{\hat{s}_u}$.
+    An edge $\smallset{u,v}$ exists precisely when the compressed expression contains a unity matrix with index string $uv$, that was introduced in Step 1 or Step 2.
     The extended symbol graph for our example is illustrated in \cref{fig:nested_expressions:example_extended_symbol_graph}.
 
     \begin{figure}[h]
         \centering
-        \begin{tikzpicture}[node distance = 3cm, semithick]
+        \begin{tikzpicture}[semithick, scale=0.6]
 
             \node[state] (a) at (0, 0)		{$a$};
             \node[state] (b) at (3, 0)		{$b$};
@@ -206,8 +206,12 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
             \path (k) edge (s5);
             \path (l) edge (s6);
 
+            \begin{pgfonlayer}{background}
+                \draw[gray!15, fill=gray!15, line width=12mm, line cap=round, line join=round] (a.center) -- (s1.center) -- (i.center) -- (j.center) -- (s3.center) -- (b.center) -- cycle;
+            \end{pgfonlayer}
+
         \end{tikzpicture}
-        \caption{Extended symbol graph for the example}
+        \caption{Extended symbol graph for the example with the first component highlighted}
         \label{fig:nested_expressions:example_extended_symbol_graph}
     \end{figure}
 
@@ -218,50 +222,56 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
 
     \begin{figure}[h]
         \centering
-        \begin{subfigure}{0.49\textwidth}
-            \begin{tikzpicture}[node distance = 3cm, semithick]
+        \begin{tikzpicture}[semithick, scale=0.6]
 
-                \node[state] (a) at (0, 0)		{$a$};
-                \node[state] (b) at (3, 0)		{$b$};
+            % graph where the unity matrix was not removed
 
-                \node[state] (s1) at (-0.25, -2)        {$s_1$};
-                \node[state] (s2) at (2.25, -2)         {$s_2$};
-                \node[state] (s3) at (4.75, -2)         {$s_3$};
+            \node[state] (a) at (0, 0)		{$a$};
+            \node[state] (b) at (3, 0)		{$b$};
 
-                \node[state] (i) at (1.5, -4) 		{$i$};
-                \node[state] (j) at (4.5, -4) 		{$j$};
+            \node[state] (s1) at (-0.25, -2)        {$s_1$};
+            \node[state] (s2) at (2.25, -2)         {$s_2$};
+            \node[state] (s3) at (4.75, -2)         {$s_3$};
 
-                \path (a) edge (s1);
-                \path[red] (b) edge (s2);
-                \path (b) edge (s3);
+            \node[state] (i) at (1.5, -4) 		{$i$};
+            \node[state] (j) at (4.5, -4) 		{$j$};
 
-                \path (i) edge (s1);
-                \path (i) edge (s2);
-                \path (j) edge (s3);
+            \path (a) edge (s1);
+            \path[dashed] (b) edge (s2);
+            \path (b) edge (s3);
 
-            \end{tikzpicture}
-        \end{subfigure}%
-        \begin{subfigure}{0.49\textwidth}
-            \begin{tikzpicture}[node distance = 3cm, semithick]
+            \path (i) edge (s1);
+            \path (i) edge (s2);
+            \path (j) edge (s3);
 
-                \node[state] (a) at (0, 0)		{$a$};
+            % graph where the unity matrix was removed
 
-                \node[state] (s1) at (-0.25, -2)    {$s_1$};
-                \node[state, red] (x) at (2.25, -2)         {$x$};
-                \node[state] (s3) at (4.75, -2)         {$s_3$};
+            \node[state] (removed_a) at (9, 0)		{$a$};
+            \node (removed_b) at (12, 0)		{};
 
-                \node[state] (i) at (1.5, -4) 		{$i$};
-                \node[state] (j) at (4.5, -4) 		{$j$};
+            \node[state] (removed_s1) at (8.75, -2)    {$s_1$};
+            \node[state, dashed] (removed_x) at (11.25, -2)         {$x$};
+            \node[state] (removed_s3) at (13.75, -2)         {$s_3$};
 
-                \path (a) edge (s1);
-                \path (x) edge (s3);
+            \node[state] (removed_i) at (10.5, -4) 		{$i$};
+            \node[state] (removed_j) at (13.5, -4) 		{$j$};
 
-                \path (i) edge (s1);
-                \path (i) edge (x);
-                \path (j) edge (s3);
+            \path (removed_a) edge (removed_s1);
+            \path (removed_x) edge (removed_s3);
 
-            \end{tikzpicture}
-        \end{subfigure}
+            \path (removed_i) edge (removed_s1);
+            \path (removed_i) edge (removed_x);
+            \path (removed_j) edge (removed_s3);
+
+            \begin{pgfonlayer}{background}
+                \draw[gray!15, fill=gray!15, line width=12mm, line cap=round, line join=round] (a.center) -- (s1.center) -- (i.center) -- (j.center) -- (s3.center) -- (b.center) -- cycle;
+                \draw[gray!15, fill=gray!15, line width=12mm, line cap=round, line join=round] (removed_a.center) -- (removed_s1.center) -- (removed_i.center) -- (removed_j.center) -- (removed_s3.center) -- (removed_b.center) -- cycle;
+            \end{pgfonlayer}
+
+            % connect them
+            \draw[->, thick] (6, -2) -- (7.5, -2);
+
+        \end{tikzpicture}
         \caption{First component of the extended symbol graph after removing the unity matrix represented by the edge $\smallset{b, s_2}$}
         \label{fig:nested_expressions:collapsed_extended_symbol_graph}
     \end{figure}
@@ -271,7 +281,7 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
     Now the only thing left to show is that two nodes are connected in $G$ exactly if they are also connected in $G'$.
     This can be seen by understanding the edges of $G$ and $G'$.
     In $G$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share an edge if they share a position $i = j$.
-    In $G'$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share a neighbour $s'_{uk}$ if both were replaced by $s'_{uk}$ in step one and step two,
+    In $G'$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share a neighbour $s'_{uk}$ if both were replaced by $s'_{uk}$ in Step one and Step two,
     which happens exactly if they share a position $i = j = k$.
     Therefore every edge in $G$ is represented by a shared neighbour in $G'$.
     Now, because every $s'_{uk}$ has exactly two neighbours, and because there are no direct edges between any symbols of $\bm{s_u}$ and $\bm{\hat{s}_u}$, there are no more edges in $G'$ other than the ones that contribute to a shared neighbour $s'_{uk}$.

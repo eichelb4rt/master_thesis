@@ -14,20 +14,20 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
 
     For $i \in [m + n]$, let $T^{(i)}$ be an $n_i$-th order tensor with index strings $\bm{s_i} \in S^{n_i}$.
     Let $\bm{s_u}$ be an index string for the $n_u$-th order tensor $U$, which is defined as follows:
-    $$U := (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
+    $$U = (\bm{s_{m + 1}},\dots,\bm{s_{m + n}} \rightarrow \bm{s_u}, T^{(m + 1)},\dots,T^{(m + n)})$$
     Also let $\bm{\hat{s}_u}$ be alternative index strings for $U$ with $s_{uj} = s_{uj'} \implies \hat{s}_{uj} = \hat{s}_{uj'}$ for all $j, j' \in [n_u]$,
     which means that the outer expression can only introduce new symbol duplications, and cannot remove any.
 
     Let $s_v$ be an index string and
-    $$V := (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
+    $$V = (\bm{s_1},\dots,\bm{s_m}, \bm{\hat{s}_u} \rightarrow \bm{s_v}, T^{(1)},\dots,T^{(m)}, U)$$
     such that the first and second Einsum expression share no symbols.
     Then these nested Einsum expressions can also be compressed into a single Einsum expression.
 
     As in \cref{thm:nested_einsum:general}, we need to apply a symbol map in order to compress the nested expression.
     Let $\nu: S \rightarrow S$ such that
     $$\nu(s) := \begin{cases}
-            \hat{s}_{uj} & \text{if $\exists j \in [n_u]: s_{uj} = s$} \\
-            s            & \text{else}
+            \hat{s}_{uj} & \text{if $\exists j \in [n_u]: s_{uj} = s$}, \\
+            s            & \text{else},
         \end{cases}$$
     which maps symbols in $\bm{s_u}$ to the symbol at the same index in $\bm{\hat{s}_u}$ and all other symbols to themselves.
 
@@ -63,7 +63,7 @@ Again, we use disjoint sets of symbols for the inner and outer expression to hel
 
     \begin{figure}[h]
         \centering
-        \begin{tikzpicture}[node distance = 3cm, semithick]
+        \begin{tikzpicture}[node distance = 2cm, semithick]
 
             \node[state] (k)		            {$k$};
             \node[state] (o) [right of=k] 		{$o$};

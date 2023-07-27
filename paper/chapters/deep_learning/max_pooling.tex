@@ -12,7 +12,7 @@ Then
 $$M(T)_{x} = \max\limits_{y \in [p]^n} T'_{(x,y)}$$
 for $x \in [k]^n$. Let
 $$P_{(x,y,z)} := \begin{cases}
-        0       & \text{if $z = p (x - 1) + y$} \\
+        0       & \text{if $z = p (x - 1) + y$}, \\
         -\infty & \text{else}
     \end{cases}$$
 for $x \in [k]^n, y \in [p]^n, z \in [m]^n$.
@@ -20,7 +20,7 @@ Then
 $$T'_{(x,y)} = \max\limits_{z \in [m]^n} P_{(x,y,z)} + T_{z}$$
 for $x \in [k]^n, y \in [p]^n$.
 Therefore, Max-Pooling can be expressed as an Einsum expression:
-$$M(T) = ((\bm{s_x},\bm{s_y},\bm{s_z}), \bm{s_z}  \rightarrow \bm{s_x}, P, T)_{R_{(\max, +)}}$$
+$$M(T) = (\bm{s_x}\bm{s_y}\bm{s_z}, \bm{s_z}  \rightarrow \bm{s_x}, P, T)_{R_{(\max, +)}}$$
 where $\bm{s_x},\bm{s_y},\bm{s_z} \in S^n$ use distinct symbols and $R_{(\max, +)}$ denotes the tropical semiring $(\R \cup \smallset{-\infty}, \max, +)$.
 
 As in \cref{sec:translating_inference:convolution}, the efficiency of the computation could benefit from decomposition of the design tensor $P$ into an outer product of lower-order design tensors.
@@ -34,7 +34,7 @@ But yet again, this is not possible.
     Consider max-pooling where $n = 1$, $m = 4$, $p = 2$, and $k = 2$.
     Then
     $$P_{(x,y,z)} := \begin{cases}
-            0       & \text{if $z = 2 (x - 1) + y$} \\
+            0       & \text{if $z = 2 (x - 1) + y$}, \\
             -\infty & \text{else}
         \end{cases}$$
     for $x \in [2], y \in [2], z \in [4]$.
