@@ -11,9 +11,11 @@ Note that, for the theorem, we use disjoint sets of symbols for the inner and ou
 This helps in the proof, and is not a real constraint in practice,
 because we can just rename the symbols in different scopes.
 For example, we could also write the above expression as
-$$(ij, jjj \rightarrow i, A, (ik, kj \rightarrow iij, B, C)),$$
+$$(a,b,c,d,e,abbcde \rightarrow bc, v^{(1)}, v^{(2)}, v^{(3)}, v^{(4)}, v^{(5)}, (
+    a,b,c,d \rightarrow aabccd, v^{(6)}, v^{(7)}, v^{(8)}, v^{(9)}
+    )),$$
 because the scope of each symbol does not reach into nested expressions,
-and therefore the $j$ used in the outer expression and the $j$ used in the inner expression are treated as different symbols.
+and therefore the $a$, $b$, $c$, and $d$ used in the outer expression are treated as different symbols than the $a$, $b$, $c$, and $d$ used in the inner expression.
 
 \begin{theorem}
     \label{thm:nested_einsum:general}
