@@ -8,10 +8,11 @@
 % With the use of such frameworks, we get a mostly efficient solution to naturally occuring problems by reformulating them in this framwork and applying a general solver that was built for problems of this framework.
 
 % Opening
-The benefit of framworks like SAT and ILP is that we do not need to spend much time building an efficient solver for each individual problem.
+Frameworks like SAT and ILP are essential tools for coming up with quick solutions to natural problems.
+The benefit of such framworks is that we do not need to spend much time building an efficient solver for each individual problem.
 Instead we can translate the individual problems to such a framework, which is often much easier.
 Then a general solver can be applied to the now embedded problem, which often yields efficient solutions.
-This makes the process of coming up with good solutions to naturally occuring problems much faster.
+This can make the process of coming up with good solutions to naturally occuring problems much faster.
 
 % Challenge
 We have not yet found such a framework that is powerful enough to solve modern inference problems
@@ -20,7 +21,7 @@ and specific enough to find good general optimization techniques.
 Einsum seems like a promising candidate for that role.
 % do they occur frequently in inference problems? another/different reason why Einsum is promising?
 It is powerful enough to support SAT and ILP (TODO: cite), and is a natural framework for operations on tensors, which occur frequently in inference problems.
-Because of its form as some reduction over some combination of inputs, it is specific enough for us to build relatively efficient solvers.
+Because of its form as some reduction over some combination of inputs, it is specific enough for us to build relatively efficient solvers, which can optimize the contraction path.
 Additionally, its restriction on tensor operations enables us to use specific hardware that optimizes these.
 
 % Resolution?

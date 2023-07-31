@@ -9,7 +9,7 @@ In the case of convolution in inference, the same constant masks are repeatedly 
 This allows us to precompute the contraction of the mask and reuse the result on different inputs.
 
 We did not manage to describe the other presented examples with a single Einsum expression respectively.
-Instead, we had to use a mixture of multiple Einsum expressions over different semirings and element-wise functions.
+Instead, we had to use mixtures of multiple Einsum expressions over different semirings and element-wise functions.
 Such mixtures are technically not in the framework of Einsum, but they might still be helpful,
 because they can be computed in a sequential manner.
 Because the steps in this sequential computation are all Einsum expressions or element-wise functions,
