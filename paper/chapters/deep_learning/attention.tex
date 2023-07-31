@@ -1,6 +1,6 @@
 \section{Attention}
-% TODO: beschreiben, wieso attention mechanismus so wichtig ist
-For $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism is the following:
+% TODO: cite attentions mechanism
+For $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism \cite{Vaswani2017} is the following:
 $$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V.$$
 It is comprised of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
 \begin{itemize}
@@ -9,7 +9,8 @@ It is comprised of multiple steps, which can all be expressed with Einsum expres
                   (QK^\T)_{ij} & = \sum\limits_{k \in [d_k]} Q_{ik} K_{jk} \\
                   QK^\T        & = (ik, jk \rightarrow ij, Q, K)
             \end{align*}
-      \item scaling by $\sqrt{d_k}$ (no Einsum needed)
+      \item scaling by $\frac{1}{\sqrt{d_k}}$. Let $X \in \R^{d_v \times d_v}$:
+            $$\frac{1}{\sqrt{d_k}} X = (, ij \rightarrow ij, \frac{1}{\sqrt{d_k}}, X)$$
       \item normalizing with softmax: Let $X \in \R^{m \times n}$, then
             $$\text{softmax}(X)_{ij} := \frac{\exp(X_{ij})}{\omega_i}$$
             where
@@ -21,12 +22,13 @@ It is comprised of multiple steps, which can all be expressed with Einsum expres
 \end{itemize}
 
 Then the whole attention mechanism can be expressed with Einsum expressions and the use of element-wise operations:
-\begin{align*}
-      \text{Attention}(Q, K, V) & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                                          \\
-                                & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)), \\
-                                & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K)))), V)        \\
-                                & = (ik, kj, k \rightarrow ij, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))                      \\
-                                & \phantom{{}=} 1 / (ij \rightarrow i, \exp(\frac{1}{\sqrt{d_k}} \cdot (ik, jk \rightarrow ij, Q, K))), V)
-\end{align*}
+\begin{flalign*}
+      \text{Attention}(Q, K, V) & = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V                                           & \\
+      & = (ik, kj \rightarrow ij, (ij, i \rightarrow ij,                                                                            & \\
+      & \phantom{{}=} \exp((, ij \rightarrow ij, \frac{1}{\sqrt{d_k}}, (ik, jk \rightarrow ij, Q, K))),                             & \\
+      & \phantom{{}=} 1 / (ij \rightarrow i, \exp((, ij \rightarrow ij, \frac{1}{\sqrt{d_k}}, (ik, jk \rightarrow ij, Q, K))))), V) & \\
+      & = (ik, kj, k \rightarrow ij, \exp((, ik, jk \rightarrow ij, \frac{1}{\sqrt{d_k}}, Q, K))                                    & \\
+      & \phantom{{}=} 1 / (ij \rightarrow i, \exp((, ik, jk \rightarrow ij, \frac{1}{\sqrt{d_k}}, Q, K))), V)                       &
+\end{flalign*}
 % TODO: what about the optional mask?
 % TODO: talk about what this means (we still got a duplication in here)

@@ -1,0 +1,31 @@
+\chapter{Introduction}
+
+% explain on the example of SAT and ILPs and stuff why frameworks are important?
+% Frameworks like SAT and ILP
+% Naturally occuring problems in the industry can often be reduced to frameworks like SAT or an ILP, which are well studied and optimized.
+% Naturally occuring problems in the industry are often solved in frameworks like SAT or an ILP, because they are well understood, well optimized, and mostly intuitive.
+% With the use of framworks like SAT and ILP,
+% With the use of such frameworks, we get a mostly efficient solution to naturally occuring problems by reformulating them in this framwork and applying a general solver that was built for problems of this framework.
+
+% Opening
+The benefit of framworks like SAT and ILP is that we do not need to spend much time building an efficient solver for each individual problem.
+Instead we can translate the individual problems to such a framework, which is often much easier.
+Then a general solver can be applied to the now embedded problem, which often yields efficient solutions.
+This makes the process of coming up with good solutions to naturally occuring problems much faster.
+
+% Challenge
+We have not yet found such a framework that is powerful enough to solve modern inference problems
+and specific enough to find good general optimization techniques.
+% Action
+Einsum seems like a promising candidate for that role.
+% do they occur frequently in inference problems? another/different reason why Einsum is promising?
+It is powerful enough to support SAT and ILP (TODO: cite), and is a natural framework for operations on tensors, which occur frequently in inference problems.
+Because of its form as some reduction over some combination of inputs, it is specific enough for us to build relatively efficient solvers.
+Additionally, its restriction on tensor operations enables us to use specific hardware that optimizes these.
+
+% Resolution?
+To find out if Einsum is a good fit for a universal inference language,
+we try to translate a small set of modern inference techniques to Einsum.
+Additionally, we explore a way of embedding nested Einsum expressions in the framework of Einsum,
+which usually only includes flat expressions,
+because nested expressions occur naturally when trying to translate chained operations.

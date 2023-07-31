@@ -4,5 +4,14 @@
 % we have cool (promising?) naturally occuring examples.
 % some deep learning stuff works half decently (convolution, max-pooling), because we can pre-compute stuff. This costs memory tho.
 % some deep learning stuff is very ugly and einsum is not powerful enough to express it in 1 expression.
+% einsum with normal semirings does not seem powerful enough
+% but sequential einsum paired with element-wise functions does the job
 
-\blindtext[1]
+We have shown that nested Einsum expressions over the same semiring can always be compressed into flat Einsum expressions, which makes the translation of chained operation much easier.
+As examples of inference techniques, we managed to naturally translate the DFT and the Hadamard Transform to Einsum.
+For deep learning, we managed to find acceptable translations for convolution and max-pooling,
+but could not find flat Einsum expressions for fully connected feed-forward nets, attention, and batch norm with the vanilla semirings we used.
+Instead, we managed to translate these to a mixture of multiple Einsum expressions over different semirings and element-wise functions.
+Such mixtures, although not optimal, might still be helpful because they can be computed in a sequential manner which might still lead to efficient solutions.
+There might also be different architectures than the ones we explored, that achieve similar results, which can naturally be translated.
+Such architectures and more exotic semirings could be explored in future work.

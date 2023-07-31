@@ -10,8 +10,14 @@ This allows us to precompute the contraction of the mask and reuse the result on
 
 We did not manage to describe the other presented examples with a single Einsum expression respectively.
 Instead, we had to use a mixture of multiple Einsum expressions over different semirings and element-wise functions.
-This means that Einsum is probably not powerful enough to describe the standard architectures in deep learning.
+Such mixtures are technically not in the framework of Einsum, but they might still be helpful,
+because they can be computed in a sequential manner.
+Because the steps in this sequential computation are all Einsum expressions or element-wise functions,
+they could all benefit from specific hardware and efficient Einsum engines individually,
+which could result in a solution that is still efficient overall.
+
+Because these mixtures are not supported by Einsum, this result means that Einsum is probably not powerful enough to describe the standard architectures in deep learning.
 We do not know this for sure, as there might be semirings we did not explore, that allow to translate even these architectures naturally,
 but we think it is unlikely, because of the high number of operations used both in the combination of tensor entries and in the aggregation over axes.
-Another possibility which we did not explore is, that there are other models which approximate standard architectures, and therefore produce similar outputs, that can naturally be translated to Einsum with the semirings we used.
-Models like this could be explored in future work.
+Another possibility which we did not explore is, that there are other architectures which approximate standard architectures, and therefore produce similar outputs, that can naturally be translated to Einsum with the semirings we used.
+Architectures like this could be explored in future work.

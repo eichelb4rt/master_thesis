@@ -2,7 +2,12 @@
 Ich erkläre, dass ich die vorliegende Arbeit selbstständig und nur unter Verwendung der angegebenen Quellen und Hilfsmittel angefertigt habe.
 Seitens des Verfassers bestehen keine Einwände die vorliegende Bachelorarbeit für die öffentliche Benutzung im Universitätsarchiv zur Verfügung zu stellen.
 % Unterschrift
-\vspace{3mm}\\
-\includegraphics[scale=0.5]{signature.png}
-\vspace{3mm}\\
-Jena, \today
+\ifthenelse{\boolean{print_version}}{
+    \vspace{3cm}\\
+    Jena,
+}{
+    \bigskip\\
+    \includegraphics[scale=0.5]{signature.png}
+    \bigskip\\
+    Jena, \today
+}

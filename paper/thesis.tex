@@ -1,6 +1,7 @@
 \documentclass[twoside, fontsize=12pt, parskip=half-]{scrbook}
 
 \usepackage{blindtext}
+\usepackage{ifthen}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -34,14 +35,19 @@
 \usepackage[labelfont=bf]{caption}
 
 \usepackage{tikz}
-% combat weird space between paragraphs and stuff
-% \usepackage[bottom]{footmisc}
-% \usepackage{flafter}
-% \usepackage[skip=0pt, indent]{parskip}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % preamble
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% print version or digital?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newboolean{print_version}
+% SET THIS FLAG TO TRUE IF YOU WANT THE PRINT VERSION, FALSE IF YOU WANT THE DIGITAL VERSION
+\setboolean{print_version}{false}
+\ifthenelse{\boolean{print_version}}{\selectcolormodel{gray}}{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % formatting
@@ -91,10 +97,6 @@
 % \AtBeginDocument{\def\subsectionautorefname{Subsection}}
 % \AtBeginDocument{\def\subsubsectionautorefname{Subsubsection}}
 % \AtBeginDocument{\def\lemmaautorefname{Lemma}}
-
-
-% TODO: remove for digital version
-% \selectcolormodel{gray}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % math stuff
@@ -174,7 +176,7 @@
 
 \mainmatter
 \fancyhead[LO,RE]{\itshape\nouppercase\leftmark}
-\input{chapters/intro/main.tex}
+\input{chapters/introduction.tex}
 \input{chapters/einsum/main.tex}
 \input{chapters/nested/main.tex}
 \input{chapters/examples/main.tex}
