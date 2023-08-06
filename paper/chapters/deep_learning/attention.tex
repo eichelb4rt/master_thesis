@@ -1,5 +1,4 @@
 \section{Attention}
-% TODO: cite attentions mechanism
 For $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism \cite{Vaswani2017} is the following:
 $$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V.$$
 It is comprised of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
