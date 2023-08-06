@@ -8,25 +8,33 @@
 % With the use of such frameworks, we get a mostly efficient solution to naturally occuring problems by reformulating them in this framwork and applying a general solver that was built for problems of this framework.
 
 % Opening
-Frameworks like SAT and ILP are essential tools for coming up with quick solutions to natural problems.
+In the process of building software, it can often happen that one encounters optimization problems.
+When such a problem occurs in this natural way, it can lead to vast amounts of time spent on implementing a solution to the specific problem, which can severely slow down production time.
+To help with this, we can use frameworks like SAT and ILP.
 The benefit of such framworks is that we do not need to spend much time building an efficient solver for each individual problem.
 Instead we can translate the individual problems to such a framework, which is often much easier.
 Then a general solver can be applied to the now embedded problem, which often yields efficient solutions.
 This can make the process of coming up with good solutions to naturally occuring problems much faster.
 
 % Challenge
-We have not yet found such a framework that is powerful enough to solve modern inference problems
-and specific enough to find good general optimization techniques.
+Inference problems are a subset of naturally occuring problems for which no such framework is known.
+Such a framework would have to be powerful enough to solve modern inference problems and specific enough to find good general optimization techniques.
 % Action
 Einsum seems like a promising candidate for that role.
 % do they occur frequently in inference problems? another/different reason why Einsum is promising?
-It is powerful enough to support SAT and ILP (TODO: cite), and is a natural framework for operations on tensors, which occur frequently in inference problems.
-Because of its form as some reduction over some combination of inputs, it is specific enough for us to build relatively efficient solvers, which can optimize the contraction path.
-Additionally, its restriction on tensor operations enables us to use specific hardware that optimizes these.
-
+% TODO: maybe don't quote the SQL thing here?
+It is powerful enough to support SAT \cite{Biamonte2014} and ILP \cite{Blacher2023}, and is a natural framework for operations on tensors, which occur frequently in inference problems.
+It is also specific enough so that efficient solvers can be built.
+Einsum can include multiple reductions, which allows us to optimize the order in which these reductions are applied.
+An example of this is matrix-matrix-vector multiplication $w = A B v$ for matrices $A$ and $B$ and a vector $v$.
+Here it is more efficient to first compute the right matrix-vector product $u = Bv$, and then compute the product of the remaining matrix with the resulting vector $w = Au$,
+instead of first computing the left matrix-matrix product $C = AB$, and then computing the the product of the resulting matrix with the remaining vector $w = Cv$.
+Additionally Einsum's restriction on tensor operations allows the use of specific hardware which is optimized for exactly those operations.
 % Resolution?
-To find out if Einsum is a good fit for a universal inference language,
+To explore if Einsum is a good fit for a universal inference language,
 we try to translate a small set of modern inference techniques to Einsum.
-Additionally, we explore a way of embedding nested Einsum expressions in the framework of Einsum,
-which usually only includes flat expressions,
-because nested expressions occur naturally when trying to translate chained operations.
+
+% another short opening + challenge + resolution
+Another problem we investigate is the nesting of Einsum expressions, which naturally occurs when trying to translate chained operations to Einsum.
+Nested expressions partially force the order in which reductions are applied, meaning the order cannot be optimized freely.
+To avoid this constraint, we explore a way of compressing nested Einsum expressions into flat Einsum expressions.

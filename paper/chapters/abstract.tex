@@ -1,15 +1,22 @@
 \chapter{Abstract}
 
-% Lead?
+% Motivation
 Frameworks like SAT and ILP are essential tools for coming up with quick solutions to natural problems.
-We have not yet found such a framework that is powerful enough to solve modern inference problems
-and specific enough to find good general optimization techniques.
-% Development
-Einsum seems like a promising candidate for that role because of its power and our ability to compute it efficiently with the optimization of the contraction path.
-To find out if Einsum is a good fit for a universal inference language,
-we tried to translate a small set of modern inference techniques to Einsum,
-and explored a way of embedding nested Einsum expressions in the framework of Einsum.
+% Problem
+For inference problems, a fitting framework, which is powerful enough to solve modern inference problems and specific enough to find good general optimization techniques, is not yet known.
+Einsum seems like a promising candidate for that role because of its ability to naturally express tensor expressions.
+Its freedom in the choice of contraction path also allows for good general optimization techniques.
+% Action
+To see if Einsum is a good fit for a universal inference language,
+we investigated how a small set of modern inference techniques can be translated to Einsum.
+% Another Problem
+When translating chained operations, nested Einsum expressions naturally occur, which forbid fully applying optimization techniques.
+% another resolution
+To avoid this, we provide a procedure which compresses nested Einsum expressions into flat Einsum expressions, provided the nested expressions use the same semiring.
 % Resolution
-We found that all nested Einsum expressions over the same semiring can be compressed into a single flat Einsum expression.
-We were able to translate some inference techniques, but ultimately found that Einsum is probably not powerful enough for standard architectures in deep learning.
-Instead, we could only describe them with mixtures of Einsum expressions over different semirings and element-wise functions, which could still benefit from optimizing Einsum as a framework.
+We were able to translate inference techniques including the DFT, the Hadamard transform, convolution, and max-pooling.
+Sadly, not all inference techniques could be translated to Einsum.
+Some of the standard architectures in deep learning could only be translated to mixtures of Einsum expressions over different semirings and element-wise functions.
+% Conclusion
+We conclude that Einsum is probably not powerful enough for standard architectures in deep learning,
+but such architectures could still benefit from the translation to said mixtures.
