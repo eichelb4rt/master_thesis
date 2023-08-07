@@ -10,7 +10,7 @@ to a QUBO
 $$\min_{\overline{x} \in \smallset{0,1}^m} \overline{x}^\T Q \overline{x}$$
 by
 \begin{enumerate}[label={\arabic*.}]
-    \item binarizing the input $x \in \mathbb{Z}_+^n$ to $\overline{x} \in \smallset{0,1}^m$ with upper constrainst on $x$,
+    \item binarizing the input $x \in \mathbb{Z}_+^n$ to $\overline{x} \in \smallset{0,1}^m$ with an upper bound on $x$,
     \item turning the constraints $$Ax = b$$ to penalties in the objective function $$\rho (Ax - b)^\T (Ax - b)$$ for a big enough $\rho \in \R$, and
     \item embedding linear terms on the diagonal of $Q$.
 \end{enumerate}
@@ -34,6 +34,6 @@ over the semiring $R = (\R, \min, +)$.
 \begin{figure}[h]
     \centering
     \includegraphics{graphics/ilp.pdf}
-    \caption{Translation of ILP to Einsum}
+    \caption{Translation of ILP to Einsum \copyright Julien Klaus}
     \label{fig:appendix:map_ilp:ilp_to_einsum}
 \end{figure}
