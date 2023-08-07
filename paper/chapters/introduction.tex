@@ -23,7 +23,7 @@ Such a framework would have to be powerful enough to solve modern inference prob
 Einsum seems like a promising candidate for that role.
 % do they occur frequently in inference problems? another/different reason why Einsum is promising?
 % TODO: maybe don't quote the SQL thing here?
-It is powerful enough to support SAT \cite{Biamonte2014} and ILP \cite{Blacher2023}, and is a natural framework for operations on tensors, which occur frequently in inference problems.
+It is powerful enough to support SAT \cite{Biamonte2014} and ILP (see \cref{chap:appendix:map_ilp}), and is a natural framework for operations on tensors, which occur frequently in inference problems.
 It is also specific enough so that efficient solvers can be built.
 Einsum can include multiple reductions, which allows us to optimize the order in which these reductions are applied.
 An example of this is matrix-matrix-vector multiplication $w = A B v$ for matrices $A$ and $B$ and a vector $v$.
