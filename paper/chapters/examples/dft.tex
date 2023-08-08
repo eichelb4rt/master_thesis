@@ -11,7 +11,7 @@ for $x_j, y_k \in [m]$.
 Then
 $$\text{DFT}(T)_{x_1,\dots,x_n} = \sum\limits_{y_1,\dots,y_n \in [m]} T_{y_1, \dots, y_n} \cdot \prod\limits_{j + k \leq n + 1} T^{(j,k)}_{x_j y_k}$$
 for $x_1,\dots,x_n \in [m]$.
-Therefore the DFT can be written as an Einsum expression with index strings consisting of symbols $s_{xi}$ and $s_{yj}$ for $j,k \in [n]$:
+Therefore, the DFT can be written as an Einsum expression with index strings consisting of symbols $s_{xi}$ and $s_{yj}$ for $j,k \in [n]$:
 \begin{itemize}
     \item $\bm{s_x} = s_{x1}\dots s_{x n}$
     \item $\bm{s_y} = s_{y1}\dots s_{y n}$
@@ -39,5 +39,5 @@ Then the Einsum expression is the following:
                   & \phantom{{}=(} T, T^{(1,1)}, T^{(1,2)}, T^{(1,2)}, T^{(2,1)}, T^{(2,2)}, T^{(3,1)})
 \end{align*}
 
-The inverse transform is anologue with
+The inverse transform is analogue with
 $$\hat{T}^{(j,k)}_{x_j y_k} := \exp\left(i2\pi \frac{(x_j - 1) (y_k - 1)}{m^{n - j - k + 2}}\right).$$

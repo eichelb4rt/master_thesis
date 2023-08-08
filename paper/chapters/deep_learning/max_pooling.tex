@@ -4,7 +4,7 @@ Let $T$ be an $n$-th order tensor where all axes have size $m$.
 Let $p \in \N$ be the \textit{pool size} such that $m = k \cdot p$ for $k \in \N$.
 Then the max-pooling of $T$ is defined in the following way:
 $$M(T)_{x} := \max\limits_{y \in [p]^n} T_{p (x - 1) + y}$$
-for $x \in [k]^n$, where $x - 1$ indicates the element-wise substraction $(x - 1)_i = x_i - 1$ for $i \in [n]$.
+for $x \in [k]^n$, where $x - 1$ indicates the element-wise subtraction $(x - 1)_i = x_i - 1$ for $i \in [n]$.
 Let
 $$T'_{(x,y)} = T_{p (x - 1) + y}$$
 for $x \in [k]^n, y \in [p]^n$.

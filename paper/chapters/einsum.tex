@@ -44,7 +44,7 @@ and what computation is the result of a general Einsum expression.
     Let $d_{ij} \in \N$ denote the size of the $j$-th axis of $T^{(i)}$ for $i \in [n], j \in [n_i]$.
     Then it must hold that $s_{ij} = s_{i'j'} \implies d_{ij} = d_{i'j'}$ for all $i,i' \in [n], j \in [n_i], j' \in [n_{i'}]$.
 
-    Therefore we can also denote the size of all axes, that a symbol $s \in S$ corresponds to, as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
+    Therefore, we can also denote the size of all axes, that a symbol $s \in S$ corresponds to, as $d_s := d_{ij}$ for all $i \in [n], j \in [n_i]$ with $s = s_{ij}$.
     Note that not all same size axes have to be assigned the same symbol. For instance a square matrix could have index strings $\bm{s} = (i, i)$ or $\bm{s} = (i, j)$.
 
     The next step of the definition is figuring out which symbols are used for summation and which symbols are used for saving the result of the computation.
@@ -89,7 +89,7 @@ and what computation is the result of a general Einsum expression.
     in terms of semiring operations. Namely, $T$ is the $\abs{\bm{s_t}}$-th order tensor
     $$\forall \bm{f} \in \mathcal{F}: T_{\bm{f}: \bm{s_t}} = \bigoplus\limits_{\bm{b} \in \mathcal{B}} \bigodot\limits_{i = 1}^{n} T^{(i)}_{(\bm{f},\bm{b}):\bm{s_i}}.$$
 
-    Because we also project the indices $\bm{f}$ with the output string $\bm{s_t}$, we allow to iterate over duplicate indices,
+    Because we also project the indices $\bm{f}$ with the output string $\bm{s_t}$, we allow iterating over duplicate indices,
     e.g. $\text{diag}(v) = (j \rightarrow jj, v)$.
     This leaves some entries of the result undefined.
     We define these entries to be the additive neutral element in the given semiring $R$.
@@ -118,12 +118,12 @@ The careful reader might have noticed two potential problems that could arise in
 The first potential problem could arise when one of the input tensors is a scalar, which is a 0-th order tensor.
 This would mean that the index string $\bm{s}$ for that input tensor has to be the empty string $\epsilon$.
 Now when the multi-index $(\bm{f}, \bm{b})$ is projected by this empty index string, then the resulting multi-index can only be the empty multi-index $\lambda := ()$.
-One might expect that this leads to a problem, because we can not access any entries of a tensor with an empty multi-index.
+One might expect that this leads to a problem, because we cannot access any entries of a tensor with an empty multi-index.
 But for scalars, it makes sense to define the empty multi-index in such a way, that it accesses precisely the only entry that is stored in the scalar, i.e. $T_\lambda := T$ for a scalar $T$.
 This way, we can easily support scalars with empty index strings in Einsum.
 
 The second potential problem could arise when either the free symbols $F$ or the bound symbols $B$ are empty,
-because the universal quantor over an empty multi-index space $\mathcal{F}$ is always trivially true, and the sum over an empty multi-index space $\mathcal{B}$ is always trivially zero.
+because the universal quantifier over an empty multi-index space $\mathcal{F}$ is always trivially true, and the sum over an empty multi-index space $\mathcal{B}$ is always trivially zero.
 But in fact, this leads to no problem, because the induced multi-index spaces of empty $F$ or $B$ are not empty themselves.
 They contain one element, namely the set including only the empty multi-index $\smallset{\lambda}$.
 In the following, we will explain why this is the case, and how this solves any problems with empty $F$ or $B$.
@@ -136,7 +136,7 @@ $$(\bm{m}, \bm{n}) = (m_1, \dots, m_{k_1}, n_1, \dots, n_{k_2}),$$
 which is one tuple with the entries of $\bm{m}$ and $\bm{n}$, instead of the tuple of tuples
 $$((m_1, \dots, m_{k_1}), (n_1, \dots, n_{k_2})).$$
 
-Therefore we can name a neutral element for concatenation, which is the empty multi-index $\lambda$ with $(\bm{i}, \lambda) = \bm{i}$ for any multi-index $\bm{i}$.
+Therefore, we can name a neutral element for concatenation, which is the empty multi-index $\lambda$ with $(\bm{i}, \lambda) = \bm{i}$ for any multi-index $\bm{i}$.
 From this, we can derive a neutral element for our product of multi-index spaces, which is the set including only the empty multi-index $\smallset{\lambda}$ with $\mathcal{I} \times \smallset{\lambda} = \mathcal{I}$ for any multi-index space $\mathcal{I}$.
 
 Now, because it makes sense to define an operation over an empty set of operands as the neutral element of said operation, we can safely define

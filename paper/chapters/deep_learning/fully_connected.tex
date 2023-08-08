@@ -12,10 +12,10 @@ Then
     \nu(x) & = \max(Ax + b, 0)                                                                                                                   \\
            & = (i,i\rightarrow i, 0, (i,i \rightarrow i, b, (ij, j \rightarrow i, A, x)_{R_{(+, \cdot)}} )_{R_{(\max, +)}} )_{R_{(\min, \max)}}.
 \end{align*}
-A multi-layer network can the be achieved by nesting the respective Einsum expressions of each layer.
+A multi-layer network can be achieved by nesting the respective Einsum expressions of each layer.
 
-Because each level of nesting needs a different semiring, we can not use the theorems from \cref{chap:nested} to compress the expression.
-But if we could find a way of compressing the massively nested expressions of deeper neural networks despite of that, then we could benefit from the advantages mentioned in \cref{chap:einsum} such as the optimisation of contraction paths.
+Because each level of nesting needs a different semiring, we cannot use the theorems from \cref{chap:nested} to compress the expression.
+But if we could find a way of compressing the massively nested expressions of deeper neural networks despite that, then we could benefit from the advantages mentioned in \cref{chap:einsum} such as the optimization of contraction paths.
 Unfortunately, it is unlikely that this is possible, because we found that expanding the matrix multiplication, that transforms the outputs of another layer, results in an exponentially big term.
 
 To see this, we use the tropical semiring $(\R, \oplus, \odot)$, where $a \oplus b = \max(a,b)$ and $a \odot b = a + b$.
@@ -36,7 +36,7 @@ which maps inputs $x \in \R^n$ to outputs $\nu(y) \in R^l$, with parameters $A^{
 Then the computation of the neural network is:
 $$\nu(x) = \max(A^{(1)}\max(A^{(0)}x + b^{(0)}, 0) + b^{(1)}, 0)$$
 
-In order to reasonably work with matrix multiplication in the tropcial semiring, we can only view matrices with positive integer entries.
+In order to reasonably work with matrix multiplication in the tropical semiring, we can only view matrices with positive integer entries.
 This is not a limitation, because making the entries integers does not impact the strength of the neural network \citep[see][sec.~4]{Zhang2018}.
 
 In order to only use positive valued matrices, we can rewrite the expression of computing the next layer from a previous layer:

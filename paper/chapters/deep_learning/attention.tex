@@ -1,7 +1,7 @@
 \section{Attention}
 For $Q \in \R^{d_v \times d_k}, K \in \R^{d_v \times d_k}, V \in \R^{d_v \times d_v}$, the attention mechanism \cite{Vaswani2017} is the following:
 $$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{Q K^\T}{\sqrt{d_K}}\right)V.$$
-It is comprised of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
+It consists of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
 \begin{itemize}
       \item matrix multiplication $Q K^T$:
             \begin{align*}
@@ -14,7 +14,7 @@ It is comprised of multiple steps, which can all be expressed with Einsum expres
             $$\text{softmax}(X)_{ij} := \frac{\exp(X_{ij})}{\omega_i}$$
             where
             $$\omega_i := \sum\limits_{j \in [n]} \exp(X_{ij}).$$
-            Therefore
+            Therefore,
             $$\text{softmax}(X) = (ij, i \rightarrow ij, \exp(X), 1 / (ij \rightarrow i, \exp(X)))$$
       \item another matrix multiplication with $V$. Let $X \in \R^{d_v \times d_v}$:
             $$X V = (ik, kj \rightarrow ij, X, V)$$

@@ -13,7 +13,7 @@ $$(A \cdot B) \cdot v = (ij, j \rightarrow i, (ik, kj \rightarrow ij, A, B), v)$
 which is clearly worse than the optimal contraction order
 $$A \cdot (B \cdot v) = (ij, j \rightarrow i, A, (ij, j \rightarrow i, B, v))$$
 for $A \in \R^{m \times r}, B \in \R^{r \times n}, v \in \R^n$.
-Another limitation of nested Einsum expressions is that we can not fully benefit from the computational advantages that come with the optimization of single Einsum expressions.
+Another limitation of nested Einsum expressions is that we cannot fully benefit from the computational advantages that come with the optimization of single Einsum expressions.
 
 But fortunately, all nested Einsum expressions can be compressed into a single Einsum expression, if they are computed over the same semiring.
 For instance,
@@ -32,7 +32,7 @@ For the following theorems, we assume that the computations are all over the sam
 \input{chapters/nested/simple.tex}
 
 This means that we can compress all nested Einsum expressions, where the output string of the inner expression, which is used to compute $U$, is exactly the same as the respective input string in the outer expression, where $U$ is used as an input tensor.
-This is already helpful for some naturally occuring expressions in linear algebra, e.g.
+This is already helpful for some naturally occurring expressions in linear algebra, e.g.
 \begin{align*}
     \abs{A \cdot v}_2^2 & = (i,i\rightarrow,(ij, j \rightarrow i, A, v),(ij, j \rightarrow i, A, v)) \\
                         & = (ij,j,ij,j\rightarrow,A,v,A,v)
@@ -58,9 +58,9 @@ which make the process of compressing simpler for a subset of nested expressions
 \input{chapters/nested/duplications.tex}
 
 % TODO: can i really write "every"?
-With these two more specific theorems, we can write every naturally occuring complex expression from linear algebra as a single Einsum expression.
+With these two more specific theorems, we can write every naturally occurring complex expression from linear algebra as a single Einsum expression.
 The reason for this is, that in linear algebra, only up to two indices are used for a single tensor,
-which means that with two index strings, it cannot happen that a duplication is removed and anonther duplication is introduced simultaniously.
+which means that with two index strings, it cannot happen that a duplication is removed, and another duplication is introduced simultaneously.
 Here are some more complex examples of expressions, which we can compress with the two more specific theorems:
 \begin{itemize}
     \item Squared norm of matrix-vector multiplication: Let $A \in \R^{m \times n}, v \in \R^{n}$. Then
@@ -86,7 +86,7 @@ For this, we can state a simple procedure.
 First, every function is translated to their respective Einsum expression, which results in a nested Einsum expression.
 Then, the nested expressions are compressed from the bottom up.
 
-But there are naturally occuring examples of nested Einsum expressions, which need more than the two duplication theorems to be compressed.
+But there are naturally occurring examples of nested Einsum expressions, which need more than the two duplication theorems to be compressed.
 For instance, when symbolically deriving Einsum expressions to find out if they compute a convex function,
 nested statements can arise, that break duplications in both directions.
 An example of a function, where this happens in the second derivative, is the trace of a matrix where all entries have been squared:

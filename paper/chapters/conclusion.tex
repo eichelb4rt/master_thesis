@@ -13,7 +13,7 @@ We managed to naturally translate the DFT and the Hadamard Transform to Einsum.
 For deep learning, we found acceptable translations for convolution and max-pooling,
 but could not find flat Einsum expressions for fully connected feed-forward nets, attention, and batch norm with the vanilla semirings we used.
 Instead, we managed to translate these to mixtures of multiple Einsum expressions over different semirings and element-wise functions.
-Such mixtures, although not optimal, might still be helpful because they can be computed in a sequential manner which might still lead to efficient solutions.
+Such mixtures, although not optimal, might still be helpful because they can be computed sequentially which might still lead to efficient solutions.
 Because we could not find natural translations, Einsum is probably not powerful enough to describe the standard architectures in deep learning.
 There might also be different architectures that are similar to the ones we explored, which can naturally be translated.
 Such architectures and more exotic semirings could be explored in future work.

@@ -11,13 +11,13 @@
 In the process of building software, it can often happen that one encounters optimization problems.
 When such a problem occurs in this natural way, it can lead to vast amounts of time spent on implementing a solution to the specific problem, which can severely slow down production time.
 To help with this, we can use frameworks like SAT and ILP.
-The benefit of such framworks is that we do not need to spend much time building an efficient solver for each individual problem.
-Instead we can translate the individual problems to such a framework, which is often much easier.
+The benefit of such frameworks is that we do not need to spend much time building an efficient solver for each individual problem.
+Instead, we can translate the individual problems to such a framework, which is often much easier.
 Then a general solver can be applied to the now embedded problem, which often yields efficient solutions.
-This can make the process of coming up with good solutions to naturally occuring problems much faster.
+This can make the process of coming up with good solutions to naturally occurring problems much faster.
 
 % Challenge
-Inference problems are a subset of naturally occuring problems for which no such framework is known.
+Inference problems are a subset of naturally occurring problems for which no such framework is known.
 Such a framework would have to be powerful enough to solve modern inference problems and specific enough to find good general optimization techniques.
 % Action
 Einsum seems like a promising candidate for that role.
@@ -28,8 +28,8 @@ It is also specific enough so that efficient solvers can be built.
 Einsum can include multiple reductions, which allows us to optimize the order in which these reductions are applied.
 An example of this is matrix-matrix-vector multiplication $w = A B v$ for matrices $A$ and $B$ and a vector $v$.
 Here it is more efficient to first compute the right matrix-vector product $u = Bv$, and then compute the product of the remaining matrix with the resulting vector $w = Au$,
-instead of first computing the left matrix-matrix product $C = AB$, and then computing the the product of the resulting matrix with the remaining vector $w = Cv$.
-Additionally Einsum's restriction on tensor operations allows the use of specific hardware which is optimized for exactly those operations.
+instead of first computing the left matrix-matrix product $C = AB$, and then computing the product of the resulting matrix with the remaining vector $w = Cv$.
+Additionally, Einsum's restriction on tensor operations allows the use of specific hardware which is optimized for exactly those operations.
 % Resolution?
 To explore if Einsum is a good fit for a universal inference language,
 we try to translate a small set of modern inference techniques to Einsum.

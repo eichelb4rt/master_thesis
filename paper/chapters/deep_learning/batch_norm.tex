@@ -4,7 +4,7 @@ Let $X$ be the 5th-order tensor that consists of all those tensors combined alon
 Then the Batch Norm \cite{Ioffe2015} with parameters $\gamma,\beta \in \R$ over this \textit{mini-batch} of tensors is defined in the following way:
 $$\text{BN}_{\gamma,\beta}(X)_i = \frac{x_i - \text{E}_j[x_j]}{\sqrt{\text{Var}_j[x_j] + \epsilon}} \cdot \gamma + \beta$$
 for $i \in [m]$, where $\epsilon$ is some constant added for numerical stability.
-This computation is comprised of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
+This computation consists of multiple steps, which can all be expressed with Einsum expressions and element-wise operations:
 \begin{itemize}
     \item mini-batch mean:
           \begin{align*}
@@ -33,7 +33,7 @@ This computation is comprised of multiple steps, which can all be expressed with
           \end{align*}
 \end{itemize}
 
-Therefore the whole attention mechanism can be expressed with Einsum expressions and the use of element-wise operations:
+Therefore, the whole attention mechanism can be expressed with Einsum expressions and the use of element-wise operations:
 \begin{align*}
     \text{BN}_{\gamma,\beta}(X) & = (abcdi, abcd \rightarrow abcd,                                                                                   \\
                                 & \phantom{{}=\quad}(abcdi, abcd \rightarrow abcd, X,-\frac{1}{m} (abcdi \rightarrow abcd, X))_{R_{(\max,+)}},       \\

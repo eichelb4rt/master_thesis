@@ -95,7 +95,7 @@ and therefore the $i$ and $j$ used in the outer expression are treated as differ
             s   & \text{else}.
         \end{cases}$$
     In our example, the components are $\smallset{a,b,i,j}$, $\smallset{c,d,k}$, and $\smallset{e,l}$.
-    Therefore we could use
+    Therefore, we could use
     $$\nu(s) := \begin{cases}
             x & \text{if $s \in \smallset{a,b,i,j}$}, \\
             y & \text{if $s \in \smallset{c,d,k}$},   \\
@@ -132,15 +132,15 @@ Now the same holds for the index string of the output tensor $\bm{s_t}$, which w
 
 \input{chapters/nested/lemmata/lemma_2.tex}
 
-Now with these two lemmata, we can replace any symbol in any index string, regardless whether it is an input string or the output string, by introducing the unity matrix with an appropriate index string as a factor.
+Now with these two lemmata, we can replace any symbol in any index string, regardless of whether it is an input string or the output string, by introducing the unity matrix with an appropriate index string as a factor.
 In the following lemma, we will show that any unity matrix factors can be removed again, by renaming certain symbols in all other index strings in the Einsum expression.
 
 \input{chapters/nested/lemmata/lemma_3.tex}
 
 From these three lemmata, \cref{thm:nested_einsum:general} follows with the following procedure:
 \begin{enumerate}[label={Step \arabic*:}, align=left]
-    \item Apply \cref{lemma:nested_einsum:1} to all of the symbols in the input string $\bm{\hat{s}_u}$ and therefore replace it with a new index string $\bm{s'_u} \in S^{n_u}$ where $\bm{s'_u}$ contains no duplicate symbols.
-    \item Apply \cref{lemma:nested_einsum:2} to all of the symbols in the output string $\bm{s_u}$ and therefore replace it with the same new index string $\bm{s'_u}$.
+    \item Apply \cref{lemma:nested_einsum:1} to all the symbols in the input string $\bm{\hat{s}_u}$ and therefore replace it with a new index string $\bm{s'_u} \in S^{n_u}$ where $\bm{s'_u}$ contains no duplicate symbols.
+    \item Apply \cref{lemma:nested_einsum:2} to all the symbols in the output string $\bm{s_u}$ and therefore replace it with the same new index string $\bm{s'_u}$.
     \item Apply \cref{thm:nested_einsum:simple} to the nested expression and therefore compress the nested expression into a single expression with lots of unity matrices.
           This is possible because the input string and output string for $U$ are both $\bm{s'_u}$ now.
     \item Apply \cref{lemma:nested_einsum:3} to remove unity matrices from the compressed expression until there are no more of those unity matrices left, which were introduced in Step 1 and Step 2.
@@ -283,11 +283,11 @@ From these three lemmata, \cref{thm:nested_einsum:general} follows with the foll
     Now the only thing left to show is that two nodes are connected in $G$ exactly if they are also connected in $G'$.
     This can be seen by understanding the edges of $G$ and $G'$.
     In $G$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share an edge if they share a position $i = j$.
-    In $G'$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share a neighbour $s'_{uk}$ if both were replaced by $s'_{uk}$ in Step one and Step two,
+    In $G'$, two symbols $s_{ui}$ and $\hat{s}_{uj}$ share a neighbor $s'_{uk}$ if both were replaced by $s'_{uk}$ in Step one and Step two,
     which happens exactly if they share a position $i = j = k$.
-    Therefore every edge in $G$ is represented by a shared neighbour in $G'$.
-    Now, because every $s'_{uk}$ has exactly two neighbours, and because there are no direct edges between any symbols of $\bm{s_u}$ and $\bm{\hat{s}_u}$, there are no more edges in $G'$ other than the ones that contribute to a shared neighbour $s'_{uk}$.
-    Then, because sharing an edge in $G$ is the same as sharing a neighbour in $G'$, two symbols are in the same component in $G$ precisely when they are also in the same component in $G'$.
+    Therefore, every edge in $G$ is represented by a shared neighbor in $G'$.
+    Now, because every $s'_{uk}$ has exactly two neighbors, and because there are no direct edges between any symbols of $\bm{s_u}$ and $\bm{\hat{s}_u}$, there are no more edges in $G'$ other than the ones that contribute to a shared neighbor $s'_{uk}$.
+    Then, because sharing an edge in $G$ is the same as sharing a neighbor in $G'$, two symbols are in the same component in $G$ precisely when they are also in the same component in $G'$.
 
-    Therefore collapsing every edge in the extended symbol graph leads to the symbol map defined in \cref{thm:nested_einsum:general}.
+    Therefore, collapsing every edge in the extended symbol graph leads to the symbol map defined in \cref{thm:nested_einsum:general}.
 \end{proof}

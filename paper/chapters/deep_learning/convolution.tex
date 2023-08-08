@@ -33,9 +33,9 @@ Sadly, this is not possible.
 \begin{proof}
     \small
     To prove this, we will first show that, if $P$ can be expressed as an outer product, then the factors also have to be scaled design tensors.
-    Then we will give an example of a convolution, where $P$ can not be expressed as an outer product of design tensors.
+    Then we will give an example of a convolution, where $P$ cannot be expressed as an outer product of design tensors.
 
-    Let $U$ be an $m$-th order tensor, and $V$ an $(3n-m)$-th order tensor for $1 \leq m < 3n$.
+    Let $U$ be an $m$-th order tensor, and $V$ a $(3n-m)$-th order tensor for $1 \leq m < 3n$.
     Let $\bm{s_u} \in S^{m}$ be the index string for $U$,
     and let $\bm{s_v} \in S^{3n - m}$ be the index string for $V$ such that $\bm{s_u}$ and $\bm{s_v}$ use distinct symbols.
     Then $P$ being the outer product of $U$ and $V$ means
@@ -45,7 +45,7 @@ Sadly, this is not possible.
     Let $u$ and $v$ be entries of $U$ and $V$ respectively, and let $\bm{i_u}$ and $\bm{i_v}$ be a multi-index of $U$ and $V$ respectively, where this value occurs.
     Then the value $u \cdot v$ occurs in $P$ at the multi-index $(\bm{i_u}, \bm{i_v})$.
     Therefore, if the sets of values contained in $U$ and $V$ are not of the form $\smallset{0, c}$ and $\smallset{0, \frac{1}{c}}$ for some $c \in \R$, then we can produce more values than $0$ and $1$ in $P$.
-    Therefore $U$ and $V$ must be design tensors that were scaled by $c$ and $\frac{1}{c}$ respectively for some $c \in \R$.
+    Therefore, $U$ and $V$ must be design tensors that were scaled by $c$ and $\frac{1}{c}$ respectively for some $c \in \R$.
 
     W.l.o.g. we now assume that $U$ and $V$ are both unscaled design tensors, because if
     $$P = (\bm{s_u}, \bm{s_v} \rightarrow \bm{s_u}\bm{s_v}, c U, \frac{1}{c} V)$$
@@ -115,7 +115,7 @@ Sadly, this is not possible.
     all the entries, where missing index exists such that $P_{xyz} = 1$, have to hold one as well.
     And unless $V$ is full of zeros (which it cannot be), the converse is true as well,
     meaning if all entries of the missing index hold $P_{xyz} = 0$, then the entry in $U$ also has to hold zero.
-    Therefore there is only possibility for $U$ for each of the cases, which are illustrated in \cref{fig:translating_inference:convolution:example_us}:
+    Therefore, there is only possibility for $U$ for each of the cases, which are illustrated in \cref{fig:translating_inference:convolution:example_us}:
     \begin{align*}
         P_{xyz} & = U_{xy} V_z & U & = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} \\
         P_{xyz} & = U_{xz} V_y & U & = \begin{pmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{pmatrix} \\
@@ -181,7 +181,7 @@ Sadly, this is not possible.
             \end{tikzpicture}
             \caption{$P_{xyz} = U_{yz} V_x$}
         \end{subfigure}
-        \caption{Possiblities for $U$ in the factorization of $P$}
+        \caption{Possibilities for $U$ in the factorization of $P$}
         \label{fig:translating_inference:convolution:example_us}
     \end{figure}
 
@@ -193,5 +193,5 @@ Sadly, this is not possible.
     \end{itemize}
 
     Therefore, there is no factorization of $P$ when $F \in \R^2$ and $G \in \R^3$,
-    which means $P$ can not generally be expressed as an outer product of two lower-order tensors.
+    which means $P$ cannot generally be expressed as an outer product of two lower-order tensors.
 \end{proof}
