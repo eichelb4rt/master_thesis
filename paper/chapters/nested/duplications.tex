@@ -2,14 +2,19 @@
 
 The following two theorems revolve around duplicated symbols in index strings and the way these duplications are \textit{broken}.
 We speak of a broken duplication in $\bm{s_u}$, if the symbols $s_{ui}$ and $s_{uj}$ at two positions $i,j \in [n_u]$ are the same, meaning $s_{ui} = s_{uj}$,
-but symbols at the same positions in $\bm{\hat{s_u}}$, $\hat{s}_{ui}$ and $\hat{s}_{uj}$ are different, meaning $\hat{s}_{ui} \neq \hat{s}_{uj}$.
+but symbols at the same positions in $\bm{\hat{s}_u}$, $\hat{s}_{ui}$ and $\hat{s}_{uj}$ are different, meaning $\hat{s}_{ui} \neq \hat{s}_{uj}$.
 In the same way, duplications in $\bm{\hat{s}_u}$ can be broken by $\bm{s_u}$.
 
 Because $\bm{s_u}$ and $\bm{\hat{s}_u}$ are easily confused, we can also use a different terminology that does not include these similar variable names.
-If $\bm{s_u}$ breaks duplications in $\bm{\hat{s}_u}$, we say that the outer expression \textit{introduces} duplications to the inner expression,
-because the outer expression uses duplications in the input string for the inner expression, that were not used in the output string of the inner expression.
-If $\bm{\hat{s}_u}$ breaks duplications in $\bm{s_u}$, we say that the outer expression \textit{removes} duplications from the inner expression,
-because the outer expression uses different symbols in the input string for the inner expression, where there was originally a duplication in the output string of the inner expression.
+In the following, we only refer to the changes the outer expression applies to the duplications in the inner expression.
+\begin{itemize}
+    \item If $\bm{s_u}$ breaks duplications in $\bm{\hat{s}_u}$,
+          the outer expression uses duplications in the input string for the inner expression, that were not used in the output string of the inner expression.
+          Therefore, we say that the outer expression \textit{introduces} duplications to the inner expression.
+    \item If $\bm{\hat{s}_u}$ breaks duplications in $\bm{s_u}$,
+          the outer expression uses different symbols in the input string for the inner expression, where there was originally a duplication in the output string of the inner expression.
+          Therefore, we say that the outer expression \textit{removes} duplications from the inner expression.
+\end{itemize}
 
 \input{chapters/nested/introduce_duplications.tex}
 
